@@ -1,0 +1,24 @@
+{
+  "name": "llm-game-vault",
+  "version": "1.0.0",
+  "description": "A repository and arcade portal for vanilla web games generated with LLMs. Zero build step, runs directly in the browser.",
+  "type": "module",
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "check:ci": "biome check ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.10"
+  },
+  "keywords": [
+    "threejs",
+    "arcade",
+    "games",
+    "vanilla-js",
+    "retro",
+    "llm"
+  ],
+  "license": "MIT"
+}

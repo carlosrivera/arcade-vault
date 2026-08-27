@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 50" width="100%" height="50">
+  <title>8-Bit Feature Badges</title>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap');
+      .badge-text { font-family: 'Press Start 2P', monospace; font-size: 9px; font-weight: bold; }
+    </style>
+  </defs>
+
+  <!-- Badge 1: ZERO BUILD -->
+  <g transform="translate(5, 5)">
+    <rect x="0" y="0" width="130" height="36" fill="#14182e" stroke="#000" stroke-width="3" rx="3"/>
+    <rect x="2" y="2" width="126" height="32" fill="none" stroke="#35f0ff" stroke-width="1.5"/>
+    <text x="65" y="22" text-anchor="middle" class="badge-text" fill="#35f0ff">⚡ ZERO BUILD</text>
+  </g>
+
+  <!-- Badge 2: VANILLA ESM -->
+  <g transform="translate(145, 5)">
+    <rect x="0" y="0" width="130" height="36" fill="#14182e" stroke="#000" stroke-width="3" rx="3"/>
+    <rect x="2" y="2" width="126" height="32" fill="none" stroke="#ffcc00" stroke-width="1.5"/>
+    <text x="65" y="22" text-anchor="middle" class="badge-text" fill="#ffcc00">☕ VANILLA JS</text>
+  </g>
+
+  <!-- Badge 3: PNPM FAST -->
+  <g transform="translate(285, 5)">
+    <rect x="0" y="0" width="130" height="36" fill="#14182e" stroke="#000" stroke-width="3" rx="3"/>
+    <rect x="2" y="2" width="126" height="32" fill="none" stroke="#ff7700" stroke-width="1.5"/>
+    <text x="65" y="22" text-anchor="middle" class="badge-text" fill="#ff7700">📦 PNPM v11</text>
+  </g>
+
+  <!-- Badge 4: BIOME LINT -->
+  <g transform="translate(425, 5)">
+    <rect x="0" y="0" width="130" height="36" fill="#14182e" stroke="#000" stroke-width="3" rx="3"/>
+    <rect x="2" y="2" width="126" height="32" fill="none" stroke="#44ee77" stroke-width="1.5"/>
+    <text x="65" y="22" text-anchor="middle" class="badge-text" fill="#44ee77">✨ BIOME 2.5</text>
+  </g>
+
+  <!-- Badge 5: THREE.JS -->
+  <g transform="translate(565, 5)">
+    <rect x="0" y="0" width="130" height="36" fill="#14182e" stroke="#000" stroke-width="3" rx="3"/>
+    <rect x="2" y="2" width="126" height="32" fill="none" stroke="#ff2fd6" stroke-width="1.5"/>
+    <text x="65" y="22" text-anchor="middle" class="badge-text" fill="#ff2fd6">🎮 THREE.JS</text>
+  </g>
+
+  <!-- Badge 6: LLM CRAFTED -->
+  <g transform="translate(705, 5)">
+    <rect x="0" y="0" width="130" height="36" fill="#14182e" stroke="#000" stroke-width="3" rx="3"/>
+    <rect x="2" y="2" width="126" height="32" fill="none" stroke="#9dff2f" stroke-width="1.5"/>
+    <text x="65" y="22" text-anchor="middle" class="badge-text" fill="#9dff2f">🤖 LLM READY</text>
+  </g>
+</svg>

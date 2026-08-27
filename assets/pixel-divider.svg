@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 24" width="100%" height="24">
+  <title>8-Bit Pixel Divider</title>
+  <defs>
+    <!-- 8-Bit Repeating Diamond / Brick Motif -->
+    <pattern id="brickPattern" width="40" height="24" patternUnits="userSpaceOnUse">
+      <!-- Background laser line -->
+      <line x1="0" y1="12" x2="40" y2="12" stroke="#252c54" stroke-width="4"/>
+      <line x1="0" y1="12" x2="40" y2="12" stroke="#35f0ff" stroke-width="1.5"/>
+
+      <!-- Center 8-bit diamond pixel cluster -->
+      <rect x="18" y="10" width="4" height="4" fill="#ffcc00"/>
+      <rect x="14" y="10" width="4" height="4" fill="#ff7700"/>
+      <rect x="22" y="10" width="4" height="4" fill="#ff7700"/>
+      <rect x="18" y="6" width="4" height="4" fill="#ff7700"/>
+      <rect x="18" y="14" width="4" height="4" fill="#ff7700"/>
+    </pattern>
+  </defs>
+
+  <rect width="840" height="24" fill="url(#brickPattern)"/>
+  
+  <!-- Left and Right Pixel Caps -->
+  <rect x="0" y="8" width="8" height="8" fill="#ff2fd6"/>
+  <rect x="832" y="8" width="8" height="8" fill="#ff2fd6"/>
+</svg>

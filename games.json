@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gravpulse",
+    "title": "GRAVPULSE 2097",
+    "subtitle": "AG-PULSE CIRCUITS // 2097",
+    "genre": "3D ANTI-GRAV RACER",
+    "players": "1-4 PLAYERS",
+    "llm": "GLM 5.3 Flash",
+    "author": {
+      "name": "Carlos Rivera",
+      "github": "carlosrivera",
+      "x": "carlos_gif",
+      "url": "https://github.com/carlosrivera"
+    },
+    "description": "High-speed anti-gravity racing tournament. Bank through neon circuits, deploy shields, fire rockets, and claim pole position.",
+    "thumbnail": "",
+    "path": "games/gravpulse/index.html",
+    "tags": ["3D", "Racing", "Arcade"],
+    "style": {
+      "theme": "neon-cyber",
+      "primaryColor": "#35f0ff",
+      "accentColor": "#ff2fd6",
+      "tagColor": "#ffb02e"
+    }
+  },
+  {
+    "id": "dunesweeper",
+    "title": "DUNESWEEPER",
+    "subtitle": "VOXEL RUINS // 2026",
+    "genre": "VOXEL ARCHAEOLOGICAL MINESWEEPER",
+    "players": "1 PLAYER",
+    "llm": "Gemini 3.7 Flash",
+    "author": {
+      "name": "Carlos Rivera",
+      "github": "carlosrivera",
+      "x": "carlos_gif",
+      "url": "https://github.com/carlosrivera"
+    },
+    "description": "Excavate ancient ruins buried beneath the desert in a 100% procedural voxel diorama. Dodge scorpions and spike traps, uncover golden relics, and descend into forgotten tombs.",
+    "thumbnail": "",
+    "path": "games/dunesweeper/index.html",
+    "tags": ["3D", "Voxel", "Puzzle", "Minesweeper", "Procedural"],
+    "style": {
+      "theme": "desert-ruins",
+      "primaryColor": "#f5b700",
+      "accentColor": "#e02438",
+      "tagColor": "#2b82d9"
+    }
+  }
+]

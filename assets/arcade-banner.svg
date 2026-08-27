@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 280" width="100%" height="100%">
+  <title>LLM Game Vault Arcade Banner</title>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap');
+      .pixel-font { font-family: 'Press Start 2P', monospace, cursive; }
+      .glow-cyan { filter: drop-shadow(0 0 8px #35f0ff); }
+      .glow-pink { filter: drop-shadow(0 0 8px #ff2fd6); }
+      .glow-gold { filter: drop-shadow(0 0 6px #ffcc00); }
+      @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+      @keyframes thruster { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.4; } }
+      .blink { animation: blink 1.2s steps(2, start) infinite; }
+      .pulse { transform-origin: center; animation: pulse 2.5s ease-in-out infinite; }
+      .thruster { animation: thruster 0.2s steps(2, start) infinite; }
+    </style>
+    
+    <!-- Retro Pixel Grid Pattern -->
+    <pattern id="pixelGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="#080a18"/>
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#121630" stroke-width="1.5"/>
+    </pattern>
+
+    <!-- CRT Scanline Pattern -->
+    <pattern id="scanlines" width="100" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="2" x2="100" y2="2" stroke="#000" stroke-width="1.5" opacity="0.35"/>
+    </pattern>
+  </defs>
+
+  <!-- Background Frame -->
+  <rect x="4" y="4" width="872" height="272" fill="url(#pixelGrid)" stroke="#000000" stroke-width="8" rx="6"/>
+  
+  <!-- Outer Beveled Pixel Border -->
+  <rect x="10" y="10" width="860" height="260" fill="none" stroke="#2a325a" stroke-width="4"/>
+  <rect x="14" y="14" width="852" height="252" fill="none" stroke="#12162a" stroke-width="4"/>
+
+  <!-- CRT Scanlines Overlay -->
+  <rect x="10" y="10" width="860" height="260" fill="url(#scanlines)" pointer-events="none"/>
+
+  <!-- Top Arcade Status Bar -->
+  <rect x="18" y="18" width="844" height="28" fill="#05060f" stroke="#354070" stroke-width="2"/>
+  
+  <text x="32" y="37" class="pixel-font" font-size="10" fill="#8ca0dc">1P COIN:<tspan fill="#ffcc00"> 99</tspan></text>
+  <text x="210" y="37" class="pixel-font" font-size="10" fill="#8ca0dc">LIVES:<tspan fill="#ff3344"> ♥♥♥</tspan></text>
+  <text x="380" y="37" class="pixel-font" font-size="10" fill="#8ca0dc">WORLD:<tspan fill="#44ee77"> 1-1</tspan></text>
+  <text x="560" y="37" class="pixel-font" font-size="10" fill="#8ca0dc">HI-SCORE:<tspan fill="#ffcc00"> 999990</tspan></text>
+  <circle cx="838" cy="32" r="4" fill="#44ee77" class="glow-cyan blink"/>
+
+  <!-- Retro Stars -->
+  <g fill="#35f0ff" opacity="0.6">
+    <rect x="80" y="80" width="4" height="4"/>
+    <rect x="220" y="110" width="3" height="3"/>
+    <rect x="680" y="90" width="4" height="4"/>
+    <rect x="790" y="140" width="3" height="3"/>
+    <rect x="140" y="190" width="3" height="3"/>
+    <rect x="740" y="210" width="4" height="4"/>
+  </g>
+  <g fill="#ff2fd6" opacity="0.6">
+    <rect x="120" y="130" width="4" height="4"/>
+    <rect x="760" y="70" width="4" height="4"/>
+    <rect x="640" y="180" width="3" height="3"/>
+    <rect x="260" y="220" width="4" height="4"/>
+  </g>
+
+  <!-- Left Pixel Art: Retro Arcade Cabinet -->
+  <g transform="translate(45, 68)">
+    <!-- Marquee -->
+    <rect x="16" y="0" width="56" height="18" fill="#ff2fd6" stroke="#000" stroke-width="3"/>
+    <rect x="22" y="4" width="44" height="10" fill="#fff" opacity="0.85"/>
+    <text x="26" y="12" class="pixel-font" font-size="6" fill="#000">ARCADE</text>
+    
+    <!-- Hood -->
+    <polygon points="10,18 78,18 84,40 4,40" fill="#1b2140" stroke="#000" stroke-width="3"/>
+    <!-- Bezel & CRT Screen -->
+    <rect x="10" y="40" width="68" height="54" fill="#0a0c1a" stroke="#000" stroke-width="3"/>
+    <rect x="16" y="46" width="56" height="42" fill="#001830" stroke="#35f0ff" stroke-width="2"/>
+    <!-- Screen pixel content (ship on screen) -->
+    <polygon points="44,54 50,68 38,68" fill="#35f0ff"/>
+    <rect x="42" y="68" width="4" height="4" fill="#ff7700"/>
+    <line x1="20" y1="78" x2="68" y2="78" stroke="#ff2fd6" stroke-width="2"/>
+
+    <!-- Control Panel -->
+    <polygon points="4,94 84,94 88,118 0,118" fill="#2d3560" stroke="#000" stroke-width="3"/>
+    <!-- Joystick -->
+    <circle cx="28" cy="103" r="5" fill="#ff3344" stroke="#000" stroke-width="2"/>
+    <line x1="28" y1="106" x2="28" y2="114" stroke="#000" stroke-width="3"/>
+    <!-- Buttons -->
+    <circle cx="50" cy="104" r="3.5" fill="#35f0ff" stroke="#000" stroke-width="1.5"/>
+    <circle cx="62" cy="101" r="3.5" fill="#ffcc00" stroke="#000" stroke-width="1.5"/>
+    <circle cx="72" cy="105" r="3.5" fill="#44ee77" stroke="#000" stroke-width="1.5"/>
+
+    <!-- Cabinet Lower Body / Coin Door -->
+    <rect x="8" y="118" width="72" height="60" fill="#181d36" stroke="#000" stroke-width="3"/>
+    <rect x="26" y="132" width="36" height="34" fill="#0b0d1a" stroke="#3a4575" stroke-width="2"/>
+    <rect x="34" y="140" width="6" height="12" fill="#ffcc00"/>
+    <rect x="48" y="140" width="6" height="12" fill="#ffcc00"/>
+  </g>
+
+  <!-- Center Title Box -->
+  <g transform="translate(440, 120)" text-anchor="middle">
+    <!-- Drop Shadow Layers -->
+    <text x="4" y="4" class="pixel-font" font-size="34" fill="#000" font-weight="900" letter-spacing="3">LLM GAME VAULT</text>
+    <text x="-3" y="-3" class="pixel-font" font-size="34" fill="#ff2fd6" font-weight="900" letter-spacing="3">LLM GAME VAULT</text>
+    <text x="3" y="3" class="pixel-font glow-cyan" font-size="34" fill="#35f0ff" font-weight="900" letter-spacing="3">LLM GAME VAULT</text>
+    <text x="0" y="0" class="pixel-font" font-size="34" fill="#ffffff" font-weight="900" letter-spacing="3">LLM GAME VAULT</text>
+
+    <!-- Subtitle Banner -->
+    <rect x="-240" y="24" width="480" height="26" fill="#0e1226" stroke="#ffcc00" stroke-width="2" rx="3"/>
+    <text x="0" y="42" class="pixel-font glow-gold" font-size="10" fill="#ffcc00" letter-spacing="2">
+      // ZERO BUILD STEP · PURE WEB STANDARDS //
+    </text>
+  </g>
+
+  <!-- Right Pixel Art: 8-bit Wipeout Racer Ship -->
+  <g transform="translate(710, 80)">
+    <!-- Thruster fire flame animation -->
+    <g class="thruster">
+      <polygon points="12,38 -8,46 12,54" fill="#ff2fd6"/>
+      <polygon points="12,41 0,46 12,51" fill="#ffcc00"/>
+      <polygon points="12,74 -8,82 12,90" fill="#ff2fd6"/>
+      <polygon points="12,77 0,82 12,87" fill="#ffcc00"/>
+    </g>
+
+    <!-- Ship Wings & Main Hull -->
+    <polygon points="10,20 65,58 100,64 65,70 10,108 24,84 36,64 24,44" fill="#182348" stroke="#000" stroke-width="3"/>
+    
+    <!-- Neon Highlights -->
+    <polygon points="26,30 68,58 88,64 68,70 26,98 32,84 48,64 32,44" fill="#35f0ff" stroke="#000" stroke-width="2"/>
+    
+    <!-- Center Nose / Canopy -->
+    <polygon points="45,54 96,64 45,74 38,64" fill="#ff2fd6" stroke="#000" stroke-width="2"/>
+    <polygon points="56,59 86,64 56,69 50,64" fill="#ffffff"/>
+
+    <!-- Wing Tip Cannons -->
+    <rect x="8" y="16" width="16" height="6" fill="#ffcc00" stroke="#000" stroke-width="1.5"/>
+    <rect x="8" y="106" width="16" height="6" fill="#ffcc00" stroke="#000" stroke-width="1.5"/>
+  </g>
+
+  <!-- Bottom Interactive Coin Callout Bar -->
+  <g transform="translate(440, 222)" text-anchor="middle">
+    <!-- Flashing Press Start -->
+    <rect x="-190" y="-8" width="380" height="34" fill="#000000" stroke="#35f0ff" stroke-width="2" rx="4"/>
+    <text x="0" y="14" class="pixel-font blink" font-size="12" fill="#35f0ff" letter-spacing="2">
+      ▶ PRESS START TO PLAY ◀
+    </text>
+  </g>
+
+  <!-- Corner Brackets -->
+  <g stroke="#35f0ff" stroke-width="3" fill="none">
+    <path d="M 22 36 L 22 22 L 36 22"/>
+    <path d="M 858 36 L 858 22 L 844 22"/>
+    <path d="M 22 244 L 22 258 L 36 258"/>
+    <path d="M 858 244 L 858 258 L 844 258"/>
+  </g>
+</svg>

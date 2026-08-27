@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRAVPULSE 2097 :: NEON CIRCUIT</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<style>
+  :root{
+    --cyan:#35f0ff;
+    --mag:#ff2fd6;
+    --amber:#ffb02e;
+    --ink:#0a0a14;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
+  body{font-family:"SF Mono","Cascadia Code",Consolas,Menlo,monospace;color:#dffcff;-webkit-user-select:none;user-select:none}
+  #gl{position:fixed;inset:0;display:block}
+
+  /* ---- FX overlays ---- */
+  #fx{position:fixed;inset:0;pointer-events:none;z-index:3;transition:box-shadow .18s ease-out;background:radial-gradient(ellipse at center, transparent 58%, rgba(2,2,12,.55) 100%)}
+  #fx.boost{box-shadow:inset 0 0 180px rgba(53,240,255,.35)}
+
+  /* ---- HUD ---- */
+  #hud{position:fixed;inset:0;pointer-events:none;z-index:5;text-transform:uppercase;display:none}
+  .corner{position:absolute;line-height:1.25}
+  #hud-lap{top:22px;left:26px;font-size:22px;letter-spacing:.14em}
+  #hud-pos{top:50px;left:26px;font-size:44px;font-weight:700;font-style:italic;color:var(--cyan);text-shadow:0 0 18px rgba(53,240,255,.8)}
+  #hud-pos small{font-size:18px;color:#9fdfff}
+  #hud-times{top:22px;right:26px;text-align:right;font-size:16px;letter-spacing:.1em}
+  #hud-times .dim{color:#7f96b3;font-size:12px;letter-spacing:.22em}
+  #hud-speed-wrap{position:absolute;bottom:26px;right:30px;text-align:right}
+  #hud-speed{font-size:64px;font-weight:800;font-style:italic;letter-spacing:.02em;color:#eafcff;text-shadow:0 0 22px rgba(53,240,255,.65),0 0 4px rgba(255,255,255,.6)}
+  #hud-speed small{font-size:15px;color:var(--cyan);letter-spacing:.3em}
+  #boost-bar{width:230px;height:7px;margin-top:6px;margin-left:auto;border:1px solid rgba(53,240,255,.5);background:rgba(10,20,30,.55)}
+  #boost-fill{height:100%;width:0%;background:linear-gradient(90deg,#ff2fd6,#35f0ff);transition:width .09s linear}
+  #controls-hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.16em;color:#7f96b3;transition:opacity 1s}
+
+  /* Telemetry: airbrakes & camera badge */
+  #hud-telemetry{position:absolute;bottom:26px;left:216px;display:flex;flex-direction:column;gap:6px}
+  #hud-brakes{display:flex;gap:8px}
+  #hud-brakes span{font-size:10px;font-weight:700;letter-spacing:.14em;padding:3px 6px;border:1px solid rgba(53,240,255,.3);color:#61789c;background:rgba(8,12,24,.6);border-radius:2px;transition:all .08s ease}
+  #hud-brakes span.active{border-color:var(--mag);color:#fff;background:rgba(255,47,214,.4);box-shadow:0 0 10px var(--mag);text-shadow:0 0 8px #fff}
+  #hud-cam-badge{font-size:10px;letter-spacing:.16em;color:var(--cyan);opacity:.85}
+
+  /* minimap */
+  #map{position:fixed;left:24px;bottom:24px;width:172px;height:172px;z-index:12;opacity:.92;pointer-events:none}
+
+  /* ---- Center messages / countdown ---- */
+  #msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:6;pointer-events:none}
+  #msg-text{font-size:130px;font-weight:800;font-style:italic;letter-spacing:.06em;color:var(--cyan);
+    text-shadow:0 0 60px rgba(53,240,255,.9),0 0 8px #fff;transform:scale(.4);opacity:0}
+  #msg-text.pop{animation:pop .9s ease-out forwards}
+  @keyframes pop{
+    0%{transform:scale(2.2);opacity:0}
+    18%{transform:scale(1);opacity:1}
+    78%{transform:scale(1);opacity:1}
+    100%{transform:scale(.8);opacity:0}
+  }
+
+  /* ---- Menu ---- */
+  #menu{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(4,4,14,.30) 0%,rgba(4,4,14,.62) 100%);cursor:pointer}
+  #menu h1{font-size:min(10vw,96px);font-weight:900;font-style:italic;letter-spacing:.04em;line-height:.95;
+    background:linear-gradient(93deg,var(--cyan) 30%,var(--mag) 75%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 26px rgba(53,240,255,.45))}
+  #menu h1 span{color:#eaffff;-webkit-text-fill-color:#eaffff}
+  #menu .sub{margin-top:8px;font-size:14px;letter-spacing:.45em;color:#9fdfff;text-transform:uppercase}
+  
+  /* Track selector in menu */
+  #track-selector{display:flex;gap:14px;margin-top:24px;z-index:11;max-width:920px;width:90%}
+  .track-card{flex:1;background:rgba(8,12,28,0.80);border:1px solid rgba(53,240,255,0.22);border-radius:4px;padding:12px 14px;cursor:pointer;transition:all .18s ease-out;text-align:left}
+  .track-card:hover{border-color:var(--cyan);background:rgba(14,22,48,0.92);transform:translateY(-2px)}
+  .track-card.active{border-color:var(--cyan);background:rgba(16,28,58,0.95);box-shadow:0 0 22px rgba(53,240,255,0.4)}
+  .track-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .track-name{font-size:14px;font-weight:800;letter-spacing:.06em;color:#fff}
+  .track-badge{font-size:10px;font-weight:700;letter-spacing:.12em;padding:2px 6px;border-radius:3px;border:1px solid currentColor}
+  .track-desc{font-size:11px;color:#8ba3c7;letter-spacing:.03em;line-height:1.35}
+  .track-key{font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;letter-spacing:.08em}
+
+  /* Lap Selector in menu */
+  #lap-selector{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;z-index:11}
+  .lap-label{font-size:12px;font-weight:700;letter-spacing:.2em;color:#9fdfff}
+  .lap-btn{background:rgba(53,240,255,0.12);border:1px solid rgba(53,240,255,0.4);color:#fff;width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .14s ease-out}
+  .lap-btn:hover{background:rgba(53,240,255,0.3);border-color:var(--cyan);transform:scale(1.1)}
+  #lap-count-display{font-size:16px;font-weight:800;letter-spacing:.14em;color:var(--amber);min-width:72px;text-align:center;text-shadow:0 0 10px rgba(255,176,46,0.6)}
+  .lap-hint{font-size:11px;color:#7f96b3;letter-spacing:.08em}
+
+  #menu .start{margin-top:22px;font-size:18px;letter-spacing:.3em;color:#fff;text-transform:uppercase;animation:pulse 1.5s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+
+  /* Help at bottom */
+  #menu .ctl{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.12em;color:#7f96b3;text-transform:uppercase;text-align:center;line-height:1.8;width:94%;max-width:980px;pointer-events:none}
+  #menu .ctl b{color:var(--cyan);font-weight:600}
+
+  /* ---- Results ---- */
+  #results{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(4,4,14,.55)}
+  #results .panel{border:1px solid rgba(53,240,255,.45);background:rgba(8,10,24,.88);padding:36px 48px;min-width:430px;
+    box-shadow:0 0 60px rgba(53,240,255,.18)}
+  #results h2{font-size:40px;font-style:italic;letter-spacing:.05em;color:var(--cyan);text-shadow:0 0 24px rgba(53,240,255,.7)}
+  #results table{margin-top:22px;border-collapse:collapse;width:100%;font-size:16px}
+  #results td{padding:7px 10px;letter-spacing:.08em}
+  #results tr.me td{color:#fff;text-shadow:0 0 10px rgba(53,240,255,.9)}
+  #results td.num{text-align:right;color:var(--amber)}
+  #results .again{margin-top:26px;font-size:14px;letter-spacing:.25em;color:#9fdfff;text-transform:uppercase;animation:pulse 1.5s ease-in-out infinite;text-align:center}
+
+  /* toast for mute etc */
+  #toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:8;font-size:13px;letter-spacing:.3em;color:#9fdfff;
+    text-transform:uppercase;opacity:0;transition:opacity .3s;pointer-events:none}
+
+  /* weapon / shield indicator */
+  #hud-weapon{position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:5;font-size:16px;letter-spacing:.28em;
+    color:var(--amber);text-shadow:0 0 14px rgba(255,176,46,.6);opacity:0;transition:opacity .2s;text-transform:uppercase;pointer-events:none}
+  #hud-shield{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:5;font-size:13px;letter-spacing:.28em;
+    color:var(--cyan);text-shadow:0 0 12px rgba(53,240,255,.6);opacity:0;transition:opacity .2s;text-transform:uppercase;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="fx"></div>
+
+<div id="hud">
+  <div class="corner" id="hud-lap">LAP <span id="lap-cur">1</span><span id="lap-total" style="color:#7f96b3">/3</span></div>
+  <div class="corner" id="hud-pos"><span id="pos-num">4</span><small>/4</small></div>
+  <div class="corner" id="hud-times">
+    <div class="dim">TIME</div><div id="t-total">00:00.000</div>
+    <div class="dim" style="margin-top:6px">LAP</div><div id="t-lap">00:00.000</div>
+    <div class="dim" style="margin-top:6px">BEST</div><div id="t-best">--:--.---</div>
+  </div>
+  <div id="hud-speed-wrap">
+    <div id="hud-speed"><span id="spd-num">0</span><small> KM/H</small></div>
+    <div id="boost-bar"><div id="boost-fill"></div></div>
+  </div>
+  <div id="hud-telemetry">
+    <div id="hud-brakes">
+      <span id="hud-brake-l">L-BRAKE [Q]</span>
+      <span id="hud-brake-r">R-BRAKE [E]</span>
+    </div>
+    <div id="hud-cam-badge">CAM: CHASE [C]</div>
+  </div>
+  <div id="controls-hint">&larr;&rarr; STEER &nbsp;|&nbsp; &#8593;/W THRUST &nbsp;|&nbsp; &#8595;/S BRAKE &nbsp;|&nbsp; Q/E AIRBRAKES &nbsp;|&nbsp; C CAM &nbsp;|&nbsp; SPACE WEAPON &nbsp;|&nbsp; P PAUSE &nbsp;|&nbsp; ESC MENU</div>
+</div>
+
+<canvas id="map" width="344" height="344"></canvas>
+
+<div id="msg"><div id="msg-text"></div></div>
+
+<div id="menu">
+  <h1>GRAVPULSE<span>2097</span></h1>
+  <div class="sub" id="menu-track-sub">// VELOCITY DOME · BEGINNER //</div>
+
+  <div id="track-selector">
+    <div class="track-card active" data-track="0">
+      <div class="track-header">
+        <span class="track-name">VELOCITY DOME</span>
+        <span class="track-badge" style="color:var(--cyan)">EASY</span>
+      </div>
+      <div class="track-desc">Beginner circuit · Long straights &amp; one massive high-speed banked turn · Low hazards</div>
+      <div class="track-key">PRESS [ 1 ]</div>
+    </div>
+    <div class="track-card" data-track="1">
+      <div class="track-header">
+        <span class="track-name">NEON CIRCUIT</span>
+        <span class="track-badge" style="color:var(--amber)">MEDIUM</span>
+      </div>
+      <div class="track-desc">Classic anti-grav raceway · Rolling undulations &amp; balanced rhythm</div>
+      <div class="track-key">PRESS [ 2 ]</div>
+    </div>
+    <div class="track-card" data-track="2">
+      <div class="track-header">
+        <span class="track-name">QUANTUM CANYON</span>
+        <span class="track-badge" style="color:var(--mag)">EXPERT</span>
+      </div>
+      <div class="track-desc">High-altitude rollercoaster · Steep diving drops &amp; tight chicanes</div>
+      <div class="track-key">PRESS [ 3 ]</div>
+    </div>
+  </div>
+
+  <div id="lap-selector">
+    <span class="lap-label">RACE LENGTH:</span>
+    <button type="button" class="lap-btn" id="lap-dec" title="Decrease Laps">&minus;</button>
+    <span id="lap-count-display">3 LAPS</span>
+    <button type="button" class="lap-btn" id="lap-inc" title="Increase Laps">+</button>
+    <span class="lap-hint">(&uarr; / &darr; to adjust)</span>
+  </div>
+
+  <div class="start">&#9656; CLICK TO RACE OR PRESS ENTER &#9666;</div>
+  <div class="ctl">
+    <b>&larr;/&rarr;</b> select track &nbsp;·&nbsp; <b>&uarr;/&darr;</b> lap count &nbsp;·&nbsp; <b>ENTER</b> race &nbsp;·&nbsp; <b>ESC</b> main menu<br>
+    In race: <b>&larr;/&rarr;</b> steer &nbsp;·&nbsp; <b>&uarr;</b> thrust &nbsp;·&nbsp; <b>&darr;</b> brake &nbsp;·&nbsp; <b>Q/E</b> airbrakes &nbsp;·&nbsp; <b>C</b> camera &nbsp;·&nbsp; <b>SPACE</b> weapon &nbsp;·&nbsp; <b>P</b> pause &nbsp;·&nbsp; <b>R</b> restart<br>
+    <span style="color:var(--amber)">orange pads</span> boost &nbsp;·&nbsp; <span style="color:#59ff7a">green pads</span> weapons &nbsp;·&nbsp; <span style="color:#ff5a4a">red pylons</span> slow you
+  </div>
+</div>
+
+<div id="results"><div class="panel">
+  <h2>RACE COMPLETE</h2>
+  <table id="res-table"></table>
+  <div class="again">PRESS R TO RESTART</div>
+</div></div>
+
+<div id="toast"></div>
+<div id="hud-weapon"></div>
+<div id="hud-shield"></div>
+
+<script>
+  // dev aid: surface boot errors in the tab title so tooling can read them
+  window.addEventListener('error', (e) => { document.title = `ERR: ${e.message}`; });
+  window.addEventListener('unhandledrejection', (e) => { document.title = `REJ: ${e.reason?.message || e.reason}`; });
+</script>
+<script type="importmap">
+{ "imports": { "three": "../../shared/vendor/three.module.js" } }
+</script>
+<script type="module" src="../../shared/eject.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

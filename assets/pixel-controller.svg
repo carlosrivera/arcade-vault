@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" width="100%" height="120">
+  <title>Curated by Carlos Rivera</title>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap');
+      .pixel-txt { font-family: 'Press Start 2P', monospace; font-size: 9px; }
+      .pixel-title { font-family: 'Press Start 2P', monospace; font-size: 13px; font-weight: bold; }
+    </style>
+  </defs>
+
+  <!-- Container Box -->
+  <rect x="4" y="4" width="592" height="112" fill="#0c0e1e" stroke="#000000" stroke-width="6" rx="4"/>
+  <rect x="8" y="8" width="584" height="104" fill="none" stroke="#2c3460" stroke-width="2"/>
+
+  <!-- Left: 8-bit Retro Gamepad Icon -->
+  <g transform="translate(25, 26)">
+    <!-- Pad Body -->
+    <rect x="0" y="8" width="80" height="48" fill="#1e2444" stroke="#000" stroke-width="3" rx="6"/>
+    <rect x="4" y="12" width="72" height="40" fill="#14182e" stroke="#3a4575" stroke-width="1.5"/>
+
+    <!-- D-Pad (Cross) -->
+    <rect x="14" y="24" width="20" height="7" fill="#35f0ff" stroke="#000" stroke-width="1.5"/>
+    <rect x="20.5" y="17.5" width="7" height="20" fill="#35f0ff" stroke="#000" stroke-width="1.5"/>
+
+    <!-- Action Buttons (A/B) -->
+    <circle cx="56" cy="34" r="5" fill="#ff3344" stroke="#000" stroke-width="1.5"/>
+    <circle cx="68" cy="24" r="5" fill="#ffcc00" stroke="#000" stroke-width="1.5"/>
+
+    <!-- Select / Start -->
+    <rect x="34" y="42" width="6" height="3" fill="#8ca0dc"/>
+    <rect x="44" y="42" width="6" height="3" fill="#8ca0dc"/>
+  </g>
+
+  <!-- Middle: Author Callout -->
+  <g transform="translate(135, 38)">
+    <text x="0" y="0" class="pixel-title" fill="#ffffff">CURATED BY <tspan fill="#35f0ff">@carlosrivera</tspan></text>
+    <text x="0" y="22" class="pixel-txt" fill="#ffcc00">AI · COMPUTER VISION · RETRO 3D</text>
+    <text x="0" y="42" class="pixel-txt" fill="#8fa0dd">CONTRIBUTIONS &amp; NEW GAMES WELCOME!</text>
+  </g>
+
+  <!-- Right: 8-bit Heart Badge -->
+  <g transform="translate(520, 36)">
+    <rect x="0" y="0" width="48" height="48" fill="#181d38" stroke="#ff2fd6" stroke-width="2" rx="4"/>
+    <text x="24" y="32" text-anchor="middle" font-size="22" fill="#ff3344">♥</text>
+  </g>
+</svg>

@@ -1,0 +1,5 @@
+All .glb files in this directory are from the Kenney "Space Kit"
+(https://kenney.nl/assets/space-kit) and are licensed under
+CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/).
+Free to use, modify and redistribute, no attribution required.
+Kenney City Kit Commercial (https://kenney.nl/assets/city-kit-commercial), CC0 1.0

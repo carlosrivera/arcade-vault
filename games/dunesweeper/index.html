@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>DUNESWEEPER :: RUINAS DE KHEPRI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏺</text></svg>">
+  <style>
+    :root {
+      --slate-dark: #18191c;
+      --slate-panel: #202226;
+      --slate-border: #3b3f46;
+      --gold-accent: #f5b700;
+      --sand-bg: #dcb073;
+      --text-main: #f5f5f4;
+      --text-dim: #a8a29e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--sand-bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #gl {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ---- 16-BIT CHROME ---- */
+    .px-img {
+      image-rendering: pixelated;
+      display: block;
+    }
+    .pix {
+      display: inline-flex;
+      line-height: 0;
+    }
+    .game-panel {
+      background: rgba(30, 32, 37, 0.94);
+      border: 3px solid;
+      border-color: #43474f #23252a #23252a #43474f;
+      outline: 2px solid #121316;
+      border-radius: 2px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 6px 0 rgba(0, 0, 0, 0.28),
+        0 8px 24px rgba(0, 0, 0, 0.45);
+      z-index: 10;
+    }
+
+    /* ---- MAIN MENU ---- */
+    #menu {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, rgba(20, 16, 10, 0.45), rgba(12, 9, 6, 0.78));
+      z-index: 50;
+    }
+    .menu-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 34px 52px 28px;
+      text-align: center;
+    }
+    .menu-icons {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+    .menu-title {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      color: var(--gold-accent);
+      text-shadow: 0 4px 0 rgba(0, 0, 0, 0.55);
+      margin: 0;
+    }
+    .menu-subtitle {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.42em;
+      color: #f5f5f4;
+      margin-top: 8px;
+    }
+    .menu-tagline {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      margin-top: 10px;
+    }
+    .menu-section-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #facc15;
+      margin-top: 26px;
+      margin-bottom: 10px;
+    }
+    .menu-diffs {
+      display: flex;
+      gap: 10px;
+    }
+    .menu-diff {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 132px;
+      padding: 10px 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 3px solid var(--slate-border);
+      border-radius: 2px;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+    }
+    .menu-diff span {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+    .menu-diff:hover {
+      border-color: #facc15;
+    }
+    .menu-diff.active {
+      border-color: #facc15;
+      background: rgba(250, 204, 21, 0.14);
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.35);
+    }
+    .menu-diff.active span {
+      color: #fde68a;
+    }
+    .menu-start {
+      margin-top: 26px;
+      padding: 14px 46px;
+      background: var(--gold-accent);
+      color: #18191c;
+      border: none;
+      outline: 2px solid #121316;
+      border-radius: 2px;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35);
+      transition: transform 0.1s;
+    }
+    .menu-start:hover {
+      background: #fde047;
+      transform: translateY(-2px);
+    }
+    .menu-start:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    }
+    .menu-controls {
+      display: flex;
+      gap: 14px;
+      margin-top: 24px;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* ---- PAUSE OVERLAY ---- */
+    #pause-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10, 8, 5, 0.5);
+      z-index: 40;
+    }
+    .pause-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 28px 48px;
+    }
+    .pause-title {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0.24em;
+      color: var(--gold-accent);
+    }
+    .pause-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .menu-resume {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 34px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 2px solid var(--slate-border);
+      outline: 2px solid #121316;
+      border-radius: 2px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+    }
+    .menu-resume:hover {
+      border-color: #facc15;
+    }
+
+    /* ---- 1. TOP BAR ---- */
+    #top-bar {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #top-bar > * {
+      pointer-events: auto;
+    }
+
+    /* Explorer Avatar Card (Top-Left) */
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px 8px 10px;
+    }
+    .avatar-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 2px;
+      background: #78350f;
+      border: 1px solid #92400e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-box img {
+      width: 36px;
+      height: 36px;
+    }
+    .profile-hearts {
+      display: flex;
+      gap: 3px;
+      margin-top: 2px;
+    }
+    .profile-hearts img {
+      width: 15px;
+      height: 15px;
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e7e5e4;
+      letter-spacing: 0.02em;
+    }
+    .profile-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 1px;
+    }
+    .profile-hearts {
+      font-size: 12px;
+      letter-spacing: 2px;
+      margin-top: 2px;
+    }
+
+    /* Title Banner (Top-Center) */
+    .level-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #facc15;
+      text-transform: uppercase;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    .banner-icon {
+      font-size: 18px;
+    }
+
+    /* Timer & Settings (Top-Right) */
+    .top-right-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #f5f5f4;
+    }
+    .settings-btn {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.15s;
+    }
+    .settings-btn:hover {
+      transform: rotate(45deg);
+    }
+
+    /* ---- 2. LEFT SIDEBAR PANELS ---- */
+    #left-sidebar {
+      position: fixed;
+      top: 76px;
+      left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 175px;
+      z-index: 10;
+    }
+
+    .panel-header {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #facc15;
+      text-transform: uppercase;
+      padding: 10px 14px 6px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .tools-list {
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tool-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .tool-row:hover {
+      background: rgba(250, 204, 21, 0.15);
+    }
+    .tool-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tool-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fde047;
+    }
+
+    .objectives-box {
+      padding: 12px 14px;
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+    .obj-title {
+      color: #d6d3d1;
+      margin-bottom: 8px;
+    }
+    .obj-item {
+      font-weight: 600;
+      color: #e7e5e4;
+      margin-top: 4px;
+    }
+
+    /* ---- 3. BOTTOM-LEFT LOG / LEGEND ---- */
+    #log-panel {
+      position: fixed;
+      bottom: 16px;
+      left: 14px;
+      width: 250px;
+      padding: 10px 14px;
+      z-index: 10;
+      font-size: 11px;
+    }
+    #log-entries {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .log-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #d6d3d1;
+    }
+
+    /* ---- 4. BOTTOM-CENTER HOTBAR ---- */
+    #hotbar {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      z-index: 10;
+    }
+    .hotbar-slot {
+      width: 48px;
+      height: 48px;
+      background: rgba(18, 19, 23, 0.9);
+      border: 3px solid var(--slate-border);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .hotbar-slot:hover {
+      border-color: #facc15;
+      transform: translateY(-2px);
+    }
+    .hotbar-slot.active {
+      border-color: #facc15;
+      background: rgba(250, 204, 21, 0.2);
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.5);
+    }
+
+    /* ---- 5. BOTTOM-RIGHT MINIMAP RADAR ---- */
+    #minimap-panel {
+      position: fixed;
+      bottom: 16px;
+      right: 14px;
+      padding: 10px 12px;
+      width: 160px;
+      z-index: 10;
+    }
+    #minimap-canvas {
+      width: 100%;
+      height: 110px;
+      background: #18191c;
+      border-radius: 4px;
+      border: 1px solid var(--slate-border);
+      display: block;
+    }
+    .minimap-depth-row {
+      margin-top: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #d6d3d1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .depth-bar {
+      width: 100%;
+      height: 5px;
+      background: #292524;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .depth-fill {
+      width: 40%;
+      height: 100%;
+      background: #facc15;
+    }
+
+    /* ---- MODAL ---- */
+    #game-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 9, 11, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-box {
+      background: #1e2025;
+      border: 4px solid var(--gold-accent);
+      outline: 2px solid #121316;
+      border-radius: 2px;
+      padding: 32px 38px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 0 45px rgba(245, 183, 0, 0.3);
+    }
+    .modal-stat-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-box h2 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .modal-btn {
+      background: var(--gold-accent);
+      color: #18191c;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-btn:hover {
+      background: #fde047;
+      transform: scale(1.05);
+    }
+    .modal-btn.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--slate-border);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+
+  <!-- MAIN MENU (id="menu" drives the shared eject-button visibility) -->
+  <div id="menu" class="game-menu">
+    <div class="menu-box game-panel">
+      <div class="menu-icons">
+        <span class="pix" data-icon="explorer" data-size="44"></span>
+        <span class="pix" data-icon="temple" data-size="44"></span>
+        <span class="pix" data-icon="relic" data-size="44"></span>
+      </div>
+      <h1 class="menu-title">DUNESWEEPER</h1>
+      <div class="menu-subtitle">RUINAS DE KHEPRI</div>
+      <div class="menu-tagline">A voxel minesweeper expedition into the desert ruins</div>
+
+      <div class="menu-section-label">EXPEDITION DIFFICULTY</div>
+      <div class="menu-diffs">
+        <button type="button" class="menu-diff" data-diff="scout">SCOUT<span>8×8 · 9 traps</span></button>
+        <button type="button" class="menu-diff active" data-diff="explorer">EXPLORER<span>10×10 · 16 traps</span></button>
+        <button type="button" class="menu-diff" data-diff="archaeologist">ARCHAEOLOGIST<span>14×14 · 32 traps</span></button>
+      </div>
+
+      <button type="button" id="resume-game" class="menu-resume">RESUME EXPEDITION</button>
+      <button type="button" id="start-game" class="menu-start">START EXPEDITION</button>
+
+      <div class="menu-controls">
+        <span>LMB dig</span><span>RMB flag</span><span>Wheel zoom</span><span>Drag / Q·E rotate</span><span>B safe brush</span><span>M old map</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD (revealed when the expedition starts) -->
+  <div id="hud-root" style="display:none">
+  <!-- 1. TOP BAR -->
+  <div id="top-bar">
+    <!-- Explorer Avatar Card -->
+    <div class="game-panel profile-card">
+      <div class="avatar-box" data-icon="explorer" data-size="36"></div>
+      <div class="profile-info">
+        <div class="profile-name">Explorer</div>
+        <div class="profile-sub">Health</div>
+        <div class="profile-hearts" id="hud-lives-icons"></div>
+      </div>
+    </div>
+
+    <!-- Center Title Banner -->
+    <div class="game-panel level-banner">
+      <span class="pix" data-icon="temple" data-size="20"></span>
+      <span id="level-title">KHEPRI RUINS</span>
+    </div>
+
+    <!-- Right Timer & Settings -->
+    <div class="top-right-group">
+      <div class="game-panel timer-badge">
+        <span class="pix" data-icon="timer" data-size="18"></span>
+        <span id="hud-timer-text">08:45</span>
+      </div>
+      <div class="game-panel settings-btn pix" id="btn-settings" title="Settings / Seed" data-icon="gear" data-size="22"></div>
+    </div>
+  </div>
+
+  <!-- 2. LEFT SIDEBAR -->
+  <div id="left-sidebar">
+    <!-- Tools Card -->
+    <div class="game-panel">
+      <div class="panel-header">TOOLS</div>
+      <div class="tools-list">
+        <div class="tool-row" id="tool-dig-row" title="Dig / Excavate [1]">
+          <div class="tool-row-left"><span class="pix" data-icon="dig" data-size="18"></span> <span>Dig</span></div>
+          <div class="tool-count">∞</div>
+        </div>
+        <div class="tool-row" id="tool-pala-row" title="Safe Brush: guaranteed safe reveal [3 / B]">
+          <div class="tool-row-left"><span class="pix" data-icon="brush" data-size="18"></span> <span>Brush</span></div>
+          <div class="tool-count" id="count-pala">3</div>
+        </div>
+        <div class="tool-row" id="tool-flag-row" title="Flag (Mark trap)">
+          <div class="tool-row-left"><span class="pix" data-icon="flag" data-size="18"></span> <span>Flag</span></div>
+          <div class="tool-count" id="count-flag">∞</div>
+        </div>
+        <div class="tool-row" id="tool-shield-row" title="Shield (Trap protection)">
+          <div class="tool-row-left"><span class="pix" data-icon="shield" data-size="18"></span> <span>Shield</span></div>
+          <div class="tool-count" id="count-shield">1</div>
+        </div>
+        <div class="tool-row" id="tool-compass-row" title="Compass (3x3 Sector Radar)">
+          <div class="tool-row-left"><span class="pix" data-icon="compass" data-size="18"></span> <span>Compass</span></div>
+          <div class="tool-count" id="count-compass">2</div>
+        </div>
+        <div class="tool-row" id="tool-map-row" title="Old Map: marks open dig sites [M]">
+          <div class="tool-row-left"><span class="pix" data-icon="scroll" data-size="18"></span> <span>Old Map</span></div>
+          <div class="tool-count" id="count-map">2</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Objectives Card -->
+    <div class="game-panel objectives-box">
+      <div class="panel-header" style="padding:0 0 6px 0; margin-bottom:6px;">OBJECTIVES</div>
+      <div class="obj-title">Find 3 relics and reach the exit.</div>
+      <div class="obj-item" id="obj-relics-text">Relics: 1/3</div>
+      <div class="obj-item" id="obj-exit-text" style="color:#a8a29e;">Exit: Not Found</div>
+    </div>
+  </div>
+
+  <!-- 3. BOTTOM-LEFT LOG / LEGEND -->
+  <div class="game-panel" id="log-panel">
+    <div id="log-entries">
+      <div class="log-item"><span class="pix" data-icon="flag" data-size="14"></span> <span>Marked a possible trap.</span></div>
+      <div class="log-item"><span class="pix" data-icon="relic" data-size="14"></span> <span>Unearthed a relic.</span></div>
+      <div class="log-item"><span class="pix" data-icon="skull" data-size="14"></span> <span>Caution! Trap nearby.</span></div>
+    </div>
+  </div>
+
+  <!-- 4. BOTTOM-CENTER ACTION HOTBAR -->
+  <div class="game-panel" id="hotbar">
+    <div class="hotbar-slot active pix" id="hotbar-dig" title="Dig / Excavate [1]" data-icon="dig" data-size="28"></div>
+    <div class="hotbar-slot pix" id="hotbar-brush" title="Safe Brush [3 / B]" data-icon="brush" data-size="28"></div>
+    <div class="hotbar-slot pix" id="hotbar-flag" title="Flag / Mark [2 / F]" data-icon="flag" data-size="28"></div>
+    <div class="hotbar-slot pix" id="hotbar-shield" title="Protective Shield (passive)" data-icon="shield" data-size="28"></div>
+    <div class="hotbar-slot pix" id="hotbar-compass" title="Sector Compass [4 / C]" data-icon="compass" data-size="28"></div>
+  </div>
+
+  <!-- 5. BOTTOM-RIGHT MINIMAP RADAR -->
+  <div class="game-panel" id="minimap-panel">
+    <canvas id="minimap-canvas" width="140" height="110"></canvas>
+    <div class="minimap-depth-row">
+      <span>Depth: 2</span>
+      <div class="depth-bar">
+        <div class="depth-fill"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- /HUD-root -->
+
+  <!-- Pause overlay -->
+  <div id="pause-overlay">
+    <div class="game-panel pause-box">
+      <div class="pix" data-icon="hourglass" data-size="36" style="display:none"></div>
+      <div class="pix" data-icon="timer" data-size="36"></div>
+      <div class="pause-title">PAUSED</div>
+      <div class="pause-hint">Press P to resume · ESC for main menu</div>
+    </div>
+  </div>
+
+  <!-- Game Modal (Victory / Defeat) -->
+  <div id="game-modal">
+    <div class="modal-box">
+      <h2 id="modal-title">EXPEDITION COMPLETE</h2>
+      <div id="modal-body"></div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn secondary" id="modal-btn-restart">RESTART</button>
+        <button type="button" class="modal-btn" id="modal-btn-next">NEXT EXPEDITION</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import map for shared libraries -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../shared/vendor/three.module.js"
+    }
+  }
+  </script>
+  <!-- Floating Eject Button to return to Arcade Vault -->
+  <script type="module" src="../../shared/eject.js"></script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

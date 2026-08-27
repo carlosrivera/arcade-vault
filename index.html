@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARCADE VAULT :: 8-BIT LLM GAMES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0b0c16;
+    --bg-pattern: #14172b;
+    --stone-dark: #191a2e;
+    --stone-light: #2c2f4d;
+    --gold: #ffcc00;
+    --orange: #ff7700;
+    --green: #44ee77;
+    --red: #ff3344;
+    --cyan: #35f0ff;
+    --mag: #ff2fd6;
+    --pixel-border: #000000;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: #e4e8ff;
+    font-family: 'Press Start 2P', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 60px;
+    position: relative;
+    overflow-x: hidden;
+    background-image: 
+      linear-gradient(rgba(19, 23, 44, 0.75) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(19, 23, 44, 0.75) 2px, transparent 2px),
+      radial-gradient(circle at 50% 10%, #1c2242 0%, var(--bg-dark) 70%);
+    background-size: 32px 32px, 32px 32px, 100% 100%;
+  }
+
+  /* CRT Scanlines Overlay */
+  .crt-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+    background-size: 100% 4px, 6px 100%;
+    opacity: 0.85;
+  }
+
+  /* Top Retro Arcade Bar */
+  .arcade-topbar {
+    width: 100%;
+    background: #000;
+    border-bottom: 4px solid #3a3f68;
+    padding: 10px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #8fa0dd;
+    box-shadow: 0 4px 0 #000;
+  }
+
+  .topbar-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .topbar-stat .val {
+    color: var(--gold);
+    text-shadow: 0 0 6px rgba(255, 204, 0, 0.6);
+  }
+
+  .topbar-stat .hearts {
+    color: var(--red);
+    letter-spacing: 2px;
+  }
+
+  .crt-toggle {
+    background: #1e233d;
+    color: #8fa0dd;
+    border: 2px solid #3a3f68;
+    padding: 4px 8px;
+    font-family: inherit;
+    font-size: 9px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #000;
+  }
+  .crt-toggle:hover {
+    color: #fff;
+    background: #2b335a;
+    border-color: var(--cyan);
+  }
+
+  /* Main Header */
+  header {
+    text-align: center;
+    margin-top: 45px;
+    margin-bottom: 35px;
+    position: relative;
+    padding: 0 16px;
+  }
+
+  .title-wrap {
+    display: inline-block;
+    background: #0e1122;
+    padding: 20px 32px;
+    border: 4px solid #000;
+    box-shadow: 
+      inset 4px 4px 0px #3a3f68, 
+      inset -4px -4px 0px #06070d,
+      8px 8px 0px #000;
+    position: relative;
+  }
+
+  .title-wrap::before, .title-wrap::after {
+    content: "★";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 20px;
+    animation: spin-star 3s steps(4) infinite;
+  }
+  .title-wrap::before { left: 12px; }
+  .title-wrap::after { right: 12px; }
+
+  @keyframes spin-star {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+  }
+
+  h1 {
+    font-size: clamp(22px, 4.5vw, 42px);
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 
+      3px 3px 0px #c71f54,
+      -3px -3px 0px #1877cc,
+      4px 4px 0px #000;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0px #000;
+    animation: blink-text 1.6s steps(2, start) infinite;
+  }
+
+  @keyframes blink-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+
+  /* Filter / Category Bar */
+  .category-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 16px;
+  }
+
+  .cat-btn {
+    background: #161a30;
+    color: #8da2d8;
+    border: 3px solid #000;
+    box-shadow: inset 2px 2px 0 #3a416b, inset -2px -2px 0 #080a14, 4px 4px 0 #000;
+    font-family: inherit;
+    font-size: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: transform 0.08s, background 0.08s;
+  }
+
+  .cat-btn:hover {
+    background: #252c4f;
+    color: #fff;
+    transform: translate(-1px, -1px);
+    box-shadow: inset 2px 2px 0 #4a548c, inset -2px -2px 0 #080a14, 5px 5px 0 #000;
+  }
+
+  .cat-btn.active {
+    background: var(--gold);
+    color: #000;
+    box-shadow: inset 2px 2px 0 #ffea78, inset -2px -2px 0 #a88100, 4px 4px 0 #000;
+  }
+
+  /* Gallery Grid */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 440px));
+    gap: 36px;
+    max-width: 1240px;
+    width: 92%;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  /* SNES / Crafted Game Cartridge Card */
+  .game-card {
+    background: #181b30;
+    border: 4px solid #000;
+    box-shadow: 
+      inset 4px 4px 0px #3c4470, 
+      inset -4px -4px 0px #090a12,
+      8px 8px 0px #000;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer;
+  }
+
+  .game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      inset 4px 4px 0px #4d578f, 
+      inset -4px -4px 0px #090a12,
+      12px 12px 0px #000;
+    border-color: #000;
+  }
+
+  .game-card:active {
+    transform: translate(2px, 2px);
+    box-shadow: 
+      inset 4px 4px 0px #090a12, 
+      inset -4px -4px 0px #3c4470,
+      4px 4px 0px #000;
+  }
+
+  /* Cartridge Top Header Bar */
+  .card-topbar {
+    background: #0f111f;
+    border-bottom: 3px solid #000;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+  }
+
+  .system-badge {
+    color: var(--cyan);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .led-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    border: 1px solid #000;
+    animation: led-pulse 2s infinite;
+  }
+
+  @keyframes led-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .genre-tag {
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+
+  /* 8-bit Canvas Game Preview */
+  .preview-wrap {
+    height: 200px;
+    background: #05060c;
+    border-bottom: 3px solid #000;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .badge-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid var(--mag);
+    color: var(--mag);
+    font-size: 8px;
+    padding: 4px 6px;
+    box-shadow: 2px 2px 0 #000;
+  }
+
+  /* Card Body */
+  .card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background: #141728;
+  }
+
+  .card-title-row {
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 17px;
+    color: #ffffff;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    text-shadow: 2px 2px 0px #000;
+  }
+
+  .card-sub {
+    font-size: 9px;
+    color: var(--cyan);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .card-desc {
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    line-height: 1.4;
+    color: #9cb1e4;
+    margin-bottom: 22px;
+    flex: 1;
+  }
+
+  /* Specs list */
+  .card-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: #0a0c16;
+    padding: 10px 12px;
+    border: 2px solid #000;
+    box-shadow: inset 2px 2px 0 #1e2238;
+    font-size: 9.5px;
+  }
+
+  .spec-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #7b8ebd;
+  }
+
+  .spec-item span:last-child {
+    color: #fff;
+  }
+
+  .author-row {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 8.5px;
+    background: #0a0c16;
+    padding: 8px 10px;
+    border: 2px solid #000;
+    box-shadow: inset 2px 2px 0 #1e2238;
+  }
+
+  .author-name {
+    color: #7b8ebd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .author-links {
+    display: flex;
+    gap: 8px;
+  }
+
+  .author-links a {
+    color: var(--cyan);
+    text-decoration: none;
+    padding: 2px 5px;
+    background: #141c38;
+    border: 1px solid var(--cyan);
+    font-size: 8px;
+    transition: all 0.1s;
+  }
+
+  .author-links a:hover {
+    background: var(--cyan);
+    color: #000;
+  }
+
+  /* Big 8-bit Action Button */
+  .play-btn {
+    background: var(--gold);
+    color: #000;
+    border: 3px solid #000;
+    box-shadow: inset 3px 3px 0 #fff085, inset -3px -3px 0 #b38600, 4px 4px 0 #000;
+    padding: 14px 18px;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.08s;
+  }
+
+  .game-card:hover .play-btn {
+    background: #ffdb4d;
+    box-shadow: inset 3px 3px 0 #fff7b3, inset -3px -3px 0 #b38600, 5px 5px 0 #000;
+  }
+
+  .play-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: inset 2px 2px 0 #b38600, inset -2px -2px 0 #fff085, 2px 2px 0 #000;
+  }
+
+  /* Empty slot card */
+  .empty-card {
+    background: rgba(16, 19, 36, 0.4);
+    border: 4px dashed #30375a;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+    min-height: 440px;
+    color: #4a5482;
+  }
+
+  .empty-icon {
+    font-size: 42px;
+    margin-bottom: 16px;
+    color: #3d4672;
+    animation: float-icon 2s ease-in-out infinite;
+  }
+
+  @keyframes float-icon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .empty-title {
+    font-size: 13px;
+    color: #6372a8;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .empty-desc {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: #454f7a;
+    max-width: 260px;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 10px;
+    color: #4e5a88;
+    letter-spacing: 1px;
+    line-height: 2;
+  }
+
+  footer span {
+    color: var(--cyan);
+  }
+</style>
+</head>
+<body>
+
+<div class="crt-overlay" id="crtOverlay"></div>
+
+<!-- Top Arcade Bar -->
+<div class="arcade-topbar">
+  <div class="topbar-stat">
+    <span>1P COIN:</span> <span class="val">99</span>
+  </div>
+  <div class="topbar-stat">
+    <span>LIVES:</span> <span class="hearts">♥♥♥</span>
+  </div>
+  <div class="topbar-stat">
+    <span>HI-SCORE:</span> <span class="val">999990</span>
+  </div>
+  <button type="button" class="crt-toggle" id="crtToggle" title="Toggle CRT Scanline Effect">CRT: ON</button>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="title-wrap">
+    <h1>ARCADE VAULT</h1>
+  </div>
+  <div class="subtitle">▶ SELECT CARTRIDGE &amp; PRESS START ◀</div>
+</header>
+
+<!-- Filter categories -->
+<div class="category-bar">
+  <button type="button" class="cat-btn active" data-cat="all">ALL MODULES [ 1 ]</button>
+  <button type="button" class="cat-btn" data-cat="racing">RACING</button>
+  <button type="button" class="cat-btn" data-cat="arcade">3D ARCADE</button>
+  <button type="button" class="cat-btn" data-cat="16bit">16-BIT CLASSIC</button>
+</div>
+
+<!-- Main Game Gallery -->
+<div class="gallery" id="gallery">
+  <div style="color:var(--gold); font-size:12px; padding:30px;">[ LOADING CARTRIDGES... ]</div>
+</div>
+
+<footer>
+  <div>ARCADE VAULT // <span>LLM GENERATED EXPERIENCES</span></div>
+  <div>POWERED BY THREE.JS · STANDARDIZED SHARED LIBS · 100% RETRO CODE</div>
+</footer>
+
+<script>
+  // 8-bit Audio Synthesizer for UI feedback
+  class RetroAudio {
+    constructor() {
+      this.ctx = null;
+    }
+    init() {
+      if (!this.ctx) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+    hover() {
+      try {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, t);
+        osc.frequency.setValueAtTime(880, t + 0.03);
+        gain.gain.setValueAtTime(0.04, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.08);
+      } catch(e) {}
+    }
+    select() {
+      try {
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, t);
+        osc.frequency.exponentialRampToValueAtTime(960, t + 0.15);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.22);
+      } catch(e) {}
+    }
+  }
+
+  const sfx = new RetroAudio();
+
+  // Cookie Helpers
+  function setCookie(name, value, days = 365) {
+    const d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+  }
+
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  // CRT Toggle with Cookie Persistence
+  const crtOverlay = document.getElementById('crtOverlay');
+  const crtToggle = document.getElementById('crtToggle');
+  const savedCrt = getCookie('pref_crt');
+  let crtOn = savedCrt === null ? true : savedCrt === '1';
+
+  function applyCrt(on) {
+    crtOn = on;
+    crtOverlay.style.display = crtOn ? 'block' : 'none';
+    crtToggle.textContent = crtOn ? 'CRT: ON' : 'CRT: OFF';
+    setCookie('pref_crt', crtOn ? '1' : '0');
+  }
+
+  applyCrt(crtOn);
+
+  crtToggle.addEventListener('click', () => {
+    applyCrt(!crtOn);
+    sfx.select();
+  });
+
+  // Animated Pixel Preview Renderer
+  function startPixelCanvas(canvas, gameId = 'gravpulse', _style = {}) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = 400;
+    canvas.height = 200;
+    const width = 400;
+    const height = 200;
+    let frame = 0;
+
+    if (gameId === 'dunesweeper') {
+      const renderDesert = () => {
+        frame++;
+        ctx.fillStyle = '#160e08';
+        ctx.fillRect(0, 0, width, height);
+
+        // Warm desert sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, 120);
+        skyGrad.addColorStop(0, '#2d1808');
+        skyGrad.addColorStop(0.6, '#6e3810');
+        skyGrad.addColorStop(1, '#d5872b');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, width, 120);
+
+        // Radiant desert sun
+        ctx.fillStyle = '#ffe57f';
+        ctx.beginPath();
+        ctx.arc(200, 48, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Distant pixel pyramids
+        ctx.fillStyle = '#9c5a24';
+        ctx.beginPath();
+        ctx.moveTo(70, 120);
+        ctx.lineTo(130, 60);
+        ctx.lineTo(190, 120);
+        ctx.fill();
+
+        ctx.fillStyle = '#7a3f12';
+        ctx.beginPath();
+        ctx.moveTo(130, 60);
+        ctx.lineTo(190, 120);
+        ctx.lineTo(130, 120);
+        ctx.fill();
+
+        ctx.fillStyle = '#b86e2e';
+        ctx.beginPath();
+        ctx.moveTo(240, 120);
+        ctx.lineTo(290, 75);
+        ctx.lineTo(340, 120);
+        ctx.fill();
+
+        // Foreground desert sand
+        const horizon = 115;
+        ctx.fillStyle = '#deb578';
+        ctx.fillRect(0, horizon, width, height - horizon);
+
+        // Stepped sand dunes
+        ctx.fillStyle = '#c69354';
+        ctx.fillRect(0, 150, width, height - 150);
+
+        // Excavated ruin block with 3D number & golden relic
+        const bx = 200;
+        const by = 145 + Math.sin(frame * 0.05) * 3;
+
+        // Voxel stone tile
+        ctx.fillStyle = '#8f775c';
+        ctx.fillRect(bx - 36, by - 12, 72, 36);
+        ctx.fillStyle = '#baa387';
+        ctx.fillRect(bx - 32, by - 10, 64, 30);
+
+        // Glowing Golden Relic Scarab
+        ctx.fillStyle = '#f5b700';
+        ctx.fillRect(bx - 12, by - 24 + Math.sin(frame * 0.08) * 3, 24, 16);
+        ctx.fillStyle = '#1f51ff';
+        ctx.fillRect(bx - 4, by - 20 + Math.sin(frame * 0.08) * 3, 8, 8);
+
+        // Voxel flag stake
+        ctx.fillStyle = '#5d4037';
+        ctx.fillRect(bx - 70, by - 12, 4, 28);
+        ctx.fillStyle = '#e11d48';
+        ctx.fillRect(bx - 66, by - 12, 16, 10);
+
+        // Cactus
+        ctx.fillStyle = '#43733d';
+        ctx.fillRect(60, 130, 8, 32);
+        ctx.fillRect(52, 142, 8, 12);
+        ctx.fillRect(52, 138, 8, 4);
+        ctx.fillRect(68, 146, 8, 12);
+        ctx.fillRect(68, 142, 8, 4);
+
+        requestAnimationFrame(renderDesert);
+      };
+      renderDesert();
+      return;
+    }
+
+    const stars = Array.from({ length: 45 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      speed: 0.6 + Math.random() * 2.2,
+      size: Math.random() > 0.6 ? 3 : 2,
+      color: Math.random() > 0.5 ? '#35f0ff' : '#ff2fd6',
+    }));
+
+    const render = () => {
+      frame++;
+      ctx.fillStyle = '#060814';
+      ctx.fillRect(0, 0, width, height);
+
+      // 3D-like scrolling pixel grid floor
+      ctx.strokeStyle = 'rgba(53, 240, 255, 0.25)';
+      ctx.lineWidth = 1.5;
+      const horizon = 110;
+
+      // Horizon glow
+      const grad = ctx.createLinearGradient(0, horizon - 30, 0, horizon + 50);
+      grad.addColorStop(0, 'rgba(255, 47, 214, 0.4)');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, horizon - 30, width, 80);
+
+      // Starfield
+      for (const s of stars) {
+        s.x -= s.speed;
+        if (s.x < 0) s.x = width;
+        ctx.fillStyle = s.color;
+        ctx.fillRect(Math.floor(s.x), Math.floor(s.y * 0.55), s.size, s.size);
+      }
+
+      // Perspective grid lines
+      const vanishingX = width / 2;
+      for (let x = -width; x <= width * 2; x += 32) {
+        ctx.beginPath();
+        ctx.moveTo(vanishingX, horizon);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // Horizontal moving grid lines
+      const gridOffset = (frame * 1.8) % 18;
+      for (let y = horizon; y <= height; y += (y - horizon) * 0.28 + 4) {
+        const drawY = y + gridOffset * ((y - horizon) / 80);
+        if (drawY <= height && drawY >= horizon) {
+          ctx.beginPath();
+          ctx.moveTo(0, drawY);
+          ctx.lineTo(width, drawY);
+          ctx.stroke();
+        }
+      }
+
+      // 8-bit Anti-Grav Hovercraft Sprite
+      const shipX = width / 2 + Math.sin(frame * 0.05) * 24;
+      const shipY = horizon + 30 + Math.cos(frame * 0.08) * 8;
+
+      // Thruster trail glow
+      ctx.fillStyle = frame % 4 < 2 ? '#ff2fd6' : '#ffb02e';
+      ctx.fillRect(shipX - 14, shipY + 6, 8, 4);
+      ctx.fillRect(shipX + 6, shipY + 6, 8, 4);
+
+      // Ship body (pixel stepped polygon)
+      ctx.fillStyle = '#112244';
+      ctx.fillRect(shipX - 16, shipY, 32, 8);
+      ctx.fillStyle = '#35f0ff';
+      ctx.fillRect(shipX - 10, shipY - 6, 20, 6);
+      ctx.fillRect(shipX - 4, shipY - 10, 8, 4);
+
+      // Canopy
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(shipX - 2, shipY - 6, 4, 4);
+
+      // Wingtips
+      ctx.fillStyle = '#ff2fd6';
+      ctx.fillRect(shipX - 20, shipY + 2, 4, 6);
+      ctx.fillRect(shipX + 16, shipY + 2, 4, 6);
+
+      requestAnimationFrame(render);
+    };
+
+    render();
+  }
+
+  let allGames = [];
+  let currentFilter = getCookie('pref_cat') || 'all';
+
+  function renderGallery() {
+    const galleryEl = document.getElementById('gallery');
+    galleryEl.innerHTML = '';
+
+    const filteredGames = allGames.filter((game) => {
+      if (currentFilter === 'all') return true;
+      const cat = currentFilter.toLowerCase();
+      const genre = (game.genre || '').toLowerCase();
+      const tags = (game.tags || []).map((t) => t.toLowerCase());
+      const title = (game.title || '').toLowerCase();
+      return genre.includes(cat) || tags.includes(cat) || title.includes(cat);
+    });
+
+    if (filteredGames.length === 0) {
+      galleryEl.innerHTML = `
+        <div style="color:#7b8ebd; font-size:11px; text-align:center; padding:40px; grid-column: 1 / -1;">
+          [ NO CARTRIDGES FOUND FOR FILTER: ${currentFilter.toUpperCase()} ]
+        </div>
+      `;
+      return;
+    }
+
+    filteredGames.forEach((game, _index) => {
+      const card = document.createElement('a');
+      card.className = 'game-card';
+      card.href = game.path;
+
+      const st = game.style || {};
+      const fullLlmModel = game.llm || 'LLM';
+      // Short name for topbar e.g. "Gemini 2.5 Flash" -> "Gemini"
+      const shortModel = game.llmShort || (fullLlmModel.split(' ')[0] || 'AI');
+      const badgeText = game.badge || (game.id === 'dunesweeper' ? 'VOXEL 3D' : '3D RACER');
+      const author = game.author || {};
+      const authorName = author.name || 'Anonymous';
+
+      let authorLinksHtml = '';
+      if (author.github) {
+        authorLinksHtml += `<a href="https://github.com/${author.github}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">GH</a>`;
+      }
+      if (author.x) {
+        authorLinksHtml += `<a href="https://x.com/${author.x}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">X</a>`;
+      }
+      if (author.url && !author.github) {
+        authorLinksHtml += `<a href="${author.url}" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">WEB</a>`;
+      }
+
+      card.innerHTML = `
+        <div class="card-topbar">
+          <span class="system-badge"><span class="led-dot"></span> [ ${shortModel} ]</span>
+          <span class="genre-tag">${game.genre || 'ARCADE'}</span>
+        </div>
+
+        <div class="preview-wrap">
+          <canvas class="preview-canvas" id="canvas-${game.id}"></canvas>
+          <div class="badge-overlay">${badgeText}</div>
+        </div>
+
+        <div class="card-body">
+          <div class="card-title-row">
+            <div class="card-title">${game.title}</div>
+            <div class="card-sub">${game.subtitle || '// LLM MODULE //'}</div>
+          </div>
+
+          <p class="card-desc">${game.description}</p>
+
+          <div class="card-specs">
+            <div class="spec-item"><span>LLM:</span> <span style="color:var(--cyan)">${fullLlmModel}</span></div>
+            <div class="spec-item"><span>PLAYERS:</span> <span style="color:#fff">${game.players || '1-4 PLAYERS'}</span></div>
+          </div>
+
+          <div class="author-row">
+            <span class="author-name">AUTHOR: <span style="color:#fff">${authorName}</span></span>
+            <div class="author-links">${authorLinksHtml}</div>
+          </div>
+
+          <div class="play-btn">
+            <span>INSERT COIN &amp; PLAY</span>
+            <span>▶</span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('mouseenter', () => sfx.hover());
+      card.addEventListener('click', () => sfx.select());
+
+      galleryEl.appendChild(card);
+
+      // Start 8-bit animated canvas preview
+      const canvas = document.getElementById(`canvas-${game.id}`);
+      if (canvas) startPixelCanvas(canvas, game.id, st);
+    });
+
+    // Append slot 03 placeholder
+    const emptyCard = document.createElement('div');
+    emptyCard.className = 'empty-card';
+    emptyCard.innerHTML = `
+      <div class="empty-icon">⛏</div>
+      <div class="empty-title">[ SLOT 03: EMPTY ]</div>
+      <div class="empty-desc">READY FOR NEXT LLM GENERATED GAME MODULE. SHARED THREE.JS READY.</div>
+    `;
+    galleryEl.appendChild(emptyCard);
+  }
+
+
+  // Load Games
+  async function loadGallery() {
+    try {
+      const res = await fetch('games.json');
+      allGames = await res.json();
+
+      // Apply saved category filter button state
+      document.querySelectorAll('.cat-btn').forEach((btn) => {
+        const cat = btn.getAttribute('data-cat');
+        btn.classList.toggle('active', cat === currentFilter);
+      });
+
+      renderGallery();
+    } catch (err) {
+      console.error(err);
+      const galleryEl = document.getElementById('gallery');
+      galleryEl.innerHTML = `
+        <div style="color:var(--red); font-size:12px; text-align:center; padding:40px;">
+          [ SYSTEM ERROR: CARTRIDGE DATA CORRUPTED ]
+        </div>
+      `;
+    }
+  }
+
+  // Interactive Category Buttons with Cookie Persistence
+  document.querySelectorAll('.cat-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.cat-btn').forEach((b) => {
+        b.classList.remove('active');
+      });
+      e.currentTarget.classList.add('active');
+      currentFilter = e.currentTarget.getAttribute('data-cat') || 'all';
+      setCookie('pref_cat', currentFilter);
+      sfx.select();
+      renderGallery();
+    });
+  });
+
+  window.addEventListener('DOMContentLoaded', loadGallery);
+</script>
+
+</body>
+</html>
