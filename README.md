@@ -12,6 +12,31 @@
 
 <img src="./assets/pixel-divider.svg" width="100%">
 
+## 🎮 Game Index
+
+| Game | Genre | Players | Play |
+| --- | --- | --- | --- |
+| **GRAVPULSE 2097** | 3D anti-gravity racer | 1–4 players | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/gravpulse/) |
+| **DUNESWEEPER** | Voxel archaeological minesweeper | 1 player | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/dunesweeper/) |
+
+### ⚡ GRAVPULSE 2097
+
+[<img src="./assets/games/gravpulse.jpg" alt="GRAVPULSE 2097 anti-gravity racer gameplay on a neon city circuit" width="100%">](https://carlosrivera.github.io/arcade-vault/games/gravpulse/)
+
+High-speed anti-gravity racing through neon circuits. Bank through corners, deploy shields, fire rockets, and race for pole position.
+
+[**▶ PLAY GRAVPULSE 2097**](https://carlosrivera.github.io/arcade-vault/games/gravpulse/) · [View source](./games/gravpulse/)
+
+### 🏺 DUNESWEEPER
+
+[<img src="./assets/games/dunesweeper.jpg" alt="DUNESWEEPER voxel archaeological minesweeper gameplay in a desert ruin" width="100%">](https://carlosrivera.github.io/arcade-vault/games/dunesweeper/)
+
+Excavate procedural voxel ruins, dodge scorpions and traps, uncover golden relics, and descend into forgotten desert tombs.
+
+[**▶ PLAY DUNESWEEPER**](https://carlosrivera.github.io/arcade-vault/games/dunesweeper/) · [View source](./games/dunesweeper/)
+
+<img src="./assets/pixel-divider.svg" width="100%">
+
 ## ⚡ The Philosophy: Zero Build Step, Pure Web Standards
 
 ### Why Vanilla JavaScript & Native ES Modules?
