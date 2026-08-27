@@ -571,6 +571,30 @@
   footer span {
     color: var(--cyan);
   }
+
+  .repo-link-wrap {
+    margin-top: 42px;
+    text-align: center;
+  }
+
+  .repo-link {
+    display: inline-block;
+    padding: 11px 16px;
+    border: 3px solid #000;
+    background: #161a30;
+    color: var(--cyan);
+    box-shadow: inset 2px 2px 0 #3a416b, inset -2px -2px 0 #080a14, 4px 4px 0 #000;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+
+  .repo-link:hover {
+    background: #252c4f;
+    color: #fff;
+    transform: translate(-1px, -1px);
+    box-shadow: inset 2px 2px 0 #4a548c, inset -2px -2px 0 #080a14, 5px 5px 0 #000;
+  }
 </style>
 </head>
 <body>
@@ -610,6 +634,10 @@
 <!-- Main Game Gallery -->
 <div class="gallery" id="gallery">
   <div style="color:var(--gold); font-size:12px; padding:30px;">[ LOADING CARTRIDGES... ]</div>
+</div>
+
+<div class="repo-link-wrap">
+  <a class="repo-link" href="https://github.com/carlosrivera/arcade-vault" target="_blank" rel="noreferrer">↗ VIEW SOURCE ON GITHUB</a>
 </div>
 
 <footer>
