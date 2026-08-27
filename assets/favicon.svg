@@ -1,14 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <title>Arcade Vault icon</title>
-  <rect width="512" height="512" rx="72" fill="#0b0c16"/>
-  <rect x="28" y="28" width="456" height="456" rx="52" fill="none" stroke="#35f0ff" stroke-width="20"/>
-  <rect x="58" y="58" width="396" height="396" rx="34" fill="#14172b" stroke="#ff2fd6" stroke-width="12"/>
-  <path d="M126 318h260l38 106H88z" fill="#202744" stroke="#05060d" stroke-width="18" stroke-linejoin="round"/>
-  <rect x="124" y="94" width="264" height="226" rx="20" fill="#05060d" stroke="#ffcc00" stroke-width="16"/>
-  <path d="m256 126 80 58-30 94H206l-30-94z" fill="#35f0ff"/>
-  <path d="m256 144 56 41-21 66h-70l-21-66z" fill="#ff2fd6"/>
-  <path d="m256 164 31 23-12 36h-38l-12-36z" fill="#fff"/>
-  <path d="M174 344v52M148 370h52" stroke="#ffcc00" stroke-width="22" stroke-linecap="square"/>
-  <circle cx="322" cy="356" r="18" fill="#ff3344"/>
-  <circle cx="366" cy="386" r="18" fill="#44ee77"/>
+  <title>Arcade Vault 8-bit coin</title>
+  <path d="M160 16h192v32h64v48h48v64h32v192h-32v64h-48v48h-64v32H160v-32H96v-48H48v-64H16V160h32V96h48V48h64z" fill="#05060d"/>
+  <path d="M160 48h192v32h64v64h32v224h-32v64h-64v32H160v-32H96v-64H64V144h32V80h64z" fill="#ffcc00"/>
+  <path d="M160 80h192v32h64v64h32v160h-32v64h-64v32H160v-32h-64v-64H64V176h32v-64h64z" fill="#ff9d00"/>
+  <path d="M192 96h160v32h48v64h32v128h-32v64h-48v32H192v-32h-48v-64h-32V192h32v-64h48z" fill="#ffcc00"/>
+  <path d="M176 112h80v32h-48v32h-32zM144 176h48v80h-48z" fill="#fff2a6"/>
+  <path d="M320 128h32v32h32v32h-32v32h-32v-32h-32v-32h32z" fill="#fff8cf"/>
+  <path d="M224 176h64v32h32v96h-32v32h-64v-32h-32v-96h32z" fill="#d96b00"/>
+  <path d="M240 208h32v96h-32z" fill="#ffdd45"/>
+  <path d="M128 336h32v48h48v32h-64v-32h-16z" fill="#e47700"/>
 </svg>
