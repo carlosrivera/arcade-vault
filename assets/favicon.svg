@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Arcade Vault icon</title>
+  <rect width="512" height="512" rx="72" fill="#0b0c16"/>
+  <rect x="28" y="28" width="456" height="456" rx="52" fill="none" stroke="#35f0ff" stroke-width="20"/>
+  <rect x="58" y="58" width="396" height="396" rx="34" fill="#14172b" stroke="#ff2fd6" stroke-width="12"/>
+  <path d="M126 318h260l38 106H88z" fill="#202744" stroke="#05060d" stroke-width="18" stroke-linejoin="round"/>
+  <rect x="124" y="94" width="264" height="226" rx="20" fill="#05060d" stroke="#ffcc00" stroke-width="16"/>
+  <path d="m256 126 80 58-30 94H206l-30-94z" fill="#35f0ff"/>
+  <path d="m256 144 56 41-21 66h-70l-21-66z" fill="#ff2fd6"/>
+  <path d="m256 164 31 23-12 36h-38l-12-36z" fill="#fff"/>
+  <path d="M174 344v52M148 370h52" stroke="#ffcc00" stroke-width="22" stroke-linecap="square"/>
+  <circle cx="322" cy="356" r="18" fill="#ff3344"/>
+  <circle cx="366" cy="386" r="18" fill="#44ee77"/>
+</svg>
