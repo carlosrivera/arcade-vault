@@ -536,7 +536,8 @@
     }
 
     /* ---- MODAL ---- */
-    #game-modal {
+    #game-modal,
+    #settings-overlay {
       position: fixed;
       inset: 0;
       background: rgba(8, 9, 11, 0.85);
@@ -545,6 +546,47 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
+    }
+    .settings-box label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #a8a29e;
+      margin: 18px 0 8px;
+    }
+    .settings-diffs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .settings-diff {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--slate-border);
+      color: var(--text-main);
+      padding: 8px 4px;
+      border-radius: 2px;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    .settings-diff.active {
+      background: var(--gold-accent);
+      color: #18191c;
+      border-color: var(--gold-accent);
+    }
+    .settings-seed {
+      width: 100%;
+      box-sizing: border-box;
+      background: #121316;
+      border: 1px solid var(--slate-border);
+      color: var(--text-main);
+      padding: 9px 12px;
+      border-radius: 2px;
+      font-family: inherit;
+      font-size: 13px;
     }
     .modal-box {
       background: #1e2025;
@@ -723,14 +765,34 @@
   <div class="game-panel" id="minimap-panel">
     <canvas id="minimap-canvas" width="140" height="110"></canvas>
     <div class="minimap-depth-row">
-      <span>Depth: 2</span>
+      <span id="minimap-excavated-text">Excavated: 0%</span>
       <div class="depth-bar">
-        <div class="depth-fill"></div>
+        <div class="depth-fill" id="minimap-excavated-fill"></div>
       </div>
     </div>
   </div>
   </div>
   <!-- /HUD-root -->
+
+  <!-- Settings dialog -->
+  <div id="settings-overlay">
+    <div class="game-panel modal-box settings-box">
+      <h2>EXPEDITION SETTINGS</h2>
+      <label for="settings-seed-input">SEED</label>
+      <input type="text" class="settings-seed" id="settings-seed-input" spellcheck="false" />
+      <label>DIFFICULTY</label>
+      <div class="settings-diffs">
+        <button type="button" class="settings-diff" data-diff="scout">SCOUT</button>
+        <button type="button" class="settings-diff" data-diff="explorer">EXPLORER</button>
+        <button type="button" class="settings-diff" data-diff="archaeologist">ARCHAEOLOGIST</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn secondary" id="settings-cancel">CANCEL</button>
+        <button type="button" class="modal-btn secondary" id="settings-restart">RESTART</button>
+        <button type="button" class="modal-btn" id="settings-apply">NEW EXPEDITION</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Pause overlay -->
   <div id="pause-overlay">

@@ -23,6 +23,8 @@ export class HUD {
     this.elLogBox = document.getElementById('log-entries');
     this.minimapCanvas = document.getElementById('minimap-canvas');
     this.minimapCtx = this.minimapCanvas ? this.minimapCanvas.getContext('2d') : null;
+    this.elExcavatedText = document.getElementById('minimap-excavated-text');
+    this.elExcavatedFill = document.getElementById('minimap-excavated-fill');
 
     // Counts in tools sidebar
     this.elCountBrush = document.getElementById('count-pala');
@@ -68,6 +70,7 @@ export class HUD {
     });
     this.gameState.on('onCellRevealed', () => {
       this.updateObjectives();
+      this.updateExcavation();
       this.drawMinimap();
     });
     this.gameState.on('onRelicFound', () => this.updateObjectives());
@@ -109,13 +112,33 @@ export class HUD {
       this.onAction({ type: 'use_map' });
     });
 
-    // Settings button -> trigger settings / difficulty dialog
-    document.getElementById('btn-settings')?.addEventListener('click', () => {
-      const newSeed = prompt('Expedición / Semilla:', this.gameState.seed);
-      if (newSeed && newSeed.trim() !== '') {
-        this.onAction({ type: 'change_seed', seed: newSeed.trim() });
+    // Settings button -> in-game settings dialog
+    this.settingsOverlay = document.getElementById('settings-overlay');
+    this.settingsSeedInput = document.getElementById('settings-seed-input');
+    this.settingsDifficulty = this.gameState ? this.gameState.difficultyKey : 'explorer';
+    document.getElementById('btn-settings')?.addEventListener('click', () => this.showSettings());
+    document.getElementById('settings-cancel')?.addEventListener('click', () => this.hideSettings());
+    document.getElementById('settings-restart')?.addEventListener('click', () => {
+      this.hideSettings();
+      this.onAction({ type: 'restart' });
+    });
+    document.getElementById('settings-apply')?.addEventListener('click', () => {
+      const seed = this.settingsSeedInput?.value.trim();
+      this.hideSettings();
+      if (seed && seed !== this.gameState.seed) {
+        this.onAction({ type: 'change_seed', seed });
+      } else {
+        this.onAction({ type: 'change_difficulty', difficulty: this.settingsDifficulty });
       }
     });
+    for (const btn of this.settingsOverlay?.querySelectorAll('.settings-diff') || []) {
+      btn.addEventListener('click', () => {
+        this.settingsDifficulty = btn.dataset.diff;
+        for (const other of this.settingsOverlay.querySelectorAll('.settings-diff')) {
+          other.classList.toggle('active', other === btn);
+        }
+      });
+    }
 
     // Modal buttons
     this.modalBtnRestart?.addEventListener('click', () => {
@@ -145,6 +168,7 @@ export class HUD {
     this.updateLives();
     this.updateTools();
     this.updateObjectives();
+    this.updateExcavation();
   }
 
   updateLives() {
@@ -182,6 +206,27 @@ export class HUD {
       this.elExitText.style.gap = '6px';
       this.elExitText.style.color = unlocked ? '#4ade80' : '#a8a29e';
     }
+  }
+
+  showSettings() {
+    if (!this.settingsOverlay) return;
+    if (this.settingsSeedInput) this.settingsSeedInput.value = this.gameState.seed;
+    this.settingsDifficulty = this.gameState.difficultyKey;
+    for (const btn of this.settingsOverlay.querySelectorAll('.settings-diff')) {
+      btn.classList.toggle('active', btn.dataset.diff === this.settingsDifficulty);
+    }
+    this.settingsOverlay.style.display = 'flex';
+  }
+
+  hideSettings() {
+    if (this.settingsOverlay) this.settingsOverlay.style.display = 'none';
+  }
+
+  updateExcavation() {
+    const total = this.gameState.safeCellsTotal || 1;
+    const pct = Math.min(100, Math.round((this.gameState.revealedCount / total) * 100));
+    if (this.elExcavatedText) this.elExcavatedText.textContent = `Excavated: ${pct}%`;
+    if (this.elExcavatedFill) this.elExcavatedFill.style.width = `${pct}%`;
   }
 
   updateTimer(seconds) {
