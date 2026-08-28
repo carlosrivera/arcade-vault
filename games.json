@@ -56,5 +56,36 @@
       "accentColor": "#e02438",
       "tagColor": "#2b82d9"
     }
+  },
+  {
+    "id": "aces",
+    "title": "STRIKEVECTOR",
+    "subtitle": "AIR DOMINANCE // F/A-22V",
+    "genre": "FLIGHT COMBAT",
+    "players": "1 PLAYER",
+    "llm": "GLM 5.3",
+    "author": {
+      "name": "Carlos Rivera",
+      "github": "carlosrivera",
+      "x": "carlos_gif",
+      "url": "https://github.com/carlosrivera"
+    },
+    "description": "Fly an F-22-style fighter with a realistic 6DOF physics model over infinite procedural terrain. Full fighter HUD with artificial horizon, lock-on missiles, cannon, and enemy ace AI.",
+    "thumbnail": "assets/games/aces.jpg",
+    "path": "games/aces/index.html",
+    "tags": [
+      "3D",
+      "Flight",
+      "Combat",
+      "Simulation",
+      "Procedural"
+    ],
+    "style": {
+      "theme": "air-combat",
+      "primaryColor": "#6cf0a0",
+      "accentColor": "#ffb02e",
+      "tagColor": "#ff3b47"
+    },
+    "badge": "FLIGHT SIM"
   }
 ]

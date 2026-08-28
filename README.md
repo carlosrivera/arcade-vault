@@ -18,6 +18,7 @@
 | --- | --- | --- | --- |
 | **GRAVPULSE 2097** | 3D anti-gravity racer | 1–4 players | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/gravpulse/) |
 | **DUNESWEEPER** | Voxel archaeological minesweeper | 1 player | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/dunesweeper/) |
+| **STRIKEVECTOR** | Flight combat | 1 player | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/aces/) |
 
 ### ⚡ GRAVPULSE 2097
 
@@ -34,6 +35,14 @@ High-speed anti-gravity racing through neon circuits. Bank through corners, depl
 Excavate procedural voxel ruins, dodge scorpions and traps, uncover golden relics, and descend into forgotten desert tombs.
 
 [**▶ PLAY DUNESWEEPER**](https://carlosrivera.github.io/arcade-vault/games/dunesweeper/) · [View source](./games/dunesweeper/)
+
+### ✈️ STRIKEVECTOR
+
+[<img src="./assets/games/aces.jpg" alt="STRIKEVECTOR F-22 flight combat gameplay with afterburner blazing over procedural terrain" width="100%">](https://carlosrivera.github.io/arcade-vault/games/aces/)
+
+Fly an F-22-style fighter with a realistic 6DOF flight model — angle-of-attack lift curve, induced drag, afterburner, G-load, and stalls — over infinite procedural terrain streamed in chunks. Full modern fighter HUD: artificial horizon pitch ladder, heading tape, speed/altitude tapes, flight-path marker, radar, and missile lock. Hunt enemy aces with cannon and seeker missiles.
+
+[**▶ PLAY STRIKEVECTOR**](https://carlosrivera.github.io/arcade-vault/games/aces/) · [View source](./games/aces/)
 
 <img src="./assets/pixel-divider.svg" width="100%">
 

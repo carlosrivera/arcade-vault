@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STRIKEVECTOR :: AIR DOMINANCE</title>
+<meta name="description" content="Fly an F-22-style fighter over infinite procedural terrain. Realistic 6DOF flight model, full fighter HUD with artificial horizon, lock-on missiles and cannon. Free browser game.">
+<meta name="author" content="Carlos Rivera">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#05080f">
+<link rel="canonical" href="https://carlosrivera.github.io/arcade-vault/games/aces/">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arcade Vault">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="STRIKEVECTOR — Air Dominance Fighter">
+<meta property="og:description" content="Realistic 6DOF flight physics, infinite procedural terrain, modern fighter HUD. Fly the jet in your browser.">
+<meta property="og:url" content="https://carlosrivera.github.io/arcade-vault/games/aces/">
+<meta property="og:image" content="../../assets/og-card.png">
+<meta property="og:image:alt" content="Arcade Vault game gallery">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="STRIKEVECTOR — Air Dominance Fighter">
+<meta name="twitter:description" content="Realistic 6DOF flight physics, infinite procedural terrain, modern fighter HUD.">
+<meta name="twitter:image" content="../../assets/og-card.png">
+<script defer src="https://umami-production-f25f.up.railway.app/script.js" data-website-id="4d83835a-a442-46fe-8f1c-cc2e0da0b3a7"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "STRIKEVECTOR",
+  "url": "https://carlosrivera.github.io/arcade-vault/games/aces/",
+  "description": "An air-combat flight game with a realistic 6DOF physics model, infinite procedural terrain, and a modern fighter HUD with artificial horizon, lock-on missiles and cannon.",
+  "image": "https://carlosrivera.github.io/arcade-vault/assets/og-card.png",
+  "author": { "@type": "Person", "name": "Carlos Rivera", "url": "https://github.com/carlosrivera" },
+  "applicationCategory": "Game",
+  "operatingSystem": "Any (Web Browser)",
+  "genre": "Flight Combat",
+  "playMode": "SinglePlayer",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<style>
+  :root {
+    --hud: #6cf0a0;
+    --hud-warn: #ffb02e;
+    --hud-danger: #ff3b47;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #05080f; }
+  #gl { position: fixed; inset: 0; display: block; }
+  #hud {
+    position: fixed; inset: 0; pointer-events: none;
+    font-family: 'Courier New', ui-monospace, monospace;
+  }
+  #msg {
+    position: fixed; top: 18%; left: 0; right: 0; text-align: center;
+    font-family: 'Courier New', monospace; font-weight: bold;
+    color: var(--hud); text-shadow: 0 0 12px rgba(0,0,0,.9);
+    letter-spacing: .35em; pointer-events: none; z-index: 5;
+    transition: opacity .4s;
+  }
+  #menu {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 35%, rgba(10,20,35,.82), rgba(2,4,8,.96));
+    color: #cfe8ff; font-family: 'Courier New', monospace; text-align: center;
+  }
+  #menu.hidden { display: none; }
+  #menu h1 {
+    font-size: clamp(34px, 7vw, 84px); letter-spacing: .22em; color: #eaf4ff;
+    text-shadow: 0 0 28px rgba(80,180,255,.55); margin-bottom: 4px;
+  }
+  #menu .sub { letter-spacing: .5em; color: #5f89b8; font-size: 13px; margin-bottom: 34px; }
+  #menu .keys {
+    display: grid; grid-template-columns: auto auto; gap: 7px 26px;
+    font-size: 14px; text-align: left; margin-bottom: 36px; color: #9db8d8;
+  }
+  #menu .keys b { color: #e8f2ff; font-weight: bold; }
+  #startBtn {
+    pointer-events: auto; cursor: pointer;
+    font-family: inherit; font-size: 18px; letter-spacing: .3em;
+    padding: 16px 44px; color: #061018;
+    background: linear-gradient(180deg, #9fe8ff, #4fb4e8);
+    border: none; border-radius: 3px; box-shadow: 0 0 34px rgba(90,190,255,.45);
+  }
+  #startBtn:hover { filter: brightness(1.15); }
+  #deathTitle {
+    font-size: clamp(26px, 5vw, 54px); letter-spacing: .3em; color: #ff5b64;
+    text-shadow: 0 0 24px rgba(255,60,70,.5); margin-bottom: 14px;
+  }
+  #deathStats { color: #9db8d8; font-size: 15px; margin-bottom: 30px; letter-spacing: .12em; line-height: 1.9; }
+  .terrain-tech { margin: 18px 0 2px; color: rgba(157,184,216,.58); font-size: 9px; letter-spacing: .18em; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="hud"></canvas>
+<div id="msg"></div>
+<div id="menu" role="menu">
+  <h1>STRIKEVECTOR</h1>
+  <div class="sub">AIR DOMINANCE // F/A-22V</div>
+  <div class="keys">
+    <b>W / S</b><span>PITCH (stick fore / aft)</span>
+    <b>A / D</b><span>ROLL</span>
+    <b>Q / E</b><span>YAW (rudder)</span>
+    <b>SHIFT</b><span>THRUST UP / AFTERBURNER</span>
+    <b>CTRL</b><span>THRUST DOWN / AIRBRAKE</span>
+    <b>SPACE</b><span>FIRE CANNON</span>
+    <b>F</b><span>FIRE MISSILE (lock first)</span>
+    <b>T / Y</b><span>CYCLE TARGET / NEAREST THREAT</span>
+    <b>C</b><span>COCKPIT / CHASE CAMERA</span>
+    <b>H</b><span>TERRAIN ANALYSIS VIEW</span>
+    <b>R</b><span>RESTART</span>
+  </div>
+  <div class="terrain-tech">DOMAIN WARP · RIDGED MULTIFRACTAL · EROSION VALLEYS · TRIPLANAR BIOMES</div>
+  <button id="startBtn" type="button">ENGAGE</button>
+</div>
+<script type="importmap">
+{ "imports": { "three": "../../shared/vendor/three.module.js" } }
+</script>
+<script type="module" src="../../shared/eject.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

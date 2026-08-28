@@ -749,6 +749,104 @@
     const height = 200;
     let frame = 0;
 
+    if (gameId === 'aces') {
+      // 8-bit F-22 over scrolling mountains, contrail and all
+      const ridgeA = Array.from({ length: 26 }, (_, i) => 120 + Math.sin(i * 1.7) * 18 + Math.sin(i * 0.7 + 2) * 26);
+      const ridgeB = Array.from({ length: 26 }, (_, i) => 100 + Math.sin(i * 1.1 + 5) * 14 + Math.sin(i * 0.5 + 1) * 20);
+      const cloudPuffs = Array.from({ length: 5 }, () => ({
+        x: Math.random() * width, y: 30 + Math.random() * 55,
+        w: 26 + Math.random() * 30, speed: 0.3 + Math.random() * 0.5,
+      }));
+      const renderSky = () => {
+        frame++;
+        // sky gradient
+        const sky = ctx.createLinearGradient(0, 0, 0, 130);
+        sky.addColorStop(0, '#123a6e');
+        sky.addColorStop(0.7, '#3f7ab8');
+        sky.addColorStop(1, '#a8cbe8');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, width, 130);
+        // sun
+        ctx.fillStyle = '#fff4c8';
+        ctx.fillRect(320, 26, 22, 22);
+        ctx.fillStyle = '#ffe89a';
+        ctx.fillRect(324, 30, 14, 14);
+
+        // drifting clouds
+        for (const c of cloudPuffs) {
+          c.x -= c.speed;
+          if (c.x < -c.w) c.x = width + 20;
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.fillRect(Math.floor(c.x), Math.floor(c.y), Math.floor(c.w), 8);
+          ctx.fillRect(Math.floor(c.x + c.w * 0.2), Math.floor(c.y - 5), Math.floor(c.w * 0.5), 5);
+        }
+
+        // parallax mountain ridges
+        const offA = (frame * 1.6) % 32;
+        const offB = (frame * 3.2) % 32;
+        ctx.fillStyle = '#5d7a94';
+        for (let i = 0; i < 26; i++) {
+          ctx.fillRect(Math.floor(i * 32 - offB), ridgeB[i], 32, height - ridgeB[i]);
+        }
+        ctx.fillStyle = '#33513f';
+        for (let i = 0; i < 26; i++) {
+          ctx.fillRect(Math.floor(i * 32 - offA), ridgeA[i], 32, height - ridgeA[i]);
+        }
+        // snow caps
+        ctx.fillStyle = '#dfe8ee';
+        for (let i = 0; i < 26; i += 2) {
+          ctx.fillRect(Math.floor(i * 32 - offA) + 10, ridgeA[i], 12, 5);
+        }
+
+        // banking F-22 silhouette
+        const jx = width / 2 + Math.sin(frame * 0.04) * 30;
+        const jy = 66 + Math.sin(frame * 0.07) * 10;
+        const bank = Math.sin(frame * 0.05) * 6;
+        // contrail from wingtips
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        for (let t = 1; t < 14; t++) {
+          const tw = 2 + (t % 3);
+          ctx.fillRect(Math.floor(jx - 18 - t * 7), Math.floor(jy + 2 + t * 1.1 - bank * 0.4), tw, tw);
+          ctx.fillRect(Math.floor(jx + 14 + t * 7), Math.floor(jy + 2 + t * 1.1 + bank * 0.4), tw, tw);
+        }
+        // afterburner glow
+        ctx.fillStyle = frame % 4 < 2 ? '#ffb02e' : '#ff7733';
+        ctx.fillRect(Math.floor(jx - 8), Math.floor(jy + 8), 4, 6);
+        ctx.fillRect(Math.floor(jx + 4), Math.floor(jy + 8), 4, 6);
+        // body (banked: shear rows)
+        ctx.fillStyle = '#3a4150';
+        for (let r = 0; r < 5; r++) {
+          const shift = Math.round(Math.sin((r / 5) * Math.PI) * bank);
+          ctx.fillRect(jx - 14 + shift, jy + r, 28 - Math.abs(shift), 3);
+        }
+        // wings
+        ctx.fillStyle = '#565f70';
+        ctx.fillRect(Math.floor(jx - 24), Math.floor(jy + 2 + bank), 12, 3);
+        ctx.fillRect(Math.floor(jx + 12), Math.floor(jy + 2 - bank), 12, 3);
+        // canopy
+        ctx.fillStyle = '#9fd8ff';
+        ctx.fillRect(Math.floor(jx - 3 + bank * 0.5), jy, 6, 3);
+        // twin tails
+        ctx.fillStyle = '#2c3340';
+        ctx.fillRect(Math.floor(jx - 10), Math.floor(jy - 5 - bank * 0.5), 3, 6);
+        ctx.fillRect(Math.floor(jx + 7), Math.floor(jy - 5 + bank * 0.5), 3, 6);
+
+        // mini HUD: pitch ladder dashes
+        ctx.strokeStyle = 'rgba(120, 255, 170, 0.75)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(width / 2 - 40, height / 2 + 2);
+        ctx.lineTo(width / 2 - 14, height / 2 + 2);
+        ctx.moveTo(width / 2 + 14, height / 2 + 2);
+        ctx.lineTo(width / 2 + 40, height / 2 + 2);
+        ctx.stroke();
+
+        requestAnimationFrame(renderSky);
+      };
+      renderSky();
+      return;
+    }
+
     if (gameId === 'dunesweeper') {
       const renderDesert = () => {
         frame++;
