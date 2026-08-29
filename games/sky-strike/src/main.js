@@ -181,68 +181,153 @@ function createEnvironment(scene, rng, gradientMap) {
   envGroup.add(sky);
 
   // Distant Layered Mountains & Rolling Green Hills
-  const hillMat1 = makeToonMat(0x32a852, gradientMap);
-  const hillMat2 = makeToonMat(0x278542, gradientMap);
-  const hillMat3 = makeToonMat(0x2e666a, gradientMap);
   const waterMat = makeToonMat(0x358ab8, gradientMap);
 
   // Lake at bottom
-  const lakeGeo = new THREE.PlaneGeometry(500, 16);
+  // Water sits in front of every ridge, closing the composition off at the
+  // bottom the way the reference does.
+  const lakeGeo = new THREE.PlaneGeometry(600, 26);
   const lake = new THREE.Mesh(lakeGeo, waterMat);
-  lake.position.set(0, -22, -35);
+  lake.position.set(0, -30, -24);
   envGroup.add(lake);
 
-  // Rolling Hills (Layer 3 - distant)
-  for (let i = -240; i <= 240; i += 20) {
-    const r = rng.range(14, 22);
-    const h = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), hillMat3);
-    h.position.set(i + rng.range(-5, 5), -24 - rng.range(2, 6), -42);
-    h.scale.set(1.4, 0.7, 1);
-    addOutline(h, 1.05);
-    envGroup.add(h);
+  // --- Landscape --------------------------------------------------------
+  //
+  // Built as layered ridgeline silhouettes rather than overlapping spheres.
+  // Squashed dodecahedrons read as a row of lumps because every hill has the
+  // same convex outline; a landscape reads as a landscape because its crest
+  // line is continuous and irregular, rising into peaks and settling into
+  // saddles. One noise-driven profile per layer gives that directly.
+  //
+  // Colour carries the depth. Each layer is mixed toward the horizon haze in
+  // proportion to its distance, which is what atmospheric perspective is:
+  // scattered air between you and the hill, washing out contrast and pulling
+  // hue toward the sky. Without it, layers separate only by overlap and the
+  // whole backdrop flattens.
+
+  const HAZE = new THREE.Color(0xa9d6ee); // colour of the air at the horizon
+
+  /** 1D fractal noise: octaves of smoothed value noise across x. */
+  function ridgeNoise(x, seedOffset) {
+    let sum = 0;
+    let amp = 1;
+    let freq = 1;
+    let norm = 0;
+    for (let o = 0; o < 4; o++) {
+      const xf = x * freq + seedOffset * 37.1;
+      const i = Math.floor(xf);
+      const f = xf - i;
+      // hash two lattice points and smoothstep between them
+      const h = (n) => {
+        const v = Math.sin((n + seedOffset * 13.7) * 127.1) * 43758.5453;
+        return v - Math.floor(v);
+      };
+      const u = f * f * (3 - 2 * f);
+      sum += (h(i) * (1 - u) + h(i + 1) * u) * amp;
+      norm += amp;
+      amp *= 0.5;
+      freq *= 2.1;
+    }
+    return sum / norm;
   }
 
-  // Rolling Hills (Layer 2 - midground)
-  for (let i = -240; i <= 240; i += 16) {
-    const r = rng.range(10, 16);
-    const h = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), hillMat2);
-    h.position.set(i + rng.range(-4, 4), -22 - rng.range(1, 4), -38);
-    h.scale.set(1.3, 0.65, 1);
-    addOutline(h, 1.05);
-    envGroup.add(h);
+  /**
+   * One ridge layer: a filled silhouette whose top edge is the noise profile.
+   *
+   * @param {object} o
+   * @param {number} o.baseY   where the layer's flat bottom sits
+   * @param {number} o.height  vertical scale of the undulation
+   * @param {number} o.z       depth, which also drives the haze mix
+   * @param {number} o.haze    0 = full colour, 1 = fully the colour of air
+   */
+  function buildRidge({ baseY, height, z, haze, color, wavelength, seed }) {
+    const shape = new THREE.Shape();
+    const halfWidth = 260;
+    const step = 3;
+    shape.moveTo(-halfWidth, baseY - 40);
+
+    for (let x = -halfWidth; x <= halfWidth; x += step) {
+      const n = ridgeNoise(x / wavelength, seed);
+      // Sharpen the profile a little so crests read as hills rather than swell.
+      const shaped = n ** 1.35;
+      shape.lineTo(x, baseY + shaped * height);
+    }
+    shape.lineTo(halfWidth, baseY - 40);
+    shape.closePath();
+
+    const mat = new THREE.MeshBasicMaterial({
+      // Flat, unlit colour: these are silhouettes seen through kilometres of
+      // air, and shading them would fight the depth the haze is establishing.
+      color: new THREE.Color(color).lerp(HAZE, haze),
+      fog: false,
+    });
+    const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), mat);
+    mesh.position.z = z;
+    envGroup.add(mesh);
+    return mesh;
   }
 
-  // Rolling Hills (Layer 1 - closer with small red roof houses)
-  for (let i = -240; i <= 240; i += 12) {
-    const r = rng.range(7, 12);
-    const h = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), hillMat1);
-    h.position.set(i + rng.range(-3, 3), -20 - rng.range(0, 3), -32);
-    h.scale.set(1.2, 0.6, 1);
-    addOutline(h, 1.05);
-    envGroup.add(h);
+  // Far to near. Each layer sits lower, undulates more, and is less hazy —
+  // the nearer the hill, the more of its own colour survives the air.
+  // Depth is carried by z (perspective shrink), haze (air between) and value
+  // (near hills darker). All three agree, which is what stops the layers
+  // reading as a flat cut-out stack.
+  const LAYERS = [
+    { baseY: -20, height: 26, z: -60, haze: 0.55, color: 0x3f7f8c, wavelength: 62, seed: 1 },
+    { baseY: -21, height: 20, z: -52, haze: 0.34, color: 0x2f8f63, wavelength: 46, seed: 2 },
+    { baseY: -22, height: 15, z: -44, haze: 0.18, color: 0x35a63f, wavelength: 34, seed: 3 },
+    { baseY: -23, height: 12, z: -36, haze: 0.07, color: 0x2f9c2c, wavelength: 25, seed: 4 },
+    { baseY: -24, height: 9, z: -30, haze: 0.0, color: 0x1f8a25, wavelength: 18, seed: 5 },
+  ];
+  LAYERS.forEach(buildRidge);
 
-    if (rng.chance(0.4)) {
-      const houseGroup = new THREE.Group();
-      const base = new THREE.Mesh(
-        new THREE.BoxGeometry(1.2, 1.0, 1.2),
-        makeToonMat(0xf0ece1, gradientMap),
-      );
-      addOutline(base, 1.1);
-      const roof = new THREE.Mesh(
-        new THREE.ConeGeometry(1.1, 0.9, 4),
-        makeToonMat(0xcc3322, gradientMap),
-      );
-      roof.position.y = 0.9;
-      roof.rotation.y = Math.PI / 4;
-      addOutline(roof, 1.1);
-      houseGroup.add(base);
-      houseGroup.add(roof);
-      houseGroup.position.set(i, -15 + rng.range(-1, 1), -30);
-      envGroup.add(houseGroup);
+  // Conifers along the two nearest crests. Small dark verticals are what give
+  // a hillside its scale — without something known-sized on it, a ridge could
+  // be a mound or a mountain.
+  for (const [li, layer] of [
+    [3, LAYERS[3]],
+    [4, LAYERS[4]],
+  ]) {
+    const treeMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(0x1f5528).lerp(HAZE, layer.haze),
+      fog: false,
+    });
+    const count = li === 4 ? 150 : 90;
+    for (let i = 0; i < count; i++) {
+      const x = rng.range(-250, 250);
+      const n = ridgeNoise(x / layer.wavelength, layer.seed) ** 1.35;
+      const y = layer.baseY + n * layer.height;
+      const h = rng.range(2.6, 4.8) * (li === 4 ? 1 : 0.72);
+      const tree = new THREE.Mesh(new THREE.ConeGeometry(h * 0.36, h, 4), treeMat);
+      tree.position.set(x, y + h * 0.4, layer.z + 0.6);
+      envGroup.add(tree);
     }
   }
 
-  // Fluffy Anime Cumulus Clouds
+  // Hamlets on the nearest slopes: a red roof is the one warm accent in an
+  // otherwise green field, and reads as habitation at a glance.
+  const nearLayer = LAYERS[4];
+  for (let i = 0; i < 22; i++) {
+    const x = rng.range(-240, 240);
+    const n = ridgeNoise(x / nearLayer.wavelength, nearLayer.seed) ** 1.35;
+    const y = nearLayer.baseY + n * nearLayer.height;
+
+    const houseGroup = new THREE.Group();
+    const base = new THREE.Mesh(
+      new THREE.BoxGeometry(2.8, 2.1, 2.2),
+      new THREE.MeshBasicMaterial({ color: 0xf2ede2, fog: false }),
+    );
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(2.3, 1.8, 4),
+      new THREE.MeshBasicMaterial({ color: 0xc4402f, fog: false }),
+    );
+    roof.position.y = 1.9;
+    roof.rotation.y = Math.PI / 4;
+    houseGroup.add(base, roof);
+    houseGroup.position.set(x, y + 1.05, nearLayer.z + 1.2);
+    envGroup.add(houseGroup);
+  }
+
   const clouds = [];
   const cloudMat = makeToonMat(0xffffff, gradientMap);
 
