@@ -5,7 +5,7 @@ import { createFeel } from '#engine/feel.js';
 import { Keyboard } from '#engine/input.js';
 import { clamp, damp } from '#engine/math.js';
 import { PRNG } from '#engine/rng.js';
-import { heightAt, Terrain } from './terrain.js';
+import { heightAt, NEAR_CREST, SEA_LEVEL, Terrain } from './terrain.js';
 
 // --- Procedural 3-tone Toon Gradient Map ---
 function createToonGradient() {
@@ -149,36 +149,62 @@ function createFighterMesh(primaryColor, canopyColor, gradientMap) {
   return { root: group, flame, bodyMat, muzzleSprite };
 }
 
+// The camera's resting depth. The cloud deck's geometry is laid out against
+// it, so the two stay in step if the camera is ever moved.
+const CAMERA_Z = 32;
+const CAMERA_FOV = 64;
+
+/**
+ * How far off-centre a cloud at this depth must be to be out of shot.
+ *
+ * The view cone widens with distance, so a single fixed wrap distance either
+ * recycles far clouds while they are still visible — a pop — or carries near
+ * ones far past the edge. tan(fov/2) times a wide-viewport aspect, plus a
+ * margin, covers every reasonable window shape.
+ */
+function cloudWrapDistance(zDepth) {
+  return (CAMERA_Z - zDepth) * Math.tan((CAMERA_FOV * Math.PI) / 360) * 1.85 + 30;
+}
+
+/** Cloud deck altitude: above the country, spanning the raised arena. */
+const cloudAltitude = (rng) => rng.range(12, 86);
+
 // --- Dynamic Cel-Shaded Background ---
 function createEnvironment(scene, rng, gradientMap) {
   const envGroup = new THREE.Group();
 
   // Sky Backdrop Quad
-  const skyGeo = new THREE.PlaneGeometry(500, 160);
+  // Big enough that a camera at the top of the raised arena still sees sky
+  // rather than clear colour above the gradient's edge.
+  const skyGeo = new THREE.PlaneGeometry(1600, 900);
   const skyMat = new THREE.ShaderMaterial({
     uniforms: {
       topColor: { value: new THREE.Color(0x1e8ce6) },
       bottomColor: { value: new THREE.Color(0x9ee8ff) },
     },
+    // The gradient is keyed to world height, not to the quad's own UVs, so
+    // resizing the backdrop cannot stretch the horizon glow out of the frame.
     vertexShader: `
-      varying vec2 vUv;
+      varying float vWorldY;
       void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vec4 world = modelMatrix * vec4(position, 1.0);
+        vWorldY = world.y;
+        gl_Position = projectionMatrix * viewMatrix * world;
       }
     `,
     fragmentShader: `
       uniform vec3 topColor;
       uniform vec3 bottomColor;
-      varying vec2 vUv;
+      varying float vWorldY;
       void main() {
-        gl_FragColor = vec4(mix(bottomColor, topColor, vUv.y), 1.0);
+        float t = clamp((vWorldY + 30.0) / 140.0, 0.0, 1.0);
+        gl_FragColor = vec4(mix(bottomColor, topColor, t), 1.0);
       }
     `,
     depthWrite: false,
   });
   const sky = new THREE.Mesh(skyGeo, skyMat);
-  sky.position.set(0, 0, -50);
+  sky.position.set(0, 0, -340);
   envGroup.add(sky);
 
   // Distant Layered Mountains & Rolling Green Hills
@@ -229,8 +255,8 @@ function createEnvironment(scene, rng, gradientMap) {
   );
   lake.rotation.x = -Math.PI / 2;
   // Below most of the country, so water shows in the hollows rather than
-  // drowning the valley.
-  lake.position.set(0, -30, -150);
+  // drowning the valley. The terrain draws its strand against this same datum.
+  lake.position.set(0, SEA_LEVEL, -150);
   envGroup.add(lake);
 
   // --- Landscape --------------------------------------------------------
@@ -249,32 +275,81 @@ function createEnvironment(scene, rng, gradientMap) {
   const wallMat = makeToonMat(0xf2ede2, gradientMap);
   const roofMat = makeToonMat(0xc4402f, gradientMap);
 
+  // Props are rejected below the waterline rather than clamped up to it:
+  // clamping lines them up along the shore in a tell-tale row, whereas
+  // resampling just leaves the lakes empty, which is what lakes look like.
   const scatter = (count, zRange, place) => {
     for (let i = 0; i < count; i++) {
-      const x = rng.range(-260, 260);
-      const z = rng.range(zRange[0], zRange[1]);
-      place(x, heightAt(x, z), z);
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const x = rng.range(-260, 260);
+        const z = rng.range(zRange[0], zRange[1]);
+        const y = heightAt(x, z);
+        if (y < SEA_LEVEL + 1.5) continue;
+        place(x, y, z);
+        break;
+      }
     }
   };
 
-  scatter(340, [-150, -20], (x, y, z) => {
-    const h = rng.range(2.4, 5.2);
-    const tree = new THREE.Mesh(new THREE.ConeGeometry(h * 0.34, h, 5), treeMat);
-    tree.position.set(x, y + h * 0.45, z);
-    envGroup.add(tree);
-  });
+  // Instanced, not one mesh each. A few hundred trees are trivial in
+  // triangles and ruinous in draw calls — and the wider field of view pulls
+  // far more of them into the frustum at once, so the per-object cost is what
+  // sets the frame time. Three geometries, three calls, however many props.
+  const TREE_COUNT = 340;
+  const HOUSE_COUNT = 26;
+  const xform = new THREE.Matrix4();
+  const spin = new THREE.Quaternion();
+  const at = new THREE.Vector3();
+  const unit = new THREE.Vector3(1, 1, 1);
+  const up = new THREE.Vector3(0, 1, 0);
 
-  scatter(26, [-95, -25], (x, y, z) => {
-    const house = new THREE.Group();
-    const base = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.4, 3), wallMat);
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(2.9, 2.1, 4), roofMat);
-    roof.position.y = 2.2;
-    roof.rotation.y = Math.PI / 4;
-    house.add(base, roof);
-    house.position.set(x, y + 1.2, z);
-    house.rotation.y = rng.range(0, Math.PI * 2);
-    envGroup.add(house);
+  // A unit cone scaled per instance reproduces the old per-tree sizing
+  // exactly: radius stays 0.34 of height.
+  const trees = new THREE.InstancedMesh(new THREE.ConeGeometry(0.34, 1, 5), treeMat, TREE_COUNT);
+  let treeAt = 0;
+  scatter(TREE_COUNT, [-150, -20], (x, y, z) => {
+    const h = rng.range(2.4, 5.2);
+    xform.makeScale(h, h, h);
+    xform.setPosition(x, y + h * 0.45, z);
+    trees.setMatrixAt(treeAt++, xform);
   });
+  // Placements rejected for landing in water leave the tail of the buffer
+  // unused; the count, not the capacity, is what gets drawn.
+  trees.count = treeAt;
+  trees.instanceMatrix.needsUpdate = true;
+
+  const walls = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(3.4, 2.4, 3),
+    wallMat,
+    HOUSE_COUNT,
+  );
+  const roofs = new THREE.InstancedMesh(
+    new THREE.ConeGeometry(2.9, 2.1, 4),
+    roofMat,
+    HOUSE_COUNT,
+  );
+  let houseAt = 0;
+  scatter(HOUSE_COUNT, [-95, -25], (x, y, z) => {
+    const yaw = rng.range(0, Math.PI * 2);
+    walls.setMatrixAt(houseAt, xform.compose(at.set(x, y + 1.2, z), spin.setFromAxisAngle(up, yaw), unit));
+    // The roof carried a local quarter-turn so its four sides met the walls
+    // corner-on; flattened out of the group, that folds into the yaw.
+    roofs.setMatrixAt(
+      houseAt,
+      xform.compose(at.set(x, y + 3.4, z), spin.setFromAxisAngle(up, yaw + Math.PI / 4), unit),
+    );
+    houseAt++;
+  });
+  walls.count = roofs.count = houseAt;
+  walls.instanceMatrix.needsUpdate = true;
+  roofs.instanceMatrix.needsUpdate = true;
+
+  // One draw call apiece, so culling them saves nothing and a wrong instance
+  // bounding sphere could wrongly cull the lot.
+  for (const props of [trees, walls, roofs]) {
+    props.frustumCulled = false;
+    envGroup.add(props);
+  }
 
   const HAZE = new THREE.Color(0xa9d6ee); // colour of the air at the horizon
 
@@ -296,13 +371,23 @@ function createEnvironment(scene, rng, gradientMap) {
     };
   };
 
+  // Depths are set well beyond the terrain's near edge. The old deck sat at
+  // z -14..-46, in front of ground that starts at -12, so clouds hung on the
+  // hillsides and floated over the lake — the single worst tell in the scene.
+  // Pushed back, they are what they should be: weather above and behind the
+  // country, correctly occluded by the ridges that stand in front of them.
+  // Scales rise with depth to hold their apparent size, but by less than the
+  // distance does, so they also read as further away rather than merely bigger.
+  // `detail` is the puff tessellation: a subdivided dodecahedron is 144
+  // triangles against 36, which is worth paying where a cloud's silhouette is
+  // read and not worth it in the far band, where haze softens the edge anyway.
   const CLOUD_BANDS = [
-    // Far: small, heavily hazed, no outline — an outline is a near-field cue
-    // and drawing one at distance is what flattened the sky.
-    { count: 22, z: [-46, -34], haze: 0.62, scale: [1.6, 3.2], puffs: [4, 7], outline: 0 },
-    { count: 16, z: [-32, -22], haze: 0.34, scale: [2.4, 4.6], puffs: [5, 9], outline: 0.0 },
+    // Far: heavily hazed, no outline — an outline is a near-field cue and
+    // drawing one at distance is what flattened the sky.
+    { count: 28, z: [-190, -140], haze: 0.62, scale: [3.4, 6.8], puffs: [4, 7], outline: 0, detail: 0 },
+    { count: 20, z: [-135, -95], haze: 0.34, scale: [4.4, 8.4], puffs: [5, 9], outline: 0.0, detail: 1 },
     // Near: full colour and a crisp edge, which now reads as proximity.
-    { count: 9, z: [-22, -14], haze: 0.0, scale: [2.4, 4.4], puffs: [6, 11], outline: 1.05 },
+    { count: 12, z: [-90, -60], haze: 0.0, scale: [3.6, 6.6], puffs: [6, 11], outline: 1.05, detail: 1 },
   ];
 
   for (const band of CLOUD_BANDS) {
@@ -360,7 +445,7 @@ function createEnvironment(scene, rng, gradientMap) {
       for (const q of puffSpecs) {
         const t = hi > lo ? (q.y - lo) / (hi - lo) : 1;
         const mat = t > 0.72 ? pal.crown : t > 0.45 ? pal.body : t > 0.2 ? pal.shade : pal.base;
-        const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(q.r, 1), mat);
+        const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(q.r, band.detail), mat);
         puff.position.set(q.x, q.y, q.z);
         // Ellipsoids, not spheres. A sphere has one silhouette from every
         // angle, which is exactly the uniformity that reads as "ball".
@@ -377,10 +462,19 @@ function createEnvironment(scene, rng, gradientMap) {
       }
 
       const zDepth = rng.range(band.z[0], band.z[1]);
-      cloudGroup.position.set(rng.range(-140, 140), rng.range(2, 34), zDepth);
+      // How far off-centre a cloud must travel before it is genuinely out of
+      // shot grows with its depth, because the view cone widens with distance.
+      // A fixed wrap distance recycled far clouds while they were still on
+      // screen, which is visible as a pop.
+      const wrapAt = cloudWrapDistance(zDepth);
+      cloudGroup.position.set(rng.range(-wrapAt, wrapAt), cloudAltitude(rng), zDepth);
       // Parallax by depth: distant clouds drift slowly, which is the other
       // half of the depth illusion once colour has done its part.
-      cloudGroup.userData = { speed: rng.range(0.5, 2.6) * (1 - band.haze * 0.6), zDepth };
+      cloudGroup.userData = {
+        speed: rng.range(0.5, 2.6) * (1 - band.haze * 0.6),
+        zDepth,
+        wrapAt,
+      };
       envGroup.add(cloudGroup);
       clouds.push(cloudGroup);
     }
@@ -646,7 +740,12 @@ class SoundManager {
 }
 
 // --- Arena and Weapons Config ---
-const WORLD = { minX: -140, maxX: 140, groundY: -15, ceilY: 48 };
+const WORLD = { minX: -140, maxX: 140, groundY: -15, ceilY: 74 };
+
+// The camera may never sit below the near country. NEAR_CREST is measured
+// from the height function rather than guessed, so retuning the terrain moves
+// this floor with it instead of quietly putting the camera inside a hill.
+const CAM_FLOOR = NEAR_CREST + 6;
 
 /**
  * Flight envelope.
@@ -742,8 +841,17 @@ export function init({ renderer, state }) {
   const toonGradient = createToonGradient();
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500);
-  camera.position.set(0, 0, 32);
+  // Backstop behind the sky quad. The quad is sized to cover the frame at any
+  // altitude, but a gap would clear to black, and one black frame at the top
+  // of a climb is worse than the cost of a solid fill.
+  scene.background = new THREE.Color(0x1e8ce6);
+  const camera = new THREE.PerspectiveCamera(
+    CAMERA_FOV,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    900,
+  );
+  camera.position.set(0, 0, CAMERA_Z);
   const feel = createFeel();
 
   // Lighting
@@ -978,7 +1086,7 @@ export function init({ renderer, state }) {
       ...createFighterMesh(isAce ? 0x9b30ff : 0x6030c0, 0xffd700, toonGradient),
       pos: new THREE.Vector2(
         clamp(player.pos.x + (spawnLeft ? -50 : 50), WORLD.minX + 8, WORLD.maxX - 8),
-        rng.range(WORLD.groundY + 8, 32),
+        rng.range(WORLD.groundY + 8, 56),
       ),
       vel: new THREE.Vector2(spawnLeft ? rng.range(10, 16) : -rng.range(10, 16), rng.range(-3, 3)),
       angle: spawnLeft ? 0 : Math.PI,
@@ -1160,8 +1268,9 @@ export function init({ renderer, state }) {
         const menuGroupX = env.envGroup.position.x;
         for (const cloud of env.clouds) {
           cloud.position.x -= cloud.userData.speed * dt;
-          if (menuGroupX + cloud.position.x < camera.position.x - 130) {
-            cloud.position.x = camera.position.x + 130 - menuGroupX;
+          const wrapAt = cloud.userData.wrapAt;
+          if (menuGroupX + cloud.position.x < camera.position.x - wrapAt) {
+            cloud.position.x = camera.position.x + wrapAt - menuGroupX;
           }
         }
         renderer.render(scene, camera);
@@ -1758,7 +1867,19 @@ export function init({ renderer, state }) {
       // horizon pinned to the bottom edge and throws away the landscape
       // entirely; sitting lower than the aircraft puts the ground back in
       // frame, which is where the reference keeps it.
-      camTarget.y = clamp(player.pos.y * 0.38, WORLD.groundY + 4, WORLD.ceilY - 6);
+      //
+      // But a fixed fraction cannot hold a tall arena: at 0.38 the aircraft
+      // drifts up the screen as it climbs and leaves the top edge altogether
+      // past a few dozen units. So the loose follow is bounded by how far off
+      // centre the player may actually sit and still be drawn — the camera
+      // stays lazy low down, where the landscape matters, and tightens toward
+      // 1:1 as the climb would otherwise lose the aircraft.
+      const camSlack = CAMERA_Z * Math.tan((camera.fov * Math.PI) / 360) - 5;
+      camTarget.y = clamp(
+        clamp(player.pos.y * 0.38, player.pos.y - camSlack, player.pos.y + camSlack),
+        CAM_FLOOR,
+        WORLD.ceilY - 6,
+      );
       camera.position.x = damp(camera.position.x, camTarget.x, 3.5, rawDt);
       camera.position.y = damp(camera.position.y, camTarget.y, 2.5, rawDt);
       camera.position.x += feel.offset.x;
@@ -1783,9 +1904,10 @@ export function init({ renderer, state }) {
       for (const cloud of env.clouds) {
         cloud.position.x -= cloud.userData.speed * dt;
         const worldX = groupX + cloud.position.x;
-        if (worldX < camera.position.x - 130) {
-          cloud.position.x = camera.position.x + 130 - groupX;
-          cloud.position.y = rng.range(2, 34);
+        const wrapAt = cloud.userData.wrapAt;
+        if (worldX < camera.position.x - wrapAt) {
+          cloud.position.x = camera.position.x + wrapAt - groupX;
+          cloud.position.y = cloudAltitude(rng);
         }
       }
 
