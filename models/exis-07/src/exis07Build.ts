@@ -53,10 +53,19 @@ const STATIONS: Station[] = [
 
 /** The five profile points of a half-station, top centre round to bottom centre. */
 function profile(s: Station): [number, number][] {
+  const lower = s.chineY - s.botY;
+  // Two extra points, and both are real CREASES rather than chamfers: a break part way down
+  // the upper flank and one under the chine. I tried a nine-point version that chamfered
+  // every corner and it turned the section into an ellipse - the craft came out a smooth
+  // manta instead of a hard-surface racer. Flat runs meeting at hard corners is the whole
+  // design language, so density has to come from breaks, never from rounding.
   return [
     [0, s.topY],
-    [s.topHW, s.topY],
-    [s.hw, s.chineY],      // the chine: widest point, and where the light channel runs
+    [s.topHW, s.topY],                                    // deck edge, hard corner
+    [s.topHW + (s.hw - s.topHW) * 0.62,                   // upper-flank crease
+     s.chineY + (s.topY - s.chineY) * 0.30],
+    [s.hw, s.chineY],                                     // the chine: widest point
+    [s.hw * 0.93, s.chineY - lower * 0.40],               // break under the chine
     [s.topHW * 0.82, s.botY],
     [0, s.botY],
   ];
@@ -310,21 +319,30 @@ function buildFins(): THREE.Group {
 function buildPods(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'wingtip-pods';
-  const S = (z: number, x0: number, x1: number, y0: number, y1: number) =>
-    ({ z, pts: [[x0, y0], [x0, y1], [x1, y1], [x1, y0]] as [number, number][] });
-  // The pod is a NACELLE: it now runs from an inlet lip at z +0.06 back to the nozzle at
-  // -0.43, so the intake at its nose and the engine at its tail are the two ends of one
-  // duct. Previously the pod started at -0.12 and the intake sat separately on the hull
-  // flank, which left the outboard engines breathing from nothing.
+  // Eight-point section with SHALLOW corner cuts. Deep chamfers (0.24+) round a nacelle
+  // into a pill; 0.12 keeps the sides flat and just breaks the corners, which is what adds
+  // facets without softening the form.
+  const S = (z: number, x0: number, x1: number, y0: number, y1: number) => {
+    const cx = (x1 - x0) * 0.12, cy = (y1 - y0) * 0.13;
+    return { z, pts: [
+      [x0 + cx, y0], [x0, y0 + cy], [x0, y1 - cy], [x0 + cx, y1],
+      [x1 - cx, y1], [x1, y1 - cy], [x1, y0 + cy], [x1 - cx, y0],
+    ] as [number, number][] };
+  };
+  // The pod is a NACELLE: inlet lip at the nose, nozzle at the tail, one duct between.
+  // Enlarged on review from ~0.06 wide by 0.095 tall to ~0.13 by 0.17, and carried further
+  // forward, so it reads as its own mass rather than a fairing on the wingtip.
   addPair(g, () => prism([
-    S(0.060, 0.276, 0.302, -0.026, 0.033),
-    S(-0.060, 0.270, 0.312, -0.041, 0.051),
-    S(-0.200, 0.266, 0.322, -0.044, 0.049),
-    S(-0.360, 0.262, 0.318, -0.041, 0.046),
-    S(-0.430, 0.268, 0.300, -0.028, 0.031),
+    S(0.150, 0.244, 0.324, -0.038, 0.048),
+    S(0.040, 0.234, 0.348, -0.062, 0.076),
+    S(-0.080, 0.228, 0.362, -0.078, 0.094),
+    S(-0.210, 0.226, 0.366, -0.080, 0.096),
+    S(-0.330, 0.230, 0.360, -0.072, 0.086),
+    S(-0.410, 0.238, 0.344, -0.056, 0.066),
+    S(-0.455, 0.250, 0.324, -0.040, 0.046),
   ], MAT.hull(), 'wingtip-pod'), 'wingtip-pod');
-  // Emissive slot on the pod leading face.
-  addPair(g, () => ribbon([[0.286, 0.004, -0.130], [0.292, 0.004, -0.215]], 0.026,
+  // Emissive slot on the pod's outer flank.
+  addPair(g, () => ribbon([[0.360, 0.012, -0.110], [0.364, 0.012, -0.250]], 0.034,
                           MAT.emissive(), 'tip-slot'), 'tip-slot');
   return g;
 }
@@ -420,9 +438,9 @@ function buildIntakes(): THREE.Group {
     // nozzle are the two ends of one nacelle. Sized just inside the pod's leading section
     // (x 0.276-0.302, y -0.026..0.033) so the lip sits in the pod face rather than floating
     // beside it.
-    const lip: [number, number][] = [[0.280, -0.019], [0.299, -0.019], [0.299, 0.026], [0.280, 0.026]];
-    const back: [number, number][] = [[0.284, -0.010], [0.295, -0.010], [0.295, 0.017], [0.284, 0.017]];
-    const zLip = 0.058, zBack = -0.056;
+    const lip: [number, number][] = [[0.252, -0.030], [0.318, -0.030], [0.318, 0.042], [0.252, 0.042]];
+    const back: [number, number][] = [[0.266, -0.014], [0.304, -0.014], [0.304, 0.026], [0.266, 0.026]];
+    const zLip = 0.148, zBack = -0.020;
     for (let k = 0; k < lip.length; k++) {
       const k2 = (k + 1) % lip.length;
       f.quad([lip[k][0], lip[k][1], zLip], [lip[k2][0], lip[k2][1], zLip],
@@ -443,8 +461,8 @@ function buildIntakes(): THREE.Group {
   // A thin emissive sliver across the inlet's upper lip, matching the reference's habit of
   // outlining every opening.
   addPair(g, () => ribbon([
-    [0.281, 0.029, 0.059], [0.298, 0.029, 0.059],
-  ], 0.008, MAT.emissive(), 'intake-lip', [0, 0, 1]), 'intake-lip');
+    [0.254, 0.046, 0.149], [0.316, 0.046, 0.149],
+  ], 0.012, MAT.emissive(), 'intake-lip', [0, 0, 1]), 'intake-lip');
   return g;
 }
 
@@ -643,8 +661,8 @@ export function createExis07(): THREE.Group {
   prop.add(buildNozzle(0, 0.012, -0.500, 0.088, 5, 'engine-central'));
   const outboard = new THREE.Group();
   outboard.name = 'engine-outboard';
-  outboard.add(buildNozzle(0.290, 0.000, -0.430, 0.060, 4, 'engine-outboard-r'));
-  outboard.add(buildNozzle(-0.290, 0.000, -0.430, 0.060, 4, 'engine-outboard-l'));
+  outboard.add(buildNozzle(0.296, 0.009, -0.458, 0.090, 4, 'engine-outboard-r'));
+  outboard.add(buildNozzle(-0.296, 0.009, -0.458, 0.090, 4, 'engine-outboard-l'));
   prop.add(outboard);
   root.add(prop);
   return root;
