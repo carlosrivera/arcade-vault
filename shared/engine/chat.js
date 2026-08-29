@@ -1,10 +1,13 @@
 // chat.js — edit the running game by talking to it.
 //
-// A floating panel that sends the conversation, plus the current source of the
-// game's modules, to the local backend; the reply comes back as complete
-// replacement modules, which are applied as hot-reload overrides. The world
-// changes without the page reloading, and nothing touches disk until you
-// export.
+// The model drives: it lists files, reads the ones it needs, patches them and
+// reloads, one tool call at a time. The tools run HERE rather than on the
+// server because the browser holds the authoritative source — a module edited
+// this session exists only in IndexedDB, and a server-side read would return
+// the stale copy from disk.
+//
+// The alternative, shipping every source file with every message, cost ~73KB
+// of context per turn to change one number. Now a camera tweak reads one file.
 //
 // Development-only by construction: boot.js mounts this on loopback origins
 // only, so a deployed page never ships the editing surface.
@@ -12,12 +15,6 @@
 import { exportEdits, overridesFor, revertAll, saveEdit } from '#engine/storage.js';
 
 const BACKEND = 'http://127.0.0.1:8787';
-// Fenced block tagged with the file it changes:
-//   ```js path=/games/x/src/y.js            -> whole-module replacement
-//   ```js path=/games/x/src/y.js mode=patch -> SEARCH/REPLACE pairs
-const FILE_BLOCK = /```(?:js|javascript)\s+path=(\S+)([^\n]*)\n([\s\S]*?)```/g;
-const PATCH_PAIR = /<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE/g;
-
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -124,56 +121,6 @@ const CSS = `
 `;
 
 /**
- * Apply SEARCH/REPLACE pairs to a source string.
- *
- * @throws if a search string is absent or ambiguous — a patch that silently
- *   matched nothing would leave the game running stale code while the reply
- *   claimed success.
- */
-export function applyPatch(source, patchBody) {
-  let out = source;
-  let applied = 0;
-  for (const [, search, replace] of patchBody.matchAll(PATCH_PAIR)) {
-    const count = out.split(search).length - 1;
-    if (count === 0) throw new Error(`patch target not found: ${search.slice(0, 60)}…`);
-    if (count > 1)
-      throw new Error(`patch target matched ${count}× (must be unique): ${search.slice(0, 60)}…`);
-    out = out.replace(search, replace);
-    applied++;
-  }
-  if (!applied) throw new Error('patch block contained no SEARCH/REPLACE pairs');
-  return out;
-}
-
-/**
- * Pull `path=` tagged blocks out of a reply and resolve them to full sources.
- *
- * @param {string} text  the model's reply
- * @param {Record<string,string>} current  path -> source, for patch blocks
- */
-export function parseFileBlocks(text, current = {}) {
-  const files = {};
-  const errors = [];
-  for (const [, path, flags, body] of text.matchAll(FILE_BLOCK)) {
-    if (/\bmode=patch\b/.test(flags)) {
-      const base = files[path] ?? current[path];
-      if (base === undefined) {
-        errors.push(`${path}: patch block but no current source to apply it to`);
-        continue;
-      }
-      try {
-        files[path] = applyPatch(base, body);
-      } catch (error) {
-        errors.push(`${path}: ${error.message}`);
-      }
-    } else {
-      files[path] = body.trimEnd();
-    }
-  }
-  return { files, errors };
-}
-
-/**
  * Mount the panel.
  *
  * @param {object} options
@@ -253,6 +200,70 @@ export function mountChat({ game, gameId, sources = [] }) {
     return files;
   }
 
+  /**
+   * What the model can actually do. Each returns the string the model sees;
+   * failures are returned as text rather than thrown, so it can read the
+   * error and correct itself instead of the loop dying.
+   */
+  const tools = {
+    async list_files() {
+      const current = await currentSources();
+      return Object.entries(current)
+        .map(([path, src]) => `${path} (${(src.length / 1024).toFixed(1)}KB)`)
+        .join('\n');
+    },
+
+    async read_file({ path }) {
+      const current = await currentSources();
+      const source = current[path];
+      if (source === undefined) {
+        return `No such editable file: ${path}\nAvailable:\n${Object.keys(current).join('\n')}`;
+      }
+      return source;
+    },
+
+    async patch_file({ path, search, replace }) {
+      const current = await currentSources();
+      const source = current[path];
+      if (source === undefined) return `No such editable file: ${path}`;
+      const hits = source.split(search).length - 1;
+      // Refused rather than guessed at: a patch that silently matched nothing
+      // would leave the game running stale code while the model believed it
+      // had succeeded.
+      if (hits === 0)
+        return `search text not found in ${path}. Read the file and copy the exact text.`;
+      if (hits > 1)
+        return `search text matches ${hits} times in ${path}; include more surrounding lines to make it unique.`;
+      await saveEdit({ path, source: source.replace(search, replace), game: gameId });
+      return `patched ${path}`;
+    },
+
+    async write_file({ path, content }) {
+      await saveEdit({ path, source: content, game: gameId });
+      return `wrote ${path} (${(content.length / 1024).toFixed(1)}KB)`;
+    },
+
+    async reload() {
+      try {
+        await game.reload({ overrides: await overridesFor(gameId) });
+        return 'reload ok — the game is running your changes.';
+      } catch (error) {
+        return `reload FAILED: ${error.message}\nThe game is broken. Read the file you changed and fix it.`;
+      }
+    },
+  };
+
+  const LABELS = {
+    list_files: () => 'list files',
+    read_file: (a) => `read ${a.path?.split('/').pop() ?? '?'}`,
+    patch_file: (a) => `patch ${a.path?.split('/').pop() ?? '?'}`,
+    write_file: (a) => `write ${a.path?.split('/').pop() ?? '?'}`,
+    reload: () => 'reload',
+  };
+
+  // A wrong turn should cost a few seconds, not an unbounded spend.
+  const MAX_STEPS = 12;
+
   form.onsubmit = async (event) => {
     event.preventDefault();
     const prompt = input.value.trim();
@@ -262,42 +273,53 @@ export function mountChat({ game, gameId, sources = [] }) {
     say(prompt, 'user');
     history.push({ role: 'user', content: prompt });
 
-    const out = say('');
     try {
-      // Kept so patch blocks apply against exactly what the model was shown.
-      const sent = await currentSources();
-      const response = await fetch(`${BACKEND}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, files: sent }),
-      });
-      if (!response.ok) throw new Error(`backend ${response.status}: ${await response.text()}`);
+      for (let step = 0; step < MAX_STEPS; step++) {
+        const response = await fetch(`${BACKEND}/api/agent`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history }),
+        });
+        if (!response.ok) throw new Error(`backend ${response.status}: ${await response.text()}`);
+        const { text, toolCalls = [] } = await response.json();
 
-      // Stream so the reply appears as it is written rather than all at once.
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let full = '';
-      for (;;) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        full += decoder.decode(value, { stream: true });
-        out.textContent = full;
-        log.scrollTop = log.scrollHeight;
+        if (text) say(text);
+        if (!toolCalls.length) {
+          if (text) history.push({ role: 'assistant', content: text });
+          return;
+        }
+
+        // Echo the model's own turn back to it, then run what it asked for.
+        history.push({
+          role: 'assistant',
+          content: [
+            ...(text ? [{ type: 'text', text }] : []),
+            ...toolCalls.map((c) => ({
+              type: 'tool-call',
+              toolCallId: c.id,
+              toolName: c.name,
+              input: c.args,
+            })),
+          ],
+        });
+
+        const results = [];
+        for (const call of toolCalls) {
+          say(`▸ ${LABELS[call.name]?.(call.args ?? {}) ?? call.name}`, 'note');
+          const run = tools[call.name];
+          const value = run
+            ? await run(call.args ?? {}).catch((e) => `tool error: ${e.message}`)
+            : `unknown tool: ${call.name}`;
+          results.push({
+            type: 'tool-result',
+            toolCallId: call.id,
+            toolName: call.name,
+            output: { type: 'text', value: String(value) },
+          });
+        }
+        history.push({ role: 'tool', content: results });
       }
-      history.push({ role: 'assistant', content: full });
-
-      const { files, errors } = parseFileBlocks(full, sent);
-      for (const problem of errors) say(problem, 'err');
-      const paths = Object.keys(files);
-      if (!paths.length) return say('no file blocks applied', 'note');
-
-      for (const [path, source] of Object.entries(files)) {
-        await saveEdit({ path, source, game: gameId });
-      }
-      // Every stored edit is replayed, not just this turn's, so successive
-      // changes compose instead of the newest one reverting the rest.
-      await game.reload({ overrides: await overridesFor(gameId) });
-      say(`applied ${paths.length} file(s): ${paths.join(', ')}`, 'note');
+      say(`stopped after ${MAX_STEPS} steps`, 'err');
     } catch (error) {
       say(String(error.message ?? error), 'err');
     } finally {
