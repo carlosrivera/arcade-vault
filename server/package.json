@@ -1,0 +1,11 @@
+{
+  "name": "@vault/server",
+  "private": true,
+  "type": "module",
+  "description": "Local chat backend for editing games from the browser. Deno today, Cloudflare Workers later \u2014 the handler is Web-Standard only.",
+  "scripts": {
+    "dev": "deno task dev",
+    "check": "deno check src/main.ts",
+    "fmt": "deno fmt src"
+  }
+}

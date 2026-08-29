@@ -1,0 +1,5 @@
+# The site itself stays at the repo root: GitHub Pages serves main/ directly,
+# so moving games/ or shared/ under packages/ would change every public URL.
+# Only the backend is a separate workspace package.
+packages:
+  - 'server'

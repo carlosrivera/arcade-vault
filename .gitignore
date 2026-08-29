@@ -48,3 +48,7 @@ coverage/
 *.pgm
 heightmap*.png
 hillshade*.png
+
+# Deno's local install dir for npm specifiers (node_modules/ already covers it,
+# but be explicit so the workspace layout is obvious).
+server/node_modules/

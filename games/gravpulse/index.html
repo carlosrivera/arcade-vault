@@ -275,7 +275,8 @@
   // see shared/engine/boot.js.
   import { boot } from '#engine/boot.js';
 
-  boot({ entry: './src/main.js', maxPixelRatio: 2, toneMappingExposure: 1.12 });
+  boot({ entry: './src/main.js',
+    sources: ['./src/main.js', './src/track.js', './src/ships.js', './src/environment.js'], maxPixelRatio: 2, toneMappingExposure: 1.12 });
 </script>
 </body>
 </html>
