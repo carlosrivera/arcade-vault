@@ -14,7 +14,10 @@ function makePerm(seed) {
   for (let i = 0; i < 256; i++) p[i] = i;
   let s = seed >>> 0;
   const rnd = () => {
-    s ^= s << 13; s ^= s >>> 17; s ^= s << 5; s >>>= 0;
+    s ^= s << 13;
+    s ^= s >>> 17;
+    s ^= s << 5;
+    s >>>= 0;
     return s / 4294967296;
   };
   for (let i = 255; i > 0; i--) {
@@ -26,34 +29,68 @@ function makePerm(seed) {
   return perm;
 }
 const PERM = makePerm(NOISE_SEED);
-const GRAD2 = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+const GRAD2 = [
+  [1, 1],
+  [-1, 1],
+  [1, -1],
+  [-1, -1],
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+];
 
 function simplex2(xin, yin) {
-  const F2 = 0.5 * (Math.sqrt(3) - 1), G2 = (3 - Math.sqrt(3)) / 6;
-  let n0 = 0, n1 = 0, n2 = 0;
+  const F2 = 0.5 * (Math.sqrt(3) - 1),
+    G2 = (3 - Math.sqrt(3)) / 6;
+  let n0 = 0,
+    n1 = 0,
+    n2 = 0;
   const s = (xin + yin) * F2;
-  const i = Math.floor(xin + s), j = Math.floor(yin + s);
+  const i = Math.floor(xin + s),
+    j = Math.floor(yin + s);
   const t = (i + j) * G2;
-  const x0 = xin - (i - t), y0 = yin - (j - t);
-  const i1 = x0 > y0 ? 1 : 0, j1 = x0 > y0 ? 0 : 1;
-  const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
-  const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
-  const ii = i & 255, jj = j & 255;
+  const x0 = xin - (i - t),
+    y0 = yin - (j - t);
+  const i1 = x0 > y0 ? 1 : 0,
+    j1 = x0 > y0 ? 0 : 1;
+  const x1 = x0 - i1 + G2,
+    y1 = y0 - j1 + G2;
+  const x2 = x0 - 1 + 2 * G2,
+    y2 = y0 - 1 + 2 * G2;
+  const ii = i & 255,
+    jj = j & 255;
   let t0 = 0.5 - x0 * x0 - y0 * y0;
-  if (t0 > 0) { t0 *= t0; const g = GRAD2[PERM[ii + PERM[jj]] & 7]; n0 = t0 * t0 * (g[0] * x0 + g[1] * y0); }
+  if (t0 > 0) {
+    t0 *= t0;
+    const g = GRAD2[PERM[ii + PERM[jj]] & 7];
+    n0 = t0 * t0 * (g[0] * x0 + g[1] * y0);
+  }
   let t1 = 0.5 - x1 * x1 - y1 * y1;
-  if (t1 > 0) { t1 *= t1; const g = GRAD2[PERM[ii + i1 + PERM[jj + j1]] & 7]; n1 = t1 * t1 * (g[0] * x1 + g[1] * y1); }
+  if (t1 > 0) {
+    t1 *= t1;
+    const g = GRAD2[PERM[ii + i1 + PERM[jj + j1]] & 7];
+    n1 = t1 * t1 * (g[0] * x1 + g[1] * y1);
+  }
   let t2 = 0.5 - x2 * x2 - y2 * y2;
-  if (t2 > 0) { t2 *= t2; const g = GRAD2[PERM[ii + 1 + PERM[jj + 1]] & 7]; n2 = t2 * t2 * (g[0] * x2 + g[1] * y2); }
+  if (t2 > 0) {
+    t2 *= t2;
+    const g = GRAD2[PERM[ii + 1 + PERM[jj + 1]] & 7];
+    n2 = t2 * t2 * (g[0] * x2 + g[1] * y2);
+  }
   return 70 * (n0 + n1 + n2);
 }
 
 function fbm(x, y, octaves, lacunarity, gain) {
-  let amp = 1, freq = 1, sum = 0, norm = 0;
+  let amp = 1,
+    freq = 1,
+    sum = 0,
+    norm = 0;
   for (let o = 0; o < octaves; o++) {
     sum += amp * simplex2(x * freq, y * freq);
     norm += amp;
-    amp *= gain; freq *= lacunarity;
+    amp *= gain;
+    freq *= lacunarity;
   }
   return sum / norm;
 }
@@ -77,26 +114,42 @@ function makeDetailBumpTexture() {
     return ((Math.imul(h, 1274126177) ^ (h >>> 16)) >>> 0) / 4294967296;
   }
   function vn(x, y, period) {
-    let xi = Math.floor(x), yi = Math.floor(y);
-    const xf = x - xi, yf = y - yi;
-    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    let xi = Math.floor(x),
+      yi = Math.floor(y);
+    const xf = x - xi,
+      yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf),
+      v = yf * yf * (3 - 2 * yf);
     const l = (a, b, t) => a + (b - a) * t;
     const wrap = (c) => ((c % period) + period) % period;
-    return l(l(hash(wrap(xi), wrap(yi)), hash(wrap(xi + 1), wrap(yi)), u),
-      l(hash(wrap(xi), wrap(yi + 1)), hash(wrap(xi + 1), wrap(yi + 1)), u), v);
+    return l(
+      l(hash(wrap(xi), wrap(yi)), hash(wrap(xi + 1), wrap(yi)), u),
+      l(hash(wrap(xi), wrap(yi + 1)), hash(wrap(xi + 1), wrap(yi + 1)), u),
+      v,
+    );
   }
   const img = g.createImageData(size, size);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const u = x / size, v = y / size;
-      let n = 0, amp = 0.5, f = 4;
+      const u = x / size,
+        v = y / size;
+      let n = 0,
+        amp = 0.5,
+        f = 4;
       // Integer frequencies + lattice wrap make the texture tile. A non-integer
       // frequency (f *= 2.4 before) leaves a mismatched seam on every repeat,
       // reading as a regular grid of lines in-world.
-      for (let o = 0; o < 5; o++) { n += amp * vn(u * f, v * f, f); amp *= 0.55; f *= 2; }
+      for (let o = 0; o < 5; o++) {
+        n += amp * vn(u * f, v * f, f);
+        amp *= 0.55;
+        f *= 2;
+      }
       const val = Math.round(Math.max(0, Math.min(1, n)) * 255);
       const i = (y * size + x) * 4;
-      img.data[i] = val; img.data[i + 1] = val; img.data[i + 2] = val; img.data[i + 3] = 255;
+      img.data[i] = val;
+      img.data[i + 1] = val;
+      img.data[i + 2] = val;
+      img.data[i + 3] = 255;
     }
   }
   g.putImageData(img, 0, 0);
@@ -136,13 +189,13 @@ function makeTerrainMaterial(cloud) {
         '#include <common>',
         `#include <common>
         varying vec3 vTerrainWorldPosition;
-        varying vec3 vTerrainWorldNormal;`
+        varying vec3 vTerrainWorldNormal;`,
       )
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
         vTerrainWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
-        vTerrainWorldNormal = normalize(mat3(modelMatrix) * objectNormal);`
+        vTerrainWorldNormal = normalize(mat3(modelMatrix) * objectNormal);`,
       );
     shader.fragmentShader = shader.fragmentShader
       .replace(
@@ -178,7 +231,7 @@ function makeTerrainMaterial(cloud) {
           
           // Blend noise dynamically
           return mix(s1, s2, 0.5) * 1.2;
-        }`
+        }`,
       )
       .replace(
         '#include <color_fragment>',
@@ -231,10 +284,11 @@ function makeTerrainMaterial(cloud) {
         } else if (terrainDebugMode > 2.5) {
           terrainColor = vec3(shoreWeight, cliffWeight, snowWeight);
         }
-        diffuseColor.rgb *= terrainColor;`
+        diffuseColor.rgb *= terrainColor;`,
       );
   };
-  mat.customProgramCacheKey = () => cloud ? 'aces-terrain-triplanar-v2-cs' : 'aces-terrain-triplanar-v2';
+  mat.customProgramCacheKey = () =>
+    cloud ? 'aces-terrain-triplanar-v2-cs' : 'aces-terrain-triplanar-v2';
   mat.userData.shaderState = shaderState;
   return mat;
 }
@@ -265,7 +319,8 @@ const WL = (metres) => 1 / (metres * HSCALE);
 // Rotating the domain between octaves keeps every octave from sharing the same
 // simplex lattice axes, which otherwise shows up as faint directional banding.
 const OCT_ROT = Math.PI * 0.37;
-const ORC = Math.cos(OCT_ROT), ORS = Math.sin(OCT_ROT);
+const ORC = Math.cos(OCT_ROT),
+  ORS = Math.sin(OCT_ROT);
 
 // Ridged multifractal -- the core of the mountain shape. Each octave is masked
 // by the one beneath it (crest weighting), so detail concentrates along ridge
@@ -280,8 +335,13 @@ const ORC = Math.cos(OCT_ROT), ORS = Math.sin(OCT_ROT);
 // Output is roughly 0..0.8 and is deliberately never clamped by the caller --
 // a hard clamp is what flattens summits into plateaus.
 function ridgeMultifractal(x, z, octaves, lacunarity, gain, crest) {
-  let sum = 0, norm = 0, amp = 1, freq = 1, w = 1;
-  let px = x, pz = z;
+  let sum = 0,
+    norm = 0,
+    amp = 1,
+    freq = 1,
+    w = 1;
+  let px = x,
+    pz = z;
   for (let o = 0; o < octaves; o++) {
     const v = simplex2(px * freq, pz * freq);
     let r = 1 - Math.abs(v);
@@ -289,9 +349,11 @@ function ridgeMultifractal(x, z, octaves, lacunarity, gain, crest) {
     sum += amp * r * w;
     w = saturate(r * crest * 2.0);
     norm += amp;
-    amp *= gain; freq *= lacunarity;
+    amp *= gain;
+    freq *= lacunarity;
     const nx = px * ORC - pz * ORS;
-    pz = px * ORS + pz * ORC; px = nx;
+    pz = px * ORS + pz * ORC;
+    px = nx;
   }
   return sum / norm;
 }
@@ -299,14 +361,20 @@ function ridgeMultifractal(x, z, octaves, lacunarity, gain, crest) {
 // fbm with the octave rotation, for rolling ground: same treatment as the
 // ridge field so the two blend without a character break.
 function rotatedFbm(x, z, octaves, lacunarity, gain) {
-  let sum = 0, norm = 0, amp = 1, freq = 1;
-  let px = x, pz = z;
+  let sum = 0,
+    norm = 0,
+    amp = 1,
+    freq = 1;
+  let px = x,
+    pz = z;
   for (let o = 0; o < octaves; o++) {
     sum += amp * simplex2(px * freq, pz * freq);
     norm += amp;
-    amp *= gain; freq *= lacunarity;
+    amp *= gain;
+    freq *= lacunarity;
     const nx = px * ORC - pz * ORS;
-    pz = px * ORS + pz * ORC; px = nx;
+    pz = px * ORS + pz * ORC;
+    px = nx;
   }
   return sum / norm;
 }
@@ -319,8 +387,12 @@ function rotatedFbm(x, z, octaves, lacunarity, gain) {
 // outermost level evaluates one or two octaves where the near field runs ten.
 function octavesFor(wavelength, lacunarity, maxOct, cell, minOct = 1) {
   if (cell <= 0) return maxOct;
-  let n = 0, wl = wavelength;
-  while (n < maxOct && wl >= 2 * cell) { wl /= lacunarity; n++; }
+  let n = 0,
+    wl = wavelength;
+  while (n < maxOct && wl >= 2 * cell) {
+    wl /= lacunarity;
+    n++;
+  }
   return n < minOct ? minOct : n;
 }
 
@@ -332,7 +404,7 @@ export function heightAt(x, z, cell = 0) {
 
   // continents -> land vs ocean
   const cont = fbm(px * WL(120000), pz * WL(120000), 3, 2.0, 0.5);
-  const land = smoothstep(-0.25, 0.30, cont);
+  const land = smoothstep(-0.25, 0.3, cont);
 
   // A high-frequency warp only. A low-frequency warp of any useful amplitude
   // folds the ridge field over itself and smears it into long wax-like streaks.
@@ -345,18 +417,18 @@ export function heightAt(x, z, cell = 0) {
   // Mountain belts. Real ranges are linear, so the anisotropy lives here in the
   // mask rather than in the ridge field -- stretching the mask elongates the
   // range while leaving the crests inside it isotropic and sharp.
-  const ux = (px * 0.94 + pz * 0.34) * WL(80000) / 2.2;
+  const ux = ((px * 0.94 + pz * 0.34) * WL(80000)) / 2.2;
   const uz = (pz * 0.94 - px * 0.34) * WL(80000) * 2.2;
   const uplift = fbm(ux + 5.2 + w1 * 0.35, uz + 1.3 + w2 * 0.35, 3, 2.0, 0.5);
-  const belt = smoothstep(-0.30, 0.38, uplift);   // high range core
-  const foot = smoothstep(-0.60, 0.02, uplift);   // wider skirt -> foothills
+  const belt = smoothstep(-0.3, 0.38, uplift); // high range core
+  const foot = smoothstep(-0.6, 0.02, uplift); // wider skirt -> foothills
 
   let relief = 0;
   if (foot > 0.001) {
     const rOct = octavesFor(11000 * HSCALE, 2.07, 10, cell, 1);
-    const rx = px * WL(11000) + w1 * 0.10;
-    const rz = pz * WL(11000) + w2 * 0.10;
-    relief = ridgeMultifractal(rx, rz, rOct, 2.07, 0.52, 0.70);
+    const rx = px * WL(11000) + w1 * 0.1;
+    const rz = pz * WL(11000) + w2 * 0.1;
+    relief = ridgeMultifractal(rx, rz, rOct, 2.07, 0.52, 0.7);
     // monotonic remap: steepens the peak distribution without ever clipping,
     // so summits stay pointed instead of flattening into snowfields
     relief = (relief * 1.45) ** 1.35;
@@ -365,15 +437,15 @@ export function heightAt(x, z, cell = 0) {
   // rolling ground outside the ranges, down to ~60 m features
   const lOct = octavesFor(6000 * HSCALE, 2.13, 7, cell, 1);
   let lowland = rotatedFbm(px * WL(6000) + 17.0, pz * WL(6000) - 9.0, lOct, 2.13, 0.55) * 450;
-  const fOct = octavesFor(900 * HSCALE, 2.10, 4, cell, 0);
+  const fOct = octavesFor(900 * HSCALE, 2.1, 4, cell, 0);
   if (fOct > 0) {
-    lowland += rotatedFbm(px * WL(900) - 5.0, pz * WL(900) + 3.0, fOct, 2.10, 0.50) * 90;
+    lowland += rotatedFbm(px * WL(900) - 5.0, pz * WL(900) + 3.0, fOct, 2.1, 0.5) * 90;
   }
 
   // No unmodulated pedestal here: every mountain metre is scaled by relief, so
   // the belt mask cannot show through as a smooth ramp of its own.
-  const mtn = (belt * 0.75 + foot * 0.25) * (relief * 2600 + relief * relief * 700)
-            + foot * relief * 480;
+  const mtn =
+    (belt * 0.75 + foot * 0.25) * (relief * 2600 + relief * relief * 700) + foot * relief * 480;
 
   let h = -260 + land * 680 + lowland * land * (1 - belt * 0.5) + mtn * land;
 
@@ -382,9 +454,11 @@ export function heightAt(x, z, cell = 0) {
   // stay shallow in the lowlands, and nothing is ever cut below the floor -- so
   // a channel can never punch a hole through a ridge or flood the interior.
   const river = Math.abs(fbm(px * WL(26000) - 4.4, pz * WL(26000) + 2.2, 3, 2.0, 0.5));
-  const trunk = smoothstep(0.20, 0.0, river);
+  const trunk = smoothstep(0.2, 0.0, river);
   const cOct = octavesFor(7000 * HSCALE, 2.1, 3, cell, 1);
-  const creek = Math.abs(fbm(px * WL(7000) + 2.1 + w1 * 0.4, pz * WL(7000) - 6.3 + w2 * 0.4, cOct, 2.1, 0.5));
+  const creek = Math.abs(
+    fbm(px * WL(7000) + 2.1 + w1 * 0.4, pz * WL(7000) - 6.3 + w2 * 0.4, cOct, 2.1, 0.5),
+  );
   const trib = smoothstep(0.11, 0.0, creek);
   const carve = saturate(trunk * 0.55 + trib * 0.22) * land;
   h -= carve * Math.max(0, h - 55);
@@ -425,17 +499,17 @@ export { cachedHeight as terrainHeightAt };
 // boundary land precisely on a cell boundary of the next level out, so the hole
 // punched in the coarser level coincides with the finer level's extent. RING
 // must stay even and >= 4 for that alignment argument to hold.
-const BASE_CELL = 800;    // finest cell
+const BASE_CELL = 800; // finest cell
 // Segments per cell edge, one entry per level. Near levels tessellate twice as
 // finely (12.5 m vertices at level 0) so the ground under the jet reads smooth;
 // mid levels got 48 too — they sit right at the DOF focus ring where the eye
 // still resolves silhouette detail; the outermost levels stay at 32 since
 // their vertices are far below one pixel (and DOF blurs them anyway).
 const CELL_SEGS = [64, 64, 48, 48, 32, 32, 32];
-const RING = 8;           // cells per side per level; even and >= 4
-const LEVELS = 7;         // 800 m .. 51.2 km cells -> terrain out to ~205 km
-const SHADOW_LEVELS = 2;  // only the near levels sit inside the sun's frustum
-const BUILD_BUDGET_MS = 5;  // per-frame slice for staging new chunks
+const RING = 8; // cells per side per level; even and >= 4
+const LEVELS = 7; // 800 m .. 51.2 km cells -> terrain out to ~205 km
+const SHADOW_LEVELS = 2; // only the near levels sit inside the sun's frustum
+const BUILD_BUDGET_MS = 5; // per-frame slice for staging new chunks
 
 export class Terrain {
   constructor(scene, cloud) {
@@ -454,8 +528,8 @@ export class Terrain {
         cell: BASE_CELL * (1 << L),
         step: (BASE_CELL * (1 << L)) / CELL_SEGS[L],
         cast: L < SHADOW_LEVELS,
-        chunks: new Map(),   // "cx,cz" -> mesh, committed and visible
-        staged: new Map(),   // built but hidden, waiting for an atomic swap
+        chunks: new Map(), // "cx,cz" -> mesh, committed and visible
+        staged: new Map(), // built but hidden, waiting for an atomic swap
         free: [],
       });
     }
@@ -476,8 +550,8 @@ export class Terrain {
         roughness: 0.1,
         metalness: 0.8,
         transparent: true,
-        opacity: 0.85
-      })
+        opacity: 0.85,
+      }),
     );
     this.ocean.position.y = OCEAN_LEVEL;
     scene.add(this.ocean);
@@ -490,7 +564,8 @@ export class Terrain {
   // metre. The skirt hangs below the seam and fills the crack that would
   // otherwise show sky straight through the terrain.
   makeChunkGeometry(cell, seg) {
-    const gw = seg + 1, step = cell / seg;
+    const gw = seg + 1,
+      step = cell / seg;
     const rim = 4 * seg;
     const vertCount = gw * gw + rim;
     const pos = new Float32Array(vertCount * 3);
@@ -506,27 +581,30 @@ export class Terrain {
     // makes the skirt quads face outward instead of being backface-culled.
     const rimIdx = new Int32Array(rim);
     let k = 0;
-    for (let ix = 0; ix < seg; ix++) rimIdx[k++] = ix;               // -z edge
-    for (let iz = 0; iz < seg; iz++) rimIdx[k++] = iz * gw + seg;    // +x edge
-    for (let ix = seg; ix > 0; ix--) rimIdx[k++] = seg * gw + ix;    // +z edge
-    for (let iz = seg; iz > 0; iz--) rimIdx[k++] = iz * gw;          // -x edge
+    for (let ix = 0; ix < seg; ix++) rimIdx[k++] = ix; // -z edge
+    for (let iz = 0; iz < seg; iz++) rimIdx[k++] = iz * gw + seg; // +x edge
+    for (let ix = seg; ix > 0; ix--) rimIdx[k++] = seg * gw + ix; // +z edge
+    for (let iz = seg; iz > 0; iz--) rimIdx[k++] = iz * gw; // -x edge
     for (let p = 0; p < rim; p++) {
-      const g = rimIdx[p] * 3, sk = (gw * gw + p) * 3;
-      pos[sk] = pos[g]; pos[sk + 2] = pos[g + 2];
+      const g = rimIdx[p] * 3,
+        sk = (gw * gw + p) * 3;
+      pos[sk] = pos[g];
+      pos[sk + 2] = pos[g + 2];
     }
 
     const idx = [];
     for (let iz = 0; iz < seg; iz++) {
       for (let ix = 0; ix < seg; ix++) {
-        const a = ix + gw * iz, b = ix + gw * (iz + 1);
-        const c = ix + 1 + gw * (iz + 1), d = ix + 1 + gw * iz;
+        const a = ix + gw * iz,
+          b = ix + gw * (iz + 1);
+        const c = ix + 1 + gw * (iz + 1),
+          d = ix + 1 + gw * iz;
         idx.push(a, b, d, b, c, d);
       }
     }
     for (let p = 0; p < rim; p++) {
       const q = (p + 1) % rim;
-      idx.push(rimIdx[p], rimIdx[q], gw * gw + p,
-              rimIdx[q], gw * gw + q, gw * gw + p);
+      idx.push(rimIdx[p], rimIdx[q], gw * gw + p, rimIdx[q], gw * gw + q, gw * gw + p);
     }
 
     const geo = new THREE.BufferGeometry();
@@ -550,10 +628,12 @@ export class Terrain {
 
     const geo = mesh.geometry;
     const { gw, rim, rimIdx } = geo.userData;
-    const seg = CELL_SEGS[lv.L], step = lv.step;
+    const seg = CELL_SEGS[lv.L],
+      step = lv.step;
     const pos = geo.attributes.position.array;
     const nor = geo.attributes.normal.array;
-    const ox = (cx + 0.5) * lv.cell, oz = (cz + 0.5) * lv.cell;
+    const ox = (cx + 0.5) * lv.cell,
+      oz = (cz + 0.5) * lv.cell;
 
     // Sample once onto a grid carrying a one-cell apron beyond the edge, then
     // take both vertex heights and central-difference normals from it. The
@@ -563,9 +643,11 @@ export class Terrain {
     const pw = seg + 3;
     if (!this.grid || this.grid.length < pw * pw) this.grid = new Float64Array(pw * pw);
     const grid = this.grid;
-    const gx0 = ox - lv.cell / 2 - step, gz0 = oz - lv.cell / 2 - step;
+    const gx0 = ox - lv.cell / 2 - step,
+      gz0 = oz - lv.cell / 2 - step;
     for (let gz = 0; gz < pw; gz++) {
-      const wz = gz0 + gz * step, row = gz * pw;
+      const wz = gz0 + gz * step,
+        row = gz * pw;
       for (let gx = 0; gx < pw; gx++) grid[row + gx] = heightAt(gx0 + gx * step, wz, step);
     }
 
@@ -578,14 +660,19 @@ export class Terrain {
         const ny = 2 * step;
         const nz = grid[g - pw] - grid[g + pw];
         const inv = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
-        nor[v] = nx * inv; nor[v + 1] = ny * inv; nor[v + 2] = nz * inv;
+        nor[v] = nx * inv;
+        nor[v + 1] = ny * inv;
+        nor[v + 2] = nz * inv;
       }
     }
     const drop = step * 3;
     for (let p = 0; p < rim; p++) {
-      const g = rimIdx[p] * 3, sk = (gw * gw + p) * 3;
+      const g = rimIdx[p] * 3,
+        sk = (gw * gw + p) * 3;
       pos[sk + 1] = pos[g + 1] - drop;
-      nor[sk] = nor[g]; nor[sk + 1] = nor[g + 1]; nor[sk + 2] = nor[g + 2];
+      nor[sk] = nor[g];
+      nor[sk + 1] = nor[g + 1];
+      nor[sk + 2] = nor[g + 2];
     }
 
     geo.attributes.position.needsUpdate = true;
@@ -609,13 +696,17 @@ export class Terrain {
   planFor(playerPos) {
     const H = RING / 2;
     const sets = [];
-    let hole = null, sig = '';
+    let hole = null,
+      sig = '';
     for (let L = 0; L < LEVELS; L++) {
       const c = this.levels[L].cell;
       const ci = 2 * Math.round(playerPos.x / (2 * c));
       const cj = 2 * Math.round(playerPos.z / (2 * c));
       sig += `${ci},${cj};`;
-      const x0 = ci - H, x1 = ci + H, z0 = cj - H, z1 = cj + H;
+      const x0 = ci - H,
+        x1 = ci + H,
+        z0 = cj - H,
+        z1 = cj + H;
       const set = new Set();
       for (let cx = x0; cx < x1; cx++) {
         for (let cz = z0; cz < z1; cz++) {
@@ -639,7 +730,10 @@ export class Terrain {
       for (let L = 0; L < LEVELS; L++) {
         const lv = this.levels[L];
         for (const [key, mesh] of lv.staged) {
-          if (!plan.sets[L].has(key)) { lv.free.push(mesh); lv.staged.delete(key); }
+          if (!plan.sets[L].has(key)) {
+            lv.free.push(mesh);
+            lv.staged.delete(key);
+          }
         }
       }
       this.pending = [];
@@ -679,11 +773,19 @@ export class Terrain {
 
   commit() {
     for (let L = 0; L < LEVELS; L++) {
-      const lv = this.levels[L], want = this.target[L];
+      const lv = this.levels[L],
+        want = this.target[L];
       for (const [key, mesh] of lv.chunks) {
-        if (!want.has(key)) { mesh.visible = false; lv.free.push(mesh); lv.chunks.delete(key); }
+        if (!want.has(key)) {
+          mesh.visible = false;
+          lv.free.push(mesh);
+          lv.chunks.delete(key);
+        }
       }
-      for (const [key, mesh] of lv.staged) { mesh.visible = true; lv.chunks.set(key, mesh); }
+      for (const [key, mesh] of lv.staged) {
+        mesh.visible = true;
+        lv.chunks.set(key, mesh);
+      }
       lv.staged.clear();
     }
   }
@@ -753,9 +855,14 @@ export function buildClouds(scene) {
 
   const group = new THREE.Group();
   const mat = new THREE.SpriteMaterial({
-    map: tex, transparent: true, depthWrite: false, opacity: 0.75,
+    map: tex,
+    transparent: true,
+    depthWrite: false,
+    opacity: 0.75,
   });
-  const CELL = 9000, N = 5, PUFFS = 46;
+  const CELL = 9000,
+    N = 5,
+    PUFFS = 46;
   const rand = mulberry32(4242);
   const cloudData = [];
   for (let i = 0; i < PUFFS; i++) {
@@ -785,7 +892,8 @@ export function buildClouds(scene) {
 
 function mulberry32(a) {
   return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;

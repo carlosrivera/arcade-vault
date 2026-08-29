@@ -15,11 +15,7 @@
     "description": "High-speed anti-gravity racing tournament. Bank through neon circuits, deploy shields, fire rockets, and claim pole position.",
     "thumbnail": "",
     "path": "games/gravpulse/index.html",
-    "tags": [
-      "3D",
-      "Racing",
-      "Arcade"
-    ],
+    "tags": ["3D", "Racing", "Arcade"],
     "style": {
       "theme": "neon-cyber",
       "primaryColor": "#35f0ff",
@@ -43,13 +39,7 @@
     "description": "Excavate ancient ruins buried beneath the desert in a 100% procedural voxel diorama. Dodge scorpions and spike traps, uncover golden relics, and descend into forgotten tombs.",
     "thumbnail": "",
     "path": "games/dunesweeper/index.html",
-    "tags": [
-      "3D",
-      "Voxel",
-      "Puzzle",
-      "Minesweeper",
-      "Procedural"
-    ],
+    "tags": ["3D", "Voxel", "Puzzle", "Minesweeper", "Procedural"],
     "style": {
       "theme": "desert-ruins",
       "primaryColor": "#f5b700",
@@ -73,13 +63,7 @@
     "description": "Fly an F-22-style fighter with a realistic 6DOF physics model over infinite procedural terrain. Full fighter HUD with artificial horizon, lock-on missiles, cannon, and enemy ace AI.",
     "thumbnail": "assets/games/aces.jpg",
     "path": "games/aces/index.html",
-    "tags": [
-      "3D",
-      "Flight",
-      "Combat",
-      "Simulation",
-      "Procedural"
-    ],
+    "tags": ["3D", "Flight", "Combat", "Simulation", "Procedural"],
     "style": {
       "theme": "air-combat",
       "primaryColor": "#6cf0a0",

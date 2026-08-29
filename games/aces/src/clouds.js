@@ -33,10 +33,11 @@ export function puffTexture(hardCore = false) {
 // ---------------------------------------------------------------- 3D Periodic Noise Texture
 // Seeded so the JS-side density twin (cloudDensityAt) sees the SAME field as
 // the GPU texture — used for the inside-cloud lens wetness detection.
-const NOISE_SEED = 0xC10D5;
+const NOISE_SEED = 0xc10d5;
 function mulberry32(a) {
   return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
@@ -61,7 +62,12 @@ function getWorleyGrids() {
     }
     return { numCells, grid };
   };
-  _grids = { w4: makeWorleyGrid(8), w8: makeWorleyGrid(18), w16: makeWorleyGrid(32), w32: makeWorleyGrid(48) };
+  _grids = {
+    w4: makeWorleyGrid(8),
+    w8: makeWorleyGrid(18),
+    w16: makeWorleyGrid(32),
+    w32: makeWorleyGrid(48),
+  };
   return _grids;
 }
 
@@ -85,9 +91,15 @@ function create3DNoiseTexture() {
           const nz = (cz + dz + nc) % nc;
           const pt = w.grid[nz * nc * nc + ny * nc + nx];
 
-          let ddx = gx - pt[0]; if (ddx > 0.5) ddx -= 1; else if (ddx < -0.5) ddx += 1;
-          let ddy = gy - pt[1]; if (ddy > 0.5) ddy -= 1; else if (ddy < -0.5) ddy += 1;
-          let ddz = gz - pt[2]; if (ddz > 0.5) ddz -= 1; else if (ddz < -0.5) ddz += 1;
+          let ddx = gx - pt[0];
+          if (ddx > 0.5) ddx -= 1;
+          else if (ddx < -0.5) ddx += 1;
+          let ddy = gy - pt[1];
+          if (ddy > 0.5) ddy -= 1;
+          else if (ddy < -0.5) ddy += 1;
+          let ddz = gz - pt[2];
+          if (ddz > 0.5) ddz -= 1;
+          else if (ddz < -0.5) ddz += 1;
           const d2 = ddx * ddx + ddy * ddy + ddz * ddz;
           if (d2 < minDist) minDist = d2;
         }
@@ -108,9 +120,9 @@ function create3DNoiseTexture() {
         const v3 = sampleWorley(fx, fy, fz, w16);
         const v4 = sampleWorley(fx, fy, fz, w32);
         const baseFbm = v1 * 0.588 + v2 * 0.235 + v3 * 0.118 + v4 * 0.059;
-        data[idx++] = Math.round(baseFbm * 255);             // R: Base cumulus billow shape
-        data[idx++] = Math.round(v2 * 255);                  // G: Mid-frequency erosion
-        data[idx++] = Math.round(v3 * 255);                  // B: High-frequency fluff
+        data[idx++] = Math.round(baseFbm * 255); // R: Base cumulus billow shape
+        data[idx++] = Math.round(v2 * 255); // G: Mid-frequency erosion
+        data[idx++] = Math.round(v3 * 255); // B: High-frequency fluff
         data[idx++] = Math.round((v2 * 0.6 + v3 * 0.4) * 255); // A: Micro detail
       }
     }
@@ -142,14 +154,14 @@ export const CloudShader = {
     uViewInverse: { value: new THREE.Matrix4() },
     logDepthBufFC: { value: 2.0 / Math.log2(400000.0 + 1.0) },
   },
-  vertexShader: /* glsl */`
+  vertexShader: /* glsl */ `
     varying vec2 vUv;
     void main() {
       vUv = uv;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
-  fragmentShader: /* glsl */`
+  fragmentShader: /* glsl */ `
     precision highp float;
     precision highp sampler3D;
 
@@ -331,7 +343,7 @@ export const CloudShader = {
 
       fragColor = vec4(mix(sceneColor.rgb, colAcc / max(0.0001, alpha), alpha), 1.0);
     }
-  `
+  `,
 };
 
 // JS twin of the GLSL density field (seeded grids above make them agree) —
@@ -341,51 +353,73 @@ export function cloudDensityAt(px, py, pz, time) {
   const S = 96;
   const sampleWorley = (gx, gy, gz, w) => {
     const nc = w.numCells;
-    const cx = Math.floor(gx * nc), cy = Math.floor(gy * nc), cz = Math.floor(gz * nc);
+    const cx = Math.floor(gx * nc),
+      cy = Math.floor(gy * nc),
+      cz = Math.floor(gz * nc);
     let minDist = 999.0;
-    for (let dz = -1; dz <= 1; dz++) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-      // JS % keeps the sign — fold twice for GLSL-mod semantics
-      const mz = ((cz + dz) % nc + nc) % nc, my = ((cy + dy) % nc + nc) % nc, mx = ((cx + dx) % nc + nc) % nc;
-      const pt = w.grid[mz * nc * nc + my * nc + mx];
-      let ddx = gx - pt[0]; if (ddx > 0.5) ddx -= 1; else if (ddx < -0.5) ddx += 1;
-      let ddy = gy - pt[1]; if (ddy > 0.5) ddy -= 1; else if (ddy < -0.5) ddy += 1;
-      let ddz = gz - pt[2]; if (ddz > 0.5) ddz -= 1; else if (ddz < -0.5) ddz += 1;
-      const d2 = ddx * ddx + ddy * ddy + ddz * ddz;
-      if (d2 < minDist) minDist = d2;
-    }
+    for (let dz = -1; dz <= 1; dz++)
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++) {
+          // JS % keeps the sign — fold twice for GLSL-mod semantics
+          const mz = (((cz + dz) % nc) + nc) % nc,
+            my = (((cy + dy) % nc) + nc) % nc,
+            mx = (((cx + dx) % nc) + nc) % nc;
+          const pt = w.grid[mz * nc * nc + my * nc + mx];
+          let ddx = gx - pt[0];
+          if (ddx > 0.5) ddx -= 1;
+          else if (ddx < -0.5) ddx += 1;
+          let ddy = gy - pt[1];
+          if (ddy > 0.5) ddy -= 1;
+          else if (ddy < -0.5) ddy += 1;
+          let ddz = gz - pt[2];
+          if (ddz > 0.5) ddz -= 1;
+          else if (ddz < -0.5) ddz += 1;
+          const d2 = ddx * ddx + ddy * ddy + ddz * ddz;
+          if (d2 < minDist) minDist = d2;
+        }
     return 1.0 - Math.min(1.0, Math.sqrt(minDist) * nc * 0.9);
   };
   const uvw = [(px + time * 18.0) * 0.00005, py * 0.00005, (pz + time * 12.0) * 0.00005];
   const n = [
-    sampleWorley(uvw[0], uvw[1], uvw[2], w4) * 0.588
-      + sampleWorley(uvw[0], uvw[1], uvw[2], w8) * 0.235
-      + sampleWorley(uvw[0], uvw[1], uvw[2], w16) * 0.118
-      + sampleWorley(uvw[0], uvw[1], uvw[2], w32) * 0.059,
+    sampleWorley(uvw[0], uvw[1], uvw[2], w4) * 0.588 +
+      sampleWorley(uvw[0], uvw[1], uvw[2], w8) * 0.235 +
+      sampleWorley(uvw[0], uvw[1], uvw[2], w16) * 0.118 +
+      sampleWorley(uvw[0], uvw[1], uvw[2], w32) * 0.059,
     sampleWorley(uvw[0], uvw[1], uvw[2], w8),
     sampleWorley(uvw[0], uvw[1], uvw[2], w16),
   ];
   const h = (py - 2200.0) / (5400.0 - 2200.0);
   if (h < 0.0 || h > 1.0) return 0.0;
-  const hGrad = Math.min(1, Math.max(0, (h - 0.0) / 0.12)) ** 1
-    * (1 - Math.min(1, Math.max(0, (h - 0.65) / 0.35)))
-    * Math.pow(h, 0.22);
+  const hGrad =
+    Math.min(1, Math.max(0, (h - 0.0) / 0.12)) ** 1 *
+    (1 - Math.min(1, Math.max(0, (h - 0.65) / 0.35))) *
+    Math.pow(h, 0.22);
   if (hGrad < 0.001) return 0.0;
   let base = Math.max(0.0, (n[0] - 0.44) / 0.56);
   if (base <= 0.0) return 0.0;
-  const erosion = (1 - n[1]) * 0.30 + (1 - n[2]) * 0.42;
+  const erosion = (1 - n[1]) * 0.3 + (1 - n[2]) * 0.42;
   let d = Math.max(0.0, base - erosion) * hGrad * 1.35;
   // weather mask — same hash/vnoise the GLSL uses
-  const hash2 = (x, y) => { const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return v - Math.floor(v); };
-  const vnoise2 = (qx, qy) => {
-    const i = [Math.floor(qx), Math.floor(qy)], f = [qx - i[0], qy - i[1]];
-    const u = [f[0] * f[0] * (3 - 2 * f[0]), f[1] * f[1] * (3 - 2 * f[1])];
-    const a = hash2(i[0], i[1]), b = hash2(i[0] + 1, i[1]);
-    const c = hash2(i[0], i[1] + 1), dd = hash2(i[0] + 1, i[1] + 1);
-    return (a + (b - a) * u[0]) + ((c + (dd - c) * u[0]) - (a + (b - a) * u[0])) * u[1];
+  const hash2 = (x, y) => {
+    const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+    return v - Math.floor(v);
   };
-  const qx = (px + time * 18.0) / 64000.0, qz = (pz + time * 12.0) / 64000.0;
-  const w = vnoise2(qx, qz) * 0.55 + vnoise2(qx * 2.3 + 7.7, qz * 2.3 + 7.7) * 0.30
-    + vnoise2(qx * 5.1 + 3.3, qz * 5.1 + 3.3) * 0.15;
+  const vnoise2 = (qx, qy) => {
+    const i = [Math.floor(qx), Math.floor(qy)],
+      f = [qx - i[0], qy - i[1]];
+    const u = [f[0] * f[0] * (3 - 2 * f[0]), f[1] * f[1] * (3 - 2 * f[1])];
+    const a = hash2(i[0], i[1]),
+      b = hash2(i[0] + 1, i[1]);
+    const c = hash2(i[0], i[1] + 1),
+      dd = hash2(i[0] + 1, i[1] + 1);
+    return a + (b - a) * u[0] + (c + (dd - c) * u[0] - (a + (b - a) * u[0])) * u[1];
+  };
+  const qx = (px + time * 18.0) / 64000.0,
+    qz = (pz + time * 12.0) / 64000.0;
+  const w =
+    vnoise2(qx, qz) * 0.55 +
+    vnoise2(qx * 2.3 + 7.7, qz * 2.3 + 7.7) * 0.3 +
+    vnoise2(qx * 5.1 + 3.3, qz * 5.1 + 3.3) * 0.15;
   d *= 0.15 + 1.55 * w;
   d *= Math.min(1, Math.max(0, (w - 0.16) / 0.26));
   return d; // raw density; temporal smoothing happens on the caller side
@@ -399,10 +433,10 @@ export const DropletShader = {
     uTime: { value: 0 },
     uWet: { value: 0 },
   },
-  vertexShader: /* glsl */`
+  vertexShader: /* glsl */ `
     varying vec2 vUv;
     void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-  fragmentShader: /* glsl */`
+  fragmentShader: /* glsl */ `
     uniform sampler2D tDiffuse;
     uniform float uTime, uWet;
     varying vec2 vUv;
@@ -488,7 +522,7 @@ export const DropletShader = {
 
       gl_FragColor = vec4(col, 1.0);
     }
-  `
+  `,
 };
 
 // Top-down cloud shadow map: for each texel (a world-space column), march the
@@ -496,7 +530,7 @@ export const DropletShader = {
 // this up by world XZ so the ground darkens under the deck. Rendered into a
 // small 2D RT (2D textures sample fine in the terrain's GLSL1 shader — the 3D
 // noise texture itself never leaves GLSL3 land).
-const SHADOW_RANGE = 30000;   // metres covered by the shadow map (per side)
+const SHADOW_RANGE = 30000; // metres covered by the shadow map (per side)
 const SHADOW_SIZE = 256;
 
 export function buildCloudSystem(renderer) {
@@ -508,13 +542,13 @@ export function buildCloudSystem(renderer) {
     uniforms: {
       ...CloudShader.uniforms,
       uTime,
-      uNoiseTex: { value: noiseTex }
+      uNoiseTex: { value: noiseTex },
     },
     vertexShader: CloudShader.vertexShader,
     fragmentShader: CloudShader.fragmentShader,
     transparent: true,
     depthWrite: false,
-    depthTest: false
+    depthTest: false,
   });
 
   // ---- cloud shadow map -------------------------------------------------
@@ -529,13 +563,13 @@ export function buildCloudSystem(renderer) {
       uHBottom: CloudShader.uniforms.uHBottom,
       uHTop: CloudShader.uniforms.uHTop,
     },
-    vertexShader: /* glsl */`
+    vertexShader: /* glsl */ `
       varying vec2 vUv;
       void main() {
         vUv = uv;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }`,
-    fragmentShader: /* glsl */`
+    fragmentShader: /* glsl */ `
       precision highp float;
       precision highp sampler3D;
       layout(location = 0) out vec4 fragColor;
@@ -603,7 +637,7 @@ export function buildCloudSystem(renderer) {
         float r = length(vUv - 0.5) * 2.0;
         float fade = 1.0 - smoothstep(0.75, 0.98, r);
         fragColor = vec4(mix(1.0, trans, fade), 1.0, 1.0, 1.0);
-      }`
+      }`,
   });
 
   const shadowRT = new THREE.WebGLRenderTarget(SHADOW_SIZE, SHADOW_SIZE);
@@ -645,7 +679,9 @@ export function buildCloudSystem(renderer) {
       // so "am I inside cloud" is measured as optical depth through the slab
       // along the sun direction, mirroring the shadow map march (a few
       // neighbouring columns, averaged).
-      const cx = camera.position.x, cy = camera.position.y, cz = camera.position.z;
+      const cx = camera.position.x,
+        cy = camera.position.y,
+        cz = camera.position.z;
       const t = uTime.value;
       const sd = CloudShader.uniforms.uSunDir.value;
       // Only the slab segment within ~1200 m of the camera counts — otherwise
@@ -655,7 +691,11 @@ export function buildCloudSystem(renderer) {
       let od = 0;
       if (t1 > t0) {
         const len = (t1 - t0) / 6;
-        for (const [ox, oz] of [[0, 0], [600, 600], [-600, -600]]) {
+        for (const [ox, oz] of [
+          [0, 0],
+          [600, 600],
+          [-600, -600],
+        ]) {
           let sum = 0;
           for (let i = 0; i < 6; i++) {
             const tt = t0 + (i + 0.5) * len;
@@ -665,9 +705,9 @@ export function buildCloudSystem(renderer) {
         }
         od /= 3;
       }
-      const target = Math.min(1, Math.max(0, (od - 0.04) / 0.10));
+      const target = Math.min(1, Math.max(0, (od - 0.04) / 0.1));
       const uWet = dropletMat.uniforms.uWet;
       uWet.value += (target - uWet.value) * Math.min(1, dt * 2.5);
-    }
+    },
   };
 }

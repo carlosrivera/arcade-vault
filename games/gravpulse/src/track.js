@@ -1404,7 +1404,9 @@ export class Track {
         g.add(p2);
         const trim = new THREE.Mesh(
           trimGeo,
-          new THREE.MeshBasicMaterial({ color: side < 0 ? new THREE.Color(0.4, 2.4, 2.9) : new THREE.Color(2.4, 0.45, 2.2) }),
+          new THREE.MeshBasicMaterial({
+            color: side < 0 ? new THREE.Color(0.4, 2.4, 2.9) : new THREE.Color(2.4, 0.45, 2.2),
+          }),
         );
         trim.position.set(side * (HALF_W + 1.95), 4.8, -0.8);
         g.add(trim);
@@ -1487,7 +1489,6 @@ export class Track {
       this.group.add(glow);
     }
   }
-
 
   // Narrow ribbon along the road centre with a scrolling dash texture —
   // a constant motion cue even at constant speed.

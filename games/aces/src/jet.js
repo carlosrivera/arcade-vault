@@ -49,23 +49,28 @@ export function applyJetTemplate(rig, template) {
 // nose toward -Z (three.js forward). The source model is authored +Z forward.
 export function loadF22Model(url) {
   return new Promise((resolve, reject) => {
-    new GLTFLoader().load(url, (gltf) => {
-      const scene = gltf.scene;
-      const box = new THREE.Box3().setFromObject(scene);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 19 / maxDim;
-      const wrap = new THREE.Group();
-      scene.rotation.y = Math.PI / 2; // authored +X forward -> -Z forward
-      scene.scale.setScalar(scale);
-      // recenter after rotation+scale
-      const box2 = new THREE.Box3().setFromObject(scene);
-      const center = box2.getCenter(new THREE.Vector3());
-      scene.position.sub(center);
-      wrap.add(scene);
-      glbTemplate = wrap;
-      resolve(wrap);
-    }, undefined, reject);
+    new GLTFLoader().load(
+      url,
+      (gltf) => {
+        const scene = gltf.scene;
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 19 / maxDim;
+        const wrap = new THREE.Group();
+        scene.rotation.y = Math.PI / 2; // authored +X forward -> -Z forward
+        scene.scale.setScalar(scale);
+        // recenter after rotation+scale
+        const box2 = new THREE.Box3().setFromObject(scene);
+        const center = box2.getCenter(new THREE.Vector3());
+        scene.position.sub(center);
+        wrap.add(scene);
+        glbTemplate = wrap;
+        resolve(wrap);
+      },
+      undefined,
+      reject,
+    );
   });
 }
 
@@ -102,7 +107,7 @@ export function createAfterburnerMaterial() {
     uniforms: {
       uTime: { value: 0 },
     },
-    vertexShader: /* glsl */`
+    vertexShader: /* glsl */ `
       #include <common>
       #include <logdepthbuf_pars_vertex>
       varying vec2 vUv;
@@ -117,7 +122,7 @@ export function createAfterburnerMaterial() {
         #include <logdepthbuf_vertex>
       }
     `,
-    fragmentShader: /* glsl */`
+    fragmentShader: /* glsl */ `
       #include <common>
       #include <logdepthbuf_pars_fragment>
       uniform float uTime;
@@ -185,11 +190,18 @@ export function createAfterburnerMaterial() {
 
 export function buildMissile() {
   const m = new THREE.Group();
-  const bodyMat = new THREE.MeshPhongMaterial({ color: 0xd8dce2, shininess: 60, flatShading: true });
+  const bodyMat = new THREE.MeshPhongMaterial({
+    color: 0xd8dce2,
+    shininess: 60,
+    flatShading: true,
+  });
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.9, 8), bodyMat);
   body.rotation.x = Math.PI / 2;
   body.position.z = 0.2;
-  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 8), new THREE.MeshPhongMaterial({ color: 0x333940 }));
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.09, 0.4, 8),
+    new THREE.MeshPhongMaterial({ color: 0x333940 }),
+  );
   nose.rotation.x = -Math.PI / 2;
   nose.position.z = -0.95;
   const fins = new THREE.Group();

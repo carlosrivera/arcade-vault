@@ -13,7 +13,16 @@ import { Terrain, buildSky, terrainHeightAt } from './terrain.js';
 import { buildCloudSystem } from './clouds.js';
 import { makeJetRig, applyJetTemplate, loadF22Model } from './jet.js';
 import { Hud } from './hud.js';
-import { Enemy, Cannon, Missiles, VaporTrails, ExhaustFX, explode, updateExplosions, resetKills } from './combat.js';
+import {
+  Enemy,
+  Cannon,
+  Missiles,
+  VaporTrails,
+  ExhaustFX,
+  explode,
+  updateExplosions,
+  resetKills,
+} from './combat.js';
 import { Audio } from './audio.js';
 
 // ---------------------------------------------------------------- setup
@@ -26,7 +35,9 @@ const msgEl = document.getElementById('msg');
 // 1 m near plane has hundreds of metres of granularity past 100 km, which
 // z-fights terrain against the ocean plane.
 const renderer = new THREE.WebGLRenderer({
-  canvas: glCanvas, antialias: true, logarithmicDepthBuffer: true,
+  canvas: glCanvas,
+  antialias: true,
+  logarithmicDepthBuffer: true,
 });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -46,7 +57,7 @@ const START_ALTITUDE = 3300;
 
 // Post: speed-reactive motion blur + gentle bokeh.
 const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-  type: THREE.HalfFloatType
+  type: THREE.HalfFloatType,
 });
 renderTarget.depthTexture = new THREE.DepthTexture();
 renderTarget.depthTexture.type = THREE.UnsignedShortType;
@@ -95,7 +106,9 @@ const blurPass = new AfterimagePass(0.0); // damp set per-frame from speed
 composer.addPass(blurPass);
 
 const bokehPass = new BokehPass(scene, camera, {
-  focus: 2500, aperture: 0.00006, maxblur: 0.005,
+  focus: 2500,
+  aperture: 0.00006,
+  maxblur: 0.005,
 });
 bokehPass.enabled = true;
 composer.addPass(bokehPass);
@@ -115,10 +128,10 @@ const HeatShader = {
     uPoints: { value: Array.from({ length: 6 }, () => new THREE.Vector4(0, 0, 0, 0)) },
     uShock: { value: new THREE.Vector4(0, 0, 0, 0) }, // xy: center screen uv, z: radius, w: intensity
   },
-  vertexShader: /* glsl */`
+  vertexShader: /* glsl */ `
     varying vec2 vUv;
     void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-  fragmentShader: /* glsl */`
+  fragmentShader: /* glsl */ `
     uniform sampler2D tDiffuse;
     uniform float uTime, uAspect;
     uniform vec4 uPoints[6]; // xy: screen uv, z: strength, w: radius
@@ -204,9 +217,12 @@ sun.position.copy(SUN_DIR).multiplyScalar(10000);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 const SC = 4200; // shadow frustum half-extent around the player
-sun.shadow.camera.left = -SC; sun.shadow.camera.right = SC;
-sun.shadow.camera.top = SC; sun.shadow.camera.bottom = -SC;
-sun.shadow.camera.near = 100; sun.shadow.camera.far = 30000;
+sun.shadow.camera.left = -SC;
+sun.shadow.camera.right = SC;
+sun.shadow.camera.top = SC;
+sun.shadow.camera.bottom = -SC;
+sun.shadow.camera.near = 100;
+sun.shadow.camera.far = 30000;
 sun.shadow.bias = -0.0004;
 scene.add(sun);
 scene.add(sun.target); // target must be in the scene for light.updateMatrixWorld
@@ -228,7 +244,9 @@ const audio = new Audio();
 
 // ---------------------------------------------------------------- player
 const playerJet = makeJetRig({ player: true });
-playerJet.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+playerJet.traverse((o) => {
+  if (o.isMesh) o.castShadow = true;
+});
 scene.add(playerJet);
 // The player airframe renders on layer 1 so the JetOverlayPass can draw it
 // over the clouds (see the pass above). Must be re-applied whenever the GLB
@@ -242,15 +260,22 @@ sun.layers.enable(1);
 hemi.layers.enable(1);
 
 // Upgrade to the real F-22 model when it arrives; keep procedural fallback.
-loadF22Model('assets/models/f22.glb').then((template) => {
-  applyJetTemplate(playerJet, template);
-  setPlayerJetLayer();
-  for (const e of world.enemies) applyJetTemplate(e.mesh, template);
-}).catch(() => { /* procedural jets stay */ });
+loadF22Model('assets/models/f22.glb')
+  .then((template) => {
+    applyJetTemplate(playerJet, template);
+    setPlayerJetLayer();
+    for (const e of world.enemies) applyJetTemplate(e.mesh, template);
+  })
+  .catch(() => {
+    /* procedural jets stay */
+  });
 
 const player = new FlightModel();
 Object.assign(player, {
-  gunAmmo: 650, missileCount: 8, hull: 100, alive: true,
+  gunAmmo: 650,
+  missileCount: 8,
+  hull: 100,
+  alive: true,
 });
 player.reset(new THREE.Vector3(0, START_ALTITUDE, 0), 0);
 
@@ -268,7 +293,7 @@ const world = {
   enemies: [],
   enemyMissiles: [],
   target: null,
-  lockState: 'none',     // 'none' | 'locking' | 'locked'
+  lockState: 'none', // 'none' | 'locking' | 'locked'
   lockProgress: 0,
   time: 0,
   wave: 0,
@@ -282,8 +307,15 @@ function spawnWave(n) {
     const dist = 5000 + Math.random() * 5000;
     const pos = new THREE.Vector3(
       player.position.x + Math.cos(ang) * dist,
-      Math.max(terrainHeightAt(player.position.x + Math.cos(ang) * dist, player.position.z + Math.sin(ang) * dist) + 1500, 2000) + Math.random() * 1500,
-      player.position.z + Math.sin(ang) * dist
+      Math.max(
+        terrainHeightAt(
+          player.position.x + Math.cos(ang) * dist,
+          player.position.z + Math.sin(ang) * dist,
+        ) + 1500,
+        2000,
+      ) +
+        Math.random() * 1500,
+      player.position.z + Math.sin(ang) * dist,
     );
     const e = new Enemy(scene, pos, Math.random() * 360, 0.8 + world.wave * 0.12);
     world.enemies.push(e);
@@ -295,7 +327,9 @@ function showMsg(text, secs) {
   msgEl.textContent = text;
   msgEl.style.opacity = 1;
   clearTimeout(showMsg._t);
-  showMsg._t = setTimeout(() => { msgEl.style.opacity = 0; }, secs * 1000);
+  showMsg._t = setTimeout(() => {
+    msgEl.style.opacity = 0;
+  }, secs * 1000);
 }
 
 // ---------------------------------------------------------------- input
@@ -308,7 +342,8 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyF') fireMissile();
   if (e.code === 'KeyH') showMsg(`TERRAIN VIEW // ${terrain.cycleDebugMode()}`, 1.5);
   if (e.code === 'KeyR') restart();
-  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code))
+    e.preventDefault();
 });
 window.addEventListener('keyup', (e) => {
   keys[e.code] = false;
@@ -317,15 +352,19 @@ window.addEventListener('keyup', (e) => {
     keys['ShiftRight'] = false;
   }
 });
-window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+window.addEventListener('blur', () => {
+  for (const k in keys) keys[k] = false;
+});
 
 function readControls(dt) {
   const c = player.controls;
   const ease = 7;
   const lerpTo = (cur, target) => cur + (target - cur) * Math.min(1, dt * ease);
 
-  const pitchIn = (keys['KeyS'] || keys['ArrowDown'] ? 1 : 0) - (keys['KeyW'] || keys['ArrowUp'] ? 1 : 0); // S = pull
-  const rollIn = (keys['KeyD'] || keys['ArrowRight'] ? 1 : 0) - (keys['KeyA'] || keys['ArrowLeft'] ? 1 : 0);
+  const pitchIn =
+    (keys['KeyS'] || keys['ArrowDown'] ? 1 : 0) - (keys['KeyW'] || keys['ArrowUp'] ? 1 : 0); // S = pull
+  const rollIn =
+    (keys['KeyD'] || keys['ArrowRight'] ? 1 : 0) - (keys['KeyA'] || keys['ArrowLeft'] ? 1 : 0);
   const yawIn = (keys['KeyE'] ? 1 : 0) - (keys['KeyQ'] ? 1 : 0);
 
   c.pitch = lerpTo(c.pitch, pitchIn);
@@ -345,8 +384,10 @@ function readControls(dt) {
     if (gunTimer <= 0) {
       gunTimer = 0.075;
       player.gunAmmo--;
-      const muzzle = player.position.clone()
-        .addScaledVector(player.forward, 14).addScaledVector(player.up, -0.6);
+      const muzzle = player.position
+        .clone()
+        .addScaledVector(player.forward, 14)
+        .addScaledVector(player.up, -0.6);
       cannon.fire(muzzle, player.forward, player.speed, true);
       audio.gun();
     }
@@ -354,12 +395,17 @@ function readControls(dt) {
 }
 
 let gunTimer = 0;
-let fpsAccum = 0, fpsFrames = 0, qualityLevel = 2;
+let fpsAccum = 0,
+  fpsFrames = 0,
+  qualityLevel = 2;
 
 // ---------------------------------------------------------------- targeting
 function cycleTarget(dir) {
   const alive = world.enemies.filter((e) => e.alive);
-  if (!alive.length) { world.target = null; return; }
+  if (!alive.length) {
+    world.target = null;
+    return;
+  }
   let idx = alive.indexOf(world.target);
   idx = (idx + dir + alive.length) % alive.length;
   world.target = alive[idx];
@@ -368,11 +414,15 @@ function cycleTarget(dir) {
 }
 
 function nearestThreat() {
-  let best = null, bestD = Infinity;
+  let best = null,
+    bestD = Infinity;
   for (const e of world.enemies) {
     if (!e.alive) continue;
     const d = e.fm.position.distanceTo(player.position);
-    if (d < bestD) { bestD = d; best = e; }
+    if (d < bestD) {
+      bestD = d;
+      best = e;
+    }
   }
   return best;
 }
@@ -383,13 +433,14 @@ function updateLock(dt) {
     world.lockState = world.target ? 'locking' : 'none';
     world.lockProgress = 0;
   }
-  if (!world.target) { audio.setLockTone('off'); return; }
+  if (!world.target) {
+    audio.setLockTone('off');
+    return;
+  }
 
   const t = world.target;
   const dist = t.fm.position.distanceTo(player.position);
-  const angle = player.forward.angleTo(
-    t.fm.position.clone().sub(player.position).normalize()
-  );
+  const angle = player.forward.angleTo(t.fm.position.clone().sub(player.position).normalize());
 
   const inCone = angle < 0.35 && dist < 6500;
   if (world.lockState === 'locking') {
@@ -418,12 +469,17 @@ function updateLock(dt) {
   } else if (inCone) {
     world.lockState = 'locking';
   }
-  audio.setLockTone(world.lockState === 'locked' ? 'locked' : world.lockState === 'locking' ? 'locking' : 'off');
+  audio.setLockTone(
+    world.lockState === 'locked' ? 'locked' : world.lockState === 'locking' ? 'locking' : 'off',
+  );
 }
 
 function fireMissile() {
   if (!player.alive) return;
-  if (player.missileCount <= 0) { showMsg('MISSILES EXPENDED', 1.2); return; }
+  if (player.missileCount <= 0) {
+    showMsg('MISSILES EXPENDED', 1.2);
+    return;
+  }
   if (world.lockState !== 'locked' || !world.target || !world.target.alive) {
     showMsg('NO LOCK', 1.2);
     return;
@@ -441,9 +497,17 @@ const combatCallbacks = {
     // fire an AI missile ~40% of the time, otherwise gun burst
     if (Math.random() < 0.4) {
       const from = enemy.fm.position.clone().addScaledVector(enemy.fm.forward, 12);
-      const m = mis.launch(from, enemy.fm.forward, enemy.fm.speed + 40, {
-        position: player.position, velocity: player.velocity, alive: player.alive,
-      }, false);
+      const m = mis.launch(
+        from,
+        enemy.fm.forward,
+        enemy.fm.speed + 40,
+        {
+          position: player.position,
+          velocity: player.velocity,
+          alive: player.alive,
+        },
+        false,
+      );
       world.enemyMissiles.push(m);
       audio.warningBeep(); // HUD draws the blinking MISSILE — EVADE warning
     } else {
@@ -452,10 +516,12 @@ const combatCallbacks = {
           if (!enemy.alive || !player.alive) return;
           can.fire(
             enemy.fm.position.clone().addScaledVector(enemy.fm.forward, 12),
-            enemy.fm.forward.clone().lerp(
-              player.position.clone().sub(enemy.fm.position).normalize(), 0.55
-            ).normalize(),
-            enemy.fm.speed, false
+            enemy.fm.forward
+              .clone()
+              .lerp(player.position.clone().sub(enemy.fm.position).normalize(), 0.55)
+              .normalize(),
+            enemy.fm.speed,
+            false,
           );
         }, i * 90);
       }
@@ -470,7 +536,9 @@ const combatCallbacks = {
       explode(scene, m.pos, 1.2, { onExplode: () => audio.explosion(1) });
     }
   },
-  onExplode() { audio.explosion(1); },
+  onExplode() {
+    audio.explosion(1);
+  },
 };
 
 function damagePlayer(amount) {
@@ -511,8 +579,10 @@ function restart() {
   world.wave = 0;
   resetKills();
   player.reset(new THREE.Vector3(0, START_ALTITUDE, 0), 0);
-  player.gunAmmo = 650; player.missileCount = 8;
-  player.hull = 100; player.alive = true;
+  player.gunAmmo = 650;
+  player.missileCount = 8;
+  player.hull = 100;
+  player.alive = true;
   player.controls.throttle = 0.7;
   playerJet.visible = true;
   overlay.classList.add('hidden');
@@ -524,16 +594,21 @@ function restart() {
 function updateCamera(dt) {
   if (camMode === 'cockpit') {
     // Rigid: camera is welded to the airframe.
-    camera.position.copy(player.position)
+    camera.position
+      .copy(player.position)
       .addScaledVector(player.forward, 4.2)
       .addScaledVector(player.up, 0.95);
     camera.quaternion.copy(player.quaternion);
   } else {
     // Rigid chase: exact follow in the jet's body frame — no lag at any speed.
-    camera.position.copy(player.position)
+    camera.position
+      .copy(player.position)
       .addScaledVector(player.forward, -18.5)
       .addScaledVector(player.up, 4.4);
-    const lookAt = player.position.clone().addScaledVector(player.forward, 70).addScaledVector(player.up, 0.8);
+    const lookAt = player.position
+      .clone()
+      .addScaledVector(player.forward, 70)
+      .addScaledVector(player.up, 0.8);
     const m = new THREE.Matrix4().lookAt(camera.position, lookAt, player.up);
     camera.quaternion.setFromRotationMatrix(m);
   }
@@ -552,8 +627,11 @@ function collectWarnings() {
     if (agl < 400 && player.velocity.y < -10) list.push({ text: 'PULL UP', level: 'danger' });
     if (player.hull < 35) list.push({ text: 'HULL CRITICAL', level: 'danger' });
     if (world.enemyMissiles.length) list.push({ text: 'MISSILE — EVADE', level: 'danger' });
-    else if (world.lockState === 'locked' && world.target &&
-             world.target.fm.position.distanceTo(player.position) < 2000) {
+    else if (
+      world.lockState === 'locked' &&
+      world.target &&
+      world.target.fm.position.distanceTo(player.position) < 2000
+    ) {
       list.push({ text: 'IN RANGE — BANDIT LOCKED', level: 'warn' });
     }
   }
@@ -584,7 +662,9 @@ function frame(now) {
     if (player.crashed) killPlayer('CONTROLLED FLIGHT INTO TERRAIN');
     // High-AoA airframe buffet — visual shake only, flight state untouched.
     const buffet = THREE.MathUtils.clamp(
-      (THREE.MathUtils.radToDeg(Math.abs(player.aoa)) - 14) / 8, 0, 1
+      (THREE.MathUtils.radToDeg(Math.abs(player.aoa)) - 14) / 8,
+      0,
+      1,
     );
     if (buffet > 0) {
       const t = world.time * 37;
@@ -599,7 +679,9 @@ function frame(now) {
     const abOn = !!player.controls.afterburner;
     for (const f of playerJet.userData.flames) {
       f.visible = abOn;
-      f.traverse((child) => { child.visible = abOn; });
+      f.traverse((child) => {
+        child.visible = abOn;
+      });
       if (abOn) {
         if (f.userData.material) f.userData.material.uniforms.uTime.value = world.time;
         const bs = f.userData.baseScale || { x: 1, y: 1, z: 1 };
@@ -618,8 +700,7 @@ function frame(now) {
       if (e.fm.position.distanceTo(player.position) < 5000) {
         exhaust.update(dt, e.fm, e.mesh.userData.flames);
       }
-    }
-    else world.enemies.splice(i, 1);
+    } else world.enemies.splice(i, 1);
   }
 
   // wave management
@@ -674,7 +755,7 @@ function frame(now) {
   audio.updateEngine(
     player.alive ? player.controls.throttle : 0,
     player.alive && player.controls.afterburner,
-    player.speed
+    player.speed,
   );
 
   // Heat haze points: player + nearest enemies' nozzles projected to screen
@@ -692,11 +773,20 @@ function frame(now) {
       // Place the fire glow & heat distortion center right at the engine nozzle exits
       const plumePos = nozzle.addScaledVector(fmv.forward, fmv.controls.afterburner ? -0.15 : 0.0);
       const v = plumePos.clone().project(camera);
-      if (v.z < 1 && Math.abs(v.x) < 1.2 && Math.abs(v.y) < 1.2 && (fmv.controls.afterburner || fmv.controls.throttle > 0.05)) {
+      if (
+        v.z < 1 &&
+        Math.abs(v.x) < 1.2 &&
+        Math.abs(v.y) < 1.2 &&
+        (fmv.controls.afterburner || fmv.controls.throttle > 0.05)
+      ) {
         const dist = camera.position.distanceTo(plumePos);
         const strength = fmv.controls.afterburner ? 1.0 : 0.0;
-        heatPass.uniforms.uPoints.value[hi++].set(v.x * 0.5 + 0.5, v.y * 0.5 + 0.5,
-          strength, THREE.MathUtils.clamp(55 / dist, 0.015, 0.085));
+        heatPass.uniforms.uPoints.value[hi++].set(
+          v.x * 0.5 + 0.5,
+          v.y * 0.5 + 0.5,
+          strength,
+          THREE.MathUtils.clamp(55 / dist, 0.015, 0.085),
+        );
       }
     }
   }
@@ -731,19 +821,23 @@ function frame(now) {
   }
 
   // Motion blur scales with speed: off at a crawl, strong in the merge
-  blurPass.uniforms['damp'].value = THREE.MathUtils.clamp(
-    (player.speed - 120) / 700, 0, 0.62
-  );
+  blurPass.uniforms['damp'].value = THREE.MathUtils.clamp((player.speed - 120) / 700, 0, 0.62);
 
   // Perf guard: if the real frame rate sags, shed the expensive effects.
-  fpsAccum += dt; fpsFrames++;
+  fpsAccum += dt;
+  fpsFrames++;
   if (fpsAccum > 2) {
     const fps = fpsFrames / fpsAccum;
-    fpsAccum = 0; fpsFrames = 0;
+    fpsAccum = 0;
+    fpsFrames = 0;
     if (fps < 26 && qualityLevel > 0) {
       qualityLevel--;
       if (qualityLevel === 1) bokehPass.enabled = false;
-      if (qualityLevel === 0) { blurPass.enabled = false; renderer.setPixelRatio(1); composer.setPixelRatio && composer.setPixelRatio(1); }
+      if (qualityLevel === 0) {
+        blurPass.enabled = false;
+        renderer.setPixelRatio(1);
+        composer.setPixelRatio && composer.setPixelRatio(1);
+      }
     }
   }
   // Focus locked to the jet so the airframe stays razor sharp; the tiny
@@ -783,4 +877,14 @@ updateCamera(0.016);
 composer.render();
 
 // debug/testing handle
-window.__dbg = { player, world, terrain, camModeRef: { get: () => camMode }, scene, camera, renderer, composer, cloudSystem };
+window.__dbg = {
+  player,
+  world,
+  terrain,
+  camModeRef: { get: () => camMode },
+  scene,
+  camera,
+  renderer,
+  composer,
+  cloudSystem,
+};

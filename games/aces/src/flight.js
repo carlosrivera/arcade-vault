@@ -9,22 +9,22 @@ import * as THREE from 'three';
 
 // ---------------------------------------------------------------- constants
 const GRAVITY = 9.81;
-const AIR_DENSITY_SL = 1.225;          // kg/m^3 at sea level
-const SCALE_HEIGHT = 8500;             // m, exponential atmosphere
+const AIR_DENSITY_SL = 1.225; // kg/m^3 at sea level
+const SCALE_HEIGHT = 8500; // m, exponential atmosphere
 
 // F-22-ish numbers (mass in "units" tuned so speeds read like knots*m)
-const MASS = 15700;                    // kg, loaded
-const WING_AREA = 78;                  // m^2
-const MAX_THRUST_MIL = 232000;         // N (2x F119, military)
-const MAX_THRUST_AB = 312000;          // N (afterburner)
+const MASS = 15700; // kg, loaded
+const WING_AREA = 78; // m^2
+const MAX_THRUST_MIL = 232000; // N (2x F119, military)
+const MAX_THRUST_AB = 312000; // N (afterburner)
 
 // Lift curve: piecewise Cl vs AoA. Stalls hard past ~18 deg.
 function liftCoefficient(aoa) {
   const d = THREE.MathUtils.radToDeg(aoa);
   const a = Math.abs(d);
   let cl;
-  if (a <= 15) cl = 0.10 * d;
-  else if (a <= 30) cl = 0.10 * 15 * Math.sign(d) * (1 - (a - 15) / 20);
+  if (a <= 15) cl = 0.1 * d;
+  else if (a <= 30) cl = 0.1 * 15 * Math.sign(d) * (1 - (a - 15) / 20);
   else cl = 0.02 * Math.sign(d);
   return cl;
 }
@@ -32,7 +32,7 @@ function liftCoefficient(aoa) {
 function dragCoefficient(aoa, controls) {
   const d = Math.abs(THREE.MathUtils.radToDeg(aoa));
   const cd0 = 0.021 + 0.045 * Math.pow(Math.sin(Math.abs(aoa)), 3);
-  const induced = liftCoefficient(aoa) * liftCoefficient(aoa) / (Math.PI * 4.2);
+  const induced = (liftCoefficient(aoa) * liftCoefficient(aoa)) / (Math.PI * 4.2);
   const brake = controls.airbrake ? 0.09 : 0;
   return cd0 + induced + brake;
 }
@@ -45,8 +45,12 @@ export class FlightModel {
     // start level, nose toward -Z, slight nose-down variety handled by caller
     this.angularVelocity = new THREE.Vector3(); // body frame rad/s
     this.controls = {
-      pitch: 0, roll: 0, yaw: 0,
-      throttle: 0.7, afterburner: false, airbrake: false,
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+      throttle: 0.7,
+      afterburner: false,
+      airbrake: false,
     };
     this.gLoad = 1;
     this.aoa = 0;
@@ -56,12 +60,24 @@ export class FlightModel {
     this.crashed = false;
   }
 
-  get forward() { return new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion); }
-  get up() { return new THREE.Vector3(0, 1, 0).applyQuaternion(this.quaternion); }
-  get right() { return new THREE.Vector3(1, 0, 0).applyQuaternion(this.quaternion); }
-  get speed() { return this.velocity.length(); }
-  get altitude() { return this.position.y; }
-  get mach() { return this.speed / 300; } // rough, altitude-agnostic
+  get forward() {
+    return new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
+  }
+  get up() {
+    return new THREE.Vector3(0, 1, 0).applyQuaternion(this.quaternion);
+  }
+  get right() {
+    return new THREE.Vector3(1, 0, 0).applyQuaternion(this.quaternion);
+  }
+  get speed() {
+    return this.velocity.length();
+  }
+  get altitude() {
+    return this.position.y;
+  }
+  get mach() {
+    return this.speed / 300;
+  } // rough, altitude-agnostic
 
   headingDeg() {
     const f = this.forward;
@@ -105,7 +121,8 @@ export class FlightModel {
     const right = this.right;
 
     // AoA: angle between velocity and body forward in the body XZ... in pitch plane
-    let aoa = 0, beta = 0;
+    let aoa = 0,
+      beta = 0;
     if (speed > 1) {
       const vBody = this.velocity.clone().applyQuaternion(this.quaternion.clone().invert());
       aoa = Math.atan2(-vBody.y, -vBody.z);
@@ -131,7 +148,7 @@ export class FlightModel {
 
     // ---------------------------------------------------- thrust
     const abBoost = c.afterburner ? 1.34 : 1;
-    this.thrust = (c.throttle * MAX_THRUST_MIL) * abBoost;
+    this.thrust = c.throttle * MAX_THRUST_MIL * abBoost;
     force.addScaledVector(fwd, this.thrust);
 
     // ---------------------------------------------------- gravity
@@ -155,7 +172,7 @@ export class FlightModel {
     const targetRates = new THREE.Vector3(
       c.pitch * pitchRateMax,
       -c.yaw * yawRateMax,
-      -c.roll * rollRateMax
+      -c.roll * rollRateMax,
     );
     // Weathervaning stability: aerodynamic torque pushes nose toward velocity vector.
     const stabGain = 0.9 * authority;
@@ -169,20 +186,24 @@ export class FlightModel {
         // Fade the leveler out as pitch input grows, so pulling into a
         // banked turn doesn't fight the augmentation.
         const leveler = 1 - Math.min(1, Math.abs(c.pitch) * 1.4);
-        targetRates.z += THREE.MathUtils.clamp(
-          THREE.MathUtils.degToRad(this.rollDeg()) * 1.3, -1.0, 1.0
-        ) * authority * leveler;
+        targetRates.z +=
+          THREE.MathUtils.clamp(THREE.MathUtils.degToRad(this.rollDeg()) * 1.3, -1.0, 1.0) *
+          authority *
+          leveler;
       }
       if (Math.abs(c.pitch) < 0.05) {
-        targetRates.x += THREE.MathUtils.clamp(
-          -this.velocity.y * 0.004, -0.15, 0.15
-        ) * authority;
+        targetRates.x += THREE.MathUtils.clamp(-this.velocity.y * 0.004, -0.15, 0.15) * authority;
       }
     }
 
     // G-limiter: bleed off pitch rate command beyond ~9 G / -3 G
     if (Math.abs(targetRates.x) > 0.01) {
-      const over = this.gLoad > 8.5 ? (this.gLoad - 8.5) / 1.2 : this.gLoad < -2.5 ? (this.gLoad + 2.5) / 1.2 : 0;
+      const over =
+        this.gLoad > 8.5
+          ? (this.gLoad - 8.5) / 1.2
+          : this.gLoad < -2.5
+            ? (this.gLoad + 2.5) / 1.2
+            : 0;
       if (over !== 0) {
         const damp = THREE.MathUtils.clamp(1 - Math.abs(over), 0.02, 1);
         targetRates.x *= damp;
@@ -200,13 +221,17 @@ export class FlightModel {
     // Quaternion integration from body angular velocity:
     // q̇ = ½ q ⊗ ω_body, so q_new = q + dt·q̇ (right-multiply keeps rates body-frame)
     const w = this.angularVelocity;
-    const dq = this.quaternion.clone().multiply(new THREE.Quaternion(
-      w.x * dt * 0.5, w.y * dt * 0.5, w.z * dt * 0.5, 0
-    ));
-    this.quaternion.set(
-      this.quaternion.x + dq.x, this.quaternion.y + dq.y,
-      this.quaternion.z + dq.z, this.quaternion.w + dq.w
-    ).normalize();
+    const dq = this.quaternion
+      .clone()
+      .multiply(new THREE.Quaternion(w.x * dt * 0.5, w.y * dt * 0.5, w.z * dt * 0.5, 0));
+    this.quaternion
+      .set(
+        this.quaternion.x + dq.x,
+        this.quaternion.y + dq.y,
+        this.quaternion.z + dq.z,
+        this.quaternion.w + dq.w,
+      )
+      .normalize();
 
     // ---------------------------------------------------- ground collision
     const gh = groundHeightFn ? groundHeightFn(this.position.x, this.position.z) : 0;

@@ -31,12 +31,14 @@ export class Hud {
   }
 
   resize() {
-    const w = window.innerWidth, h = window.innerHeight;
+    const w = window.innerWidth,
+      h = window.innerHeight;
     this.canvas.width = w * this.dpr;
     this.canvas.height = h * this.dpr;
     this.canvas.style.width = w + 'px';
     this.canvas.style.height = h + 'px';
-    this.w = w; this.h = h;
+    this.w = w;
+    this.h = h;
   }
 
   // ---------------------------------------------------------------- helpers
@@ -75,7 +77,8 @@ export class Hud {
     ctx.shadowColor = 'rgba(0,0,0,0.65)';
     ctx.shadowBlur = 3;
 
-    const cx = this.w / 2, cy = this.h / 2;
+    const cx = this.w / 2,
+      cy = this.h / 2;
 
     this.drawPitchLadder(fm, cx, cy);
     this.drawHeadingTape(fm, cx);
@@ -104,8 +107,8 @@ export class Hud {
     ctx.rotate(-roll);
     ctx.translate(0, pitch * ppd);
 
-    const lw = Math.min(this.w * 0.09, 100);   // half-length of ladder rungs
-    const gap = 26;                            // center gap half-width
+    const lw = Math.min(this.w * 0.09, 100); // half-length of ladder rungs
+    const gap = 26; // center gap half-width
 
     // horizon line
     this.line(-lw - 40, 0, -gap, 0, GREEN, 2);
@@ -167,9 +170,10 @@ export class Hud {
       const major10 = dd % 10 === 0;
       if (major10) {
         this.line(x, y, x, y - 12, GREEN_DIM, 1.5);
-        const label = dd % 30 === 0
-          ? { 0: 'N', 90: 'E', 180: 'S', 270: 'W' }[dd] || (dd / 10).toString().padStart(2, '0')
-          : null;
+        const label =
+          dd % 30 === 0
+            ? { 0: 'N', 90: 'E', 180: 'S', 270: 'W' }[dd] || (dd / 10).toString().padStart(2, '0')
+            : null;
         if (label) this.text(label, x, y - 24, 14, GREEN, 'center');
       } else if (dd % 5 === 0) {
         this.line(x, y, x, y - 6, GREEN_DIM, 1);
@@ -206,7 +210,8 @@ export class Hud {
     ctx.beginPath();
     ctx.rect(x - 130, top, 130, H);
     ctx.clip();
-    const lo = knots - H / 2 / pxPerKt, hi = knots + H / 2 / pxPerKt;
+    const lo = knots - H / 2 / pxPerKt,
+      hi = knots + H / 2 / pxPerKt;
     for (let k = Math.ceil(lo / 50) * 50; k <= hi; k += 50) {
       const y = cy - (k - knots) * pxPerKt;
       this.line(x - 12, y, x, y, GREEN_DIM, 1.5);
@@ -223,10 +228,22 @@ export class Hud {
     this.boxText(Math.round(knots).toString(), x - 62, cy, GREEN);
     this.text('KIAS', x - 62, cy + 24, 12, GREEN_DIM, 'center');
     this.text(`M ${fm.mach.toFixed(2)}`, x - 62, cy - 62, 14, GREEN, 'center');
-    this.text(`G ${fm.gLoad >= 0 ? '+' : ''}${fm.gLoad.toFixed(1)}`, x - 62, cy - 84, 14,
-      Math.abs(fm.gLoad) > 7.5 ? AMBER : GREEN, 'center');
-    this.text(`AOA ${(THREE.MathUtils.radToDeg(fm.aoa)).toFixed(0)}°`, x - 62, cy + 46, 12,
-      Math.abs(THREE.MathUtils.radToDeg(fm.aoa)) > 20 ? RED : GREEN_DIM, 'center');
+    this.text(
+      `G ${fm.gLoad >= 0 ? '+' : ''}${fm.gLoad.toFixed(1)}`,
+      x - 62,
+      cy - 84,
+      14,
+      Math.abs(fm.gLoad) > 7.5 ? AMBER : GREEN,
+      'center',
+    );
+    this.text(
+      `AOA ${(THREE.MathUtils.radToDeg(fm.aoa)).toFixed(0)}°`,
+      x - 62,
+      cy + 46,
+      12,
+      Math.abs(THREE.MathUtils.radToDeg(fm.aoa)) > 20 ? RED : GREEN_DIM,
+      'center',
+    );
   }
 
   drawAltTape(fm, cx, cy) {
@@ -235,7 +252,7 @@ export class Hud {
     const H = 300;
     const top = cy - H / 2;
     const alt = Math.max(fm.altitude, 0);
-    const pxPerFt = 0.06;   // feet, compressed
+    const pxPerFt = 0.06; // feet, compressed
     const feet = alt * 3.281;
 
     this.line(x, top, x, top + H, GREEN_DIM, 1.5);
@@ -244,7 +261,8 @@ export class Hud {
     ctx.rect(x, top, 130, H);
     ctx.clip();
     const step = 1000;
-    const lo = feet - H / 2 / pxPerFt, hi = feet + H / 2 / pxPerFt;
+    const lo = feet - H / 2 / pxPerFt,
+      hi = feet + H / 2 / pxPerFt;
     for (let k = Math.ceil(lo / step) * step; k <= hi; k += step) {
       const y = cy - (k - feet) * pxPerFt;
       if (y < top || y > top + H) continue;
@@ -257,8 +275,14 @@ export class Hud {
     this.text('ALT FT', x + 62, cy + 24, 12, GREEN_DIM, 'center');
     // radar altitude (AGL) — caller supplies terrain height via fm._agl
     if (fm._agl !== undefined) {
-      this.text(`R ${Math.max(0, Math.round(fm._agl * 3.281)).toLocaleString('en-US')}`,
-        x + 62, cy + 46, 12, fm._agl < 250 ? RED : GREEN_DIM, 'center');
+      this.text(
+        `R ${Math.max(0, Math.round(fm._agl * 3.281)).toLocaleString('en-US')}`,
+        x + 62,
+        cy + 46,
+        12,
+        fm._agl < 250 ? RED : GREEN_DIM,
+        'center',
+      );
     }
   }
 
@@ -272,28 +296,35 @@ export class Hud {
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(x, y, 10, 0, Math.PI * 2);
-      ctx.moveTo(x - 18, y); ctx.lineTo(x - 10, y);
-      ctx.moveTo(x + 10, y); ctx.lineTo(x + 18, y);
-      ctx.moveTo(x, y - 10); ctx.lineTo(x, y - 16);
+      ctx.moveTo(x - 18, y);
+      ctx.lineTo(x - 10, y);
+      ctx.moveTo(x + 10, y);
+      ctx.lineTo(x + 18, y);
+      ctx.moveTo(x, y - 10);
+      ctx.lineTo(x, y - 16);
       ctx.stroke();
     }
   }
 
   drawGunCross(cx, cy) {
     const ctx = this.ctx;
-    const x = cx, y = cy - 8;
+    const x = cx,
+      y = cy - 8;
     ctx.strokeStyle = GREEN;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.moveTo(x - 44, y); ctx.lineTo(x - 10, y);
-    ctx.moveTo(x + 10, y); ctx.lineTo(x + 44, y);
+    ctx.moveTo(x - 44, y);
+    ctx.lineTo(x - 10, y);
+    ctx.moveTo(x + 10, y);
+    ctx.lineTo(x + 44, y);
     ctx.stroke();
   }
 
   drawStatusBlock(fm) {
     const ctx = this.ctx;
-    const x = this.w - 30, y = this.h - 130;
+    const x = this.w - 30,
+      y = this.h - 130;
     // throttle
     this.text('THR', x - 108, y, 12, GREEN_DIM, 'right');
     this.rect(x - 100, y - 6, 104, 14, GREEN_DIM, 1);
@@ -303,16 +334,31 @@ export class Hud {
     if (fm.controls.afterburner) this.text('AB', x - 108, y + 22, 14, AMBER, 'right');
 
     this.text(`GUN ${fm.gunAmmo}`, x, y + 46, 15, fm.gunAmmo > 0 ? GREEN : GREEN_DIM, 'right');
-    this.text(`MSL ${fm.missileCount}`, x, y + 68, 15, fm.missileCount > 0 ? GREEN : GREEN_DIM, 'right');
+    this.text(
+      `MSL ${fm.missileCount}`,
+      x,
+      y + 68,
+      15,
+      fm.missileCount > 0 ? GREEN : GREEN_DIM,
+      'right',
+    );
     this.text(`KILL ${world_kills()}`, x, y + 92, 13, GREEN_DIM, 'right');
-    this.text(`HULL ${Math.max(0, Math.round(fm.hull))}%`, x, y + 114, 13,
-      fm.hull < 35 ? RED : GREEN_DIM, 'right');
+    this.text(
+      `HULL ${Math.max(0, Math.round(fm.hull))}%`,
+      x,
+      y + 114,
+      13,
+      fm.hull < 35 ? RED : GREEN_DIM,
+      'right',
+    );
   }
 
   // ---------------------------------------------------------------- radar
   drawRadar(world, fm) {
     const ctx = this.ctx;
-    const x = 44, y = this.h - 44, R = 74;
+    const x = 44,
+      y = this.h - 44,
+      R = 74;
     ctx.save();
     ctx.beginPath();
     ctx.arc(x, y, R, 0, Math.PI * 2);
@@ -323,8 +369,12 @@ export class Hud {
 
     ctx.strokeStyle = GREEN_DIM;
     ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(x, y, R / 2, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, R, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, R / 2, 0, Math.PI * 2);
+    ctx.stroke();
 
     const hdg = THREE.MathUtils.degToRad(fm.headingDeg());
     const range = 12000;
@@ -338,7 +388,8 @@ export class Hud {
       const m = RADAR_CHART;
       const half = (m.size * m.mpp) / 2;
       const k = R / range;
-      const s = Math.sin(hdg), c = Math.cos(hdg);
+      const s = Math.sin(hdg),
+        c = Math.cos(hdg);
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, R - 1, 0, Math.PI * 2);
@@ -347,17 +398,24 @@ export class Hud {
       ctx.transform(k * c, -k * s, k * s, k * c, 0, 0);
       ctx.translate(-fm.position.x, -fm.position.z);
       ctx.globalAlpha = 0.9;
-      ctx.drawImage(this.radarChart,
-        m.centerX - half, m.centerZ - half, m.size * m.mpp, m.size * m.mpp);
+      ctx.drawImage(
+        this.radarChart,
+        m.centerX - half,
+        m.centerZ - half,
+        m.size * m.mpp,
+        m.size * m.mpp,
+      );
       ctx.globalAlpha = 1;
       ctx.restore();
     }
 
     const blip = (wx, wz, color, size = 3) => {
-      const dx = wx - fm.position.x, dz = wz - fm.position.z;
+      const dx = wx - fm.position.x,
+        dz = wz - fm.position.z;
       // compass heading-up frame (0 = north = -z, clockwise) — same mapping
       // as the terrain chart above
-      const s = Math.sin(hdg), c = Math.cos(hdg);
+      const s = Math.sin(hdg),
+        c = Math.cos(hdg);
       const rx = dx * c + dz * s;
       const ry = dx * s - dz * c;
       const px = x + (rx / range) * R;
@@ -369,7 +427,12 @@ export class Hud {
 
     for (const e of world.enemies) {
       if (!e.alive) continue;
-      blip(e.fm.position.x, e.fm.position.z, e === world.target ? AMBER : RED, e === world.target ? 6 : 4);
+      blip(
+        e.fm.position.x,
+        e.fm.position.z,
+        e === world.target ? AMBER : RED,
+        e === world.target ? 6 : 4,
+      );
     }
     for (const m of world.enemyMissiles) {
       blip(m.pos.x, m.pos.z, RED, 3);
@@ -377,13 +440,18 @@ export class Hud {
     // player
     ctx.fillStyle = GREEN;
     ctx.beginPath();
-    ctx.moveTo(x, y - 6); ctx.lineTo(x - 4, y + 4); ctx.lineTo(x + 4, y + 4);
-    ctx.closePath(); ctx.fill();
+    ctx.moveTo(x, y - 6);
+    ctx.lineTo(x - 4, y + 4);
+    ctx.lineTo(x + 4, y + 4);
+    ctx.closePath();
+    ctx.fill();
     // FOV cone
     ctx.strokeStyle = GREEN_DIM;
     ctx.beginPath();
-    ctx.moveTo(x, y); ctx.lineTo(x - R * Math.sin(Math.PI / 4), y - R * Math.cos(Math.PI / 4));
-    ctx.moveTo(x, y); ctx.lineTo(x + R * Math.sin(Math.PI / 4), y - R * Math.cos(Math.PI / 4));
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - R * Math.sin(Math.PI / 4), y - R * Math.cos(Math.PI / 4));
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + R * Math.sin(Math.PI / 4), y - R * Math.cos(Math.PI / 4));
     ctx.stroke();
     this.text('RADAR 12KM', x, y + R + 14, 10, GREEN_DIM, 'center');
   }
@@ -401,7 +469,10 @@ export class Hud {
 
       const color = isSel ? AMBER : RED;
       // corner-box designator
-      const x = p.x, y = p.y, s = boxSize, c = s * 0.38;
+      const x = p.x,
+        y = p.y,
+        s = boxSize,
+        c = s * 0.38;
       this.line(x - s, y - s + c, x - s, y - s, color, 2);
       this.line(x - s, y - s, x - s + c, y - s, color, 2);
       this.line(x + s - c, y - s, x + s, y - s, color, 2);
@@ -412,10 +483,18 @@ export class Hud {
       this.line(x - s, y + s, x - s, y + s - c, color, 2);
 
       if (isSel) {
-        const closure = fm.velocity.clone().sub(e.fm.velocity)
+        const closure = fm.velocity
+          .clone()
+          .sub(e.fm.velocity)
           .dot(e.fm.position.clone().sub(fm.position).normalize());
         this.text(`${(dist / 1000).toFixed(1)}KM`, x + s + 10, y - s + 8, 13, AMBER);
-        this.text(`${closure > 0 ? '+' : ''}${Math.round(closure * 1.944)}KT`, x + s + 10, y - s + 26, 12, AMBER);
+        this.text(
+          `${closure > 0 ? '+' : ''}${Math.round(closure * 1.944)}KT`,
+          x + s + 10,
+          y - s + 26,
+          12,
+          AMBER,
+        );
         this.text('BANDIT', x - s - 10, y - s + 8, 12, AMBER, 'right');
 
         // lock ring
@@ -440,7 +519,8 @@ export class Hud {
 
           // lead indicator for cannon
           const tof = dist / 1000; // rough time of flight
-          const aim = e.fm.position.clone()
+          const aim = e.fm.position
+            .clone()
             .addScaledVector(e.fm.velocity, tof)
             .add(new THREE.Vector3(0, -0.5 * 9.81 * tof * tof, 0));
           const lp = this._project(aim);
@@ -463,8 +543,11 @@ export class Hud {
       if (!t) continue;
       ctx.fillStyle = RED;
       ctx.beginPath();
-      ctx.moveTo(p.x, p.y - 10); ctx.lineTo(p.x - 8, p.y + 6); ctx.lineTo(p.x + 8, p.y + 6);
-      ctx.closePath(); ctx.fill();
+      ctx.moveTo(p.x, p.y - 10);
+      ctx.lineTo(p.x - 8, p.y + 6);
+      ctx.lineTo(p.x + 8, p.y + 6);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 
@@ -484,7 +567,7 @@ export class Hud {
     this._camera = camera;
     if (velocityDirWorld) {
       this._fpmScreen = this._project(
-        camera.position.clone().addScaledVector(velocityDirWorld, 1000)
+        camera.position.clone().addScaledVector(velocityDirWorld, 1000),
       );
     } else {
       this._fpmScreen = null;
@@ -509,5 +592,9 @@ export class Hud {
 
 // tiny bridge so the status block can show kills without plumbing
 let _kills = 0;
-export function setHudKills(n) { _kills = n; }
-function world_kills() { return _kills; }
+export function setHudKills(n) {
+  _kills = n;
+}
+function world_kills() {
+  return _kills;
+}

@@ -19,10 +19,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // ---------------------------------------------------------------- chart config
 const CENTER_X = parseFloat(process.argv[2] ?? '48000');
 const CENTER_Z = parseFloat(process.argv[3] ?? '-28000');
-const SIZE = 2048;          // pixels per side
-const MPP = 100;            // metres per pixel -> 205 km of coverage; the HUD
-                            // radar shows a 24 km window, so this keeps the
-                            // circle at ~240 source pixels (no visible blur)
+const SIZE = 2048; // pixels per side
+const MPP = 100; // metres per pixel -> 205 km of coverage; the HUD
+// radar shows a 24 km window, so this keeps the
+// circle at ~240 source pixels (no visible blur)
 
 // Sampling uses the same band-limit the radar's effective resolution implies,
 // so the bake only pays for octaves a 250 m grid can carry.
@@ -31,7 +31,8 @@ const CELL = MPP;
 // ---------------------------------------------------------------- sample grid
 console.log(`sampling ${SIZE}x${SIZE} at ${MPP} m/px around (${CENTER_X}, ${CENTER_Z})...`);
 const h = new Float32Array(SIZE * SIZE);
-let min = Infinity, max = -Infinity;
+let min = Infinity,
+  max = -Infinity;
 const x0 = CENTER_X - (SIZE / 2) * MPP;
 const z0 = CENTER_Z - (SIZE / 2) * MPP;
 for (let py = 0; py < SIZE; py++) {
@@ -52,7 +53,8 @@ console.log(`height range ${min.toFixed(0)} .. ${max.toFixed(0)} m`);
 const OCEAN = [6, 22, 13];
 const rgb = new Uint8Array(SIZE * SIZE * 3);
 const CONTOUR = 250;
-const LX = 0.6, LZ = 0.8;   // hillshade light direction (matches world sun bias)
+const LX = 0.6,
+  LZ = 0.8; // hillshade light direction (matches world sun bias)
 
 const band = (v) => Math.max(0, Math.floor(v / CONTOUR));
 for (let py = 0; py < SIZE; py++) {
@@ -61,10 +63,17 @@ for (let py = 0; py < SIZE; py++) {
     const v = h[i];
     const o = i * 3;
     if (v <= 0) {
-      rgb[o] = OCEAN[0]; rgb[o + 1] = OCEAN[1]; rgb[o + 2] = OCEAN[2];
+      rgb[o] = OCEAN[0];
+      rgb[o + 1] = OCEAN[1];
+      rgb[o + 2] = OCEAN[2];
       // coastline: land pixel adjacent to sea gets a bright rim
-      const nb = py > 0 ? h[i - SIZE] : v, nbx = px > 0 ? h[i - 1] : v;
-      if (nb > 0 || nbx > 0) { rgb[o] = 60; rgb[o + 1] = 190; rgb[o + 2] = 110; }
+      const nb = py > 0 ? h[i - SIZE] : v,
+        nbx = px > 0 ? h[i - 1] : v;
+      if (nb > 0 || nbx > 0) {
+        rgb[o] = 60;
+        rgb[o + 1] = 190;
+        rgb[o + 2] = 110;
+      }
       continue;
     }
     const t = Math.min(1, v / 3200);
@@ -74,7 +83,7 @@ for (let py = 0; py < SIZE; py++) {
     const gx = h[i + (px < SIZE - 1 ? 1 : 0)] - h[i - (px > 0 ? 1 : 0)];
     const gz = h[i + (py < SIZE - 1 ? SIZE : 0)] - h[i - (py > 0 ? SIZE : 0)];
     const mag = Math.hypot(gx, gz) + 1e-6;
-    const lit = (gx * LX + gz * LZ) / mag;   // -1 .. 1
+    const lit = (gx * LX + gz * LZ) / mag; // -1 .. 1
     b *= 0.78 + 0.35 * lit;
 
     // contour lines: band index differs from a neighbour -> darken
@@ -83,7 +92,7 @@ for (let py = 0; py < SIZE; py++) {
       (py < SIZE - 1 && band(h[i + SIZE]) !== band(v));
 
     if (isContour) b *= 0.45;
-    rgb[o] = b * 0.30;
+    rgb[o] = b * 0.3;
     rgb[o + 1] = b;
     rgb[o + 2] = b * 0.48;
   }
@@ -117,11 +126,11 @@ function writePNG(file, w, hpx, rgbData) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(w, 0);
   ihdr.writeUInt32BE(hpx, 4);
-  ihdr[8] = 8;  // bit depth
-  ihdr[9] = 2;  // colour type: truecolor
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 2; // colour type: truecolor
   const raw = Buffer.alloc(hpx * (1 + w * 3));
   for (let y = 0; y < hpx; y++) {
-    raw[y * (1 + w * 3)] = 0;  // filter: none
+    raw[y * (1 + w * 3)] = 0; // filter: none
     Buffer.from(rgbData.buffer, y * w * 3, w * 3).copy(raw, y * (1 + w * 3) + 1);
   }
   const png = Buffer.concat([

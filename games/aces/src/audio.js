@@ -69,13 +69,17 @@ export class Audio {
     this.windGain.gain.setTargetAtTime(Math.min(0.14, speed / 9000), t, 0.4);
   }
 
-  setLockTone(mode) { // 'off' | 'locking' | 'locked'
+  setLockTone(mode) {
+    // 'off' | 'locking' | 'locked'
     if (!this.started) return;
     const g = mode === 'locked' ? 0.05 : mode === 'locking' ? 0.025 : 0;
     this.toneGain.gain.setTargetAtTime(g, this.ctx.currentTime, mode === 'off' ? 0.1 : 0.02);
     if (mode === 'locking') {
       this.tone.frequency.setTargetAtTime(
-        600 + Math.sin(performance.now() / 90) * 160, this.ctx.currentTime, 0.03);
+        600 + Math.sin(performance.now() / 90) * 160,
+        this.ctx.currentTime,
+        0.03,
+      );
     } else {
       this.tone.frequency.setTargetAtTime(780, this.ctx.currentTime, 0.05);
     }
@@ -99,9 +103,15 @@ export class Audio {
     src.stop(t + dur + 0.05);
   }
 
-  gun() { this.burst(0.09, 'lowpass', 2200, 0.5); }
-  missile() { this.burst(1.4, 'lowpass', 500, 0.4, 90); }
-  explosion(scale = 1) { this.burst(1.2 + scale * 0.4, 'lowpass', 700, 0.7, 60); }
+  gun() {
+    this.burst(0.09, 'lowpass', 2200, 0.5);
+  }
+  missile() {
+    this.burst(1.4, 'lowpass', 500, 0.4, 90);
+  }
+  explosion(scale = 1) {
+    this.burst(1.2 + scale * 0.4, 'lowpass', 700, 0.7, 60);
+  }
   warningBeep() {
     if (!this.started) return;
     const t = this.ctx.currentTime;
@@ -112,6 +122,7 @@ export class Audio {
     g.gain.setValueAtTime(0.09, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
     o.connect(g).connect(this.master);
-    o.start(t); o.stop(t + 0.25);
+    o.start(t);
+    o.stop(t + 0.25);
   }
 }

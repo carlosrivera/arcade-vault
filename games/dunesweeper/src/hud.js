@@ -117,7 +117,9 @@ export class HUD {
     this.settingsSeedInput = document.getElementById('settings-seed-input');
     this.settingsDifficulty = this.gameState ? this.gameState.difficultyKey : 'explorer';
     document.getElementById('btn-settings')?.addEventListener('click', () => this.showSettings());
-    document.getElementById('settings-cancel')?.addEventListener('click', () => this.hideSettings());
+    document
+      .getElementById('settings-cancel')
+      ?.addEventListener('click', () => this.hideSettings());
     document.getElementById('settings-restart')?.addEventListener('click', () => {
       this.hideSettings();
       this.onAction({ type: 'restart' });

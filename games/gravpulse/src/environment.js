@@ -30,8 +30,6 @@ function clearOfTracks(x, z, clearance = 130) {
   return true;
 }
 
-
-
 // Builds a small procedural night-sky scene and bakes it into a PMREM
 // environment map, giving every PBR material believable neon-blue ambient
 // reflections without any external HDR assets.
@@ -316,7 +314,8 @@ export function buildEnvironment(scene, renderer) {
       hctx.fillStyle = `rgb(${v},${v},${v})`;
       hctx.fillRect((Math.random() * 256) | 0, (Math.random() * 256) | 0, 2, 1);
     }
-    const hw = 256, hh = 256;
+    const hw = 256,
+      hh = 256;
     const src = hctx.getImageData(0, 0, hw, hh).data;
     const nc = document.createElement('canvas');
     nc.width = nc.height = 256;
@@ -371,12 +370,25 @@ export function buildEnvironment(scene, renderer) {
 
     // neon sign textures: one canvas per text, vertical or horizontal
     const SIGN_TEXTS = [
-      'NEO-KOTO', 'SYNTH', 'RAMEN 24H', ' deltaX', 'PULSE', 'OVERDRIVE',
-      'NØVA', 'CYBERIA', 'OSAKA-9', 'VOLT', 'GHOST', 'ZEN-5', 'AXIOM', 'KURO',
+      'NEO-KOTO',
+      'SYNTH',
+      'RAMEN 24H',
+      ' deltaX',
+      'PULSE',
+      'OVERDRIVE',
+      'NØVA',
+      'CYBERIA',
+      'OSAKA-9',
+      'VOLT',
+      'GHOST',
+      'ZEN-5',
+      'AXIOM',
+      'KURO',
     ];
     const makeSign = (text, color) => {
       const c = document.createElement('canvas');
-      c.width = 512; c.height = 128;
+      c.width = 512;
+      c.height = 128;
       const g = c.getContext('2d');
       g.fillStyle = '#05060c';
       g.fillRect(0, 0, 512, 128);
@@ -413,10 +425,12 @@ export function buildEnvironment(scene, renderer) {
           for (let n = 0; n < perModel; n++) {
             const inst = model.clone(true);
             const ang = Math.random() * Math.PI * 2;
-            let x = 0, z = 0;
+            let x = 0,
+              z = 0;
             const isSkyR = file.includes('skyscraper');
             for (let attempt = 0; attempt < 14; attempt++) {
-              const rad = (isSkyR ? 1150 : 900) + Math.random() * (isSkyR ? 1000 : 850) + attempt * 45;
+              const rad =
+                (isSkyR ? 1150 : 900) + Math.random() * (isSkyR ? 1000 : 850) + attempt * 45;
               x = Math.cos(ang) * rad;
               z = Math.sin(ang) * rad;
               if (clearOfTracks(x, z, 150)) break;
@@ -446,10 +460,22 @@ export function buildEnvironment(scene, renderer) {
               const color = SIGN_COLORS[(Math.random() * SIGN_COLORS.length) | 0];
               let mat = signMatCache.find((m) => m.text === text && m.color === color);
               if (!mat) {
-                mat = { text, color, m: new THREE.MeshBasicMaterial({ map: makeSign(text, color), transparent: true, side: THREE.DoubleSide, depthWrite: false }) };
+                mat = {
+                  text,
+                  color,
+                  m: new THREE.MeshBasicMaterial({
+                    map: makeSign(text, color),
+                    transparent: true,
+                    side: THREE.DoubleSide,
+                    depthWrite: false,
+                  }),
+                };
                 signMatCache.push(mat);
               }
-              const sign = new THREE.Mesh(new THREE.PlaneGeometry(size.x * s * 0.85, (size.x * s * 0.85) / 4), mat.m);
+              const sign = new THREE.Mesh(
+                new THREE.PlaneGeometry(size.x * s * 0.85, (size.x * s * 0.85) / 4),
+                mat.m,
+              );
               sign.position.set(x, base + size.y * s * 0.82, z);
               sign.rotation.y = -ang + Math.PI / 2 + (Math.random() - 0.5) * 0.6;
               cityGroup.add(sign);
@@ -494,7 +520,6 @@ export function buildEnvironment(scene, renderer) {
     spr.scale.setScalar(900);
     spr.position.set(-1600, 980, -2100);
     scene.add(spr);
-
   }
 
   // Flying traffic: real Kenney craft (CC0) on orbit lanes, engine glow
@@ -572,7 +597,8 @@ export function loadSceneryModels(scene) {
         for (let i = 0; i < def.count; i++) {
           const inst = model.clone(true);
           const ang = Math.random() * Math.PI * 2;
-          let x = 0, z = 0;
+          let x = 0,
+            z = 0;
           for (let attempt = 0; attempt < 12; attempt++) {
             const rad = 700 + Math.random() * 1200 + attempt * 40;
             x = Math.cos(ang) * rad;
