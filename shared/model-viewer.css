@@ -23,3 +23,6 @@ canvas { display: block; }
 #inspect .m .n { color: #ff3b6b; }
 #inspect .help { margin-top: 6px; border-top: 1px solid #1d3448; padding-top: 6px; color: #55748c; }
 #inspect .rm { margin: 6px 0 0; color: #ffd28a; }
+#light-mode { margin-top: 5px; padding-top: 5px; border-top: 1px solid #1d3448;
+  color: #55748c; max-width: 300px; }
+#light-mode b { color: #3ad6ff; }

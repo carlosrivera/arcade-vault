@@ -18,28 +18,37 @@ import * as THREE from 'three';
 import { createModelViewer } from '../../shared/model-viewer.js';
 import { createExis07 } from './dist/exis07Build.js';
 
-// Studio three-point from the spec's lightingFromPhoto. A rim IS correct here: the
-// reference is a studio product render, unlike the painted diorama where a rim would have
-// read as stylised edge lighting.
-const key = new THREE.DirectionalLight(0xffffff, 2.4);
-key.position.set(0.6, 0.85, 0.7).multiplyScalar(3);
+// Studio three-point, retuned HARD after a side-by-side under the viewer's diagnostic rigs.
+//
+// The facet-normals rig proved the geometry is genuinely faceted - every face a flat colour
+// patch, no smooth gradients - yet under the original soft rig the craft still read smooth.
+// The cause was the lighting: key 2.4 against a 0.75 fill and a 1.1 rim compressed adjacent
+// facet values until neighbouring panels sat within a few units of each other, so the
+// creases disappeared even though they were there.
+//
+// Key up, fill and rim well down, exposure pulled back so the lit faces do not clip. The
+// reference is a contrasty studio product render, and this is much closer to it. Press L in
+// the viewer to compare against the diagnostic rigs.
+const key = new THREE.DirectionalLight(0xfff6ec, 3.6);
+key.position.set(0.68, 0.92, 0.58).multiplyScalar(3);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
 key.shadow.bias = -0.0004;
 Object.assign(key.shadow.camera, { left: -0.8, right: 0.8, top: 0.8, bottom: -0.8, near: 0.1, far: 8 });
 key.shadow.camera.updateProjectionMatrix();
-const fill = new THREE.DirectionalLight(0xafc6e0, 0.75);
-fill.position.set(-0.8, 0.2, 0.4).multiplyScalar(3);
-const rim = new THREE.DirectionalLight(0x9fd8ff, 1.1);
-rim.position.set(-0.3, 0.4, -1.0).multiplyScalar(3);
+const fill = new THREE.DirectionalLight(0x9db6d2, 0.34);
+fill.position.set(-0.85, 0.16, 0.42).multiplyScalar(3);
+const rim = new THREE.DirectionalLight(0x9fd8ff, 0.55);
+rim.position.set(-0.30, 0.42, -1.0).multiplyScalar(3);
 
 createModelViewer({
   model: createExis07(),
   title: 'EXIS 07',
-  lights: [key, fill, rim, new THREE.AmbientLight(0xc8d6e8, 0.28)],
+  lights: [key, fill, rim, new THREE.AmbientLight(0xc8d6e8, 0.13)],
   // Solved against the reference three-quarter crop by sweeping azimuth, elevation and
   // distance against diagnose_render's silhouette metrics: aspect delta 0.003, scale 0.063.
   camera: { fov: 28, azimuth: 38, elevation: 30, distanceFactor: 1.6, viewDistanceFactor: 2.6 },
+  exposure: 0.88, // pulled back to stop the harder key clipping the lit facets
   bloom: { strength: 0.34, radius: 0.38, threshold: 0.88 },
 });
 </script>

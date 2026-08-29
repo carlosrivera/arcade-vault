@@ -48,7 +48,6 @@ export function createModelViewer(opts) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(gate ? KEY_BG : (opts.background ?? 0x0b0e13));
   scene.add(opts.model);
-  for (const l of opts.lights ?? []) scene.add(l);
   if (noCloud) {
     const c = opts.model.getObjectByName('cloud-layer');
     if (c) c.visible = false;
@@ -113,7 +112,8 @@ export function createModelViewer(opts) {
     hud = document.createElement('div');
     hud.id = 'hud';
     hud.innerHTML = `<b>${opts.title ?? 'MODEL'}</b><br><span id="stat">…</span>` +
-      '<br><span class="hint">drag orbit · scroll zoom · shift-drag pan</span>';
+      '<br><span class="hint">drag orbit · scroll zoom · shift-drag pan · <b>L</b> lighting</span>' +
+      '<div id="light-mode"></div>';
     document.body.appendChild(hud);
   }
 
@@ -156,6 +156,14 @@ export function createModelViewer(opts) {
     _az: az0, _el: el0, _d: d0,
   };
   window.__viewer = api;
+
+  // Lighting rigs. Whether a hard-surface model reads as faceted is as much a lighting
+  // question as a geometry one, so the viewer carries several rigs and the model's own
+  // authored rig sits alongside them rather than being the only option.
+  import('./model-lighting.js')
+    .then((m) => m.attachLighting(api, { initial: 'authored', custom: opts.lights ?? null,
+                            customExposure: opts.exposure ?? 1.0 }))
+    .catch((err) => console.warn('lighting rigs unavailable:', err));
 
   // Inspection is on for normal viewing and off for gate captures: the highlight overlay
   // and mark pins are geometry, and a segmenter would count them as part of the subject.
