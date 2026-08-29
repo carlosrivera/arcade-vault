@@ -184,11 +184,44 @@ function createEnvironment(scene, rng, gradientMap) {
   const waterMat = makeToonMat(0x358ab8, gradientMap);
 
   // Lake at bottom
-  // Water sits in front of every ridge, closing the composition off at the
-  // bottom the way the reference does.
-  const lakeGeo = new THREE.PlaneGeometry(600, 26);
-  const lake = new THREE.Mesh(lakeGeo, waterMat);
-  lake.position.set(0, -30, -24);
+  // Water closes the composition at the bottom. A flat fill reads as a strip
+  // of paint; three things make it read as water: it darkens with depth away
+  // from the shore, it lightens sharply right at the waterline where the
+  // shallows show the bed, and it carries something of known size on it.
+  const lakeGeo = new THREE.PlaneGeometry(600, 30);
+  const lake = new THREE.Mesh(
+    lakeGeo,
+    new THREE.ShaderMaterial({
+      fog: false,
+      uniforms: {
+        uShallow: { value: new THREE.Color(0x8fd4e8) },
+        uDeep: { value: new THREE.Color(0x1c5f8f) },
+        uShoreline: { value: new THREE.Color(0xd6f2fb) },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform vec3 uShallow;
+        uniform vec3 uDeep;
+        uniform vec3 uShoreline;
+        varying vec2 vUv;
+        void main() {
+          // vUv.y = 1 at the far edge (the shore), 0 nearest the viewer.
+          float depth = 1.0 - vUv.y;
+          vec3 col = mix(uShallow, uDeep, smoothstep(0.0, 0.75, depth));
+          // Bright band exactly at the waterline.
+          col = mix(col, uShoreline, smoothstep(0.93, 1.0, vUv.y) * 0.85);
+          // Broad horizontal glints, so the surface has motion-free texture.
+          float glint = smoothstep(0.55, 1.0, sin(vUv.y * 90.0) * 0.5 + 0.5) * 0.06;
+          gl_FragColor = vec4(col + glint, 1.0);
+        }`,
+    }),
+  );
+  lake.position.set(0, -42, -24);
   envGroup.add(lake);
 
   // --- Landscape --------------------------------------------------------
@@ -276,10 +309,33 @@ function createEnvironment(scene, rng, gradientMap) {
     { baseY: -20, height: 26, z: -60, haze: 0.55, color: 0x3f7f8c, wavelength: 62, seed: 1 },
     { baseY: -21, height: 20, z: -52, haze: 0.34, color: 0x2f8f63, wavelength: 46, seed: 2 },
     { baseY: -22, height: 15, z: -44, haze: 0.18, color: 0x35a63f, wavelength: 34, seed: 3 },
-    { baseY: -23, height: 12, z: -36, haze: 0.07, color: 0x2f9c2c, wavelength: 25, seed: 4 },
-    { baseY: -24, height: 9, z: -30, haze: 0.0, color: 0x1f8a25, wavelength: 18, seed: 5 },
+    { baseY: -26, height: 19, z: -36, haze: 0.07, color: 0x2f9c2c, wavelength: 25, seed: 4 },
+    { baseY: -28, height: 17, z: -30, haze: 0.0, color: 0x1f8a25, wavelength: 18, seed: 5 },
   ];
   LAYERS.forEach(buildRidge);
+
+  // Sailboats. Open water has no features to judge size against, so a lake
+  // without them could be a pond or an inland sea. A handful of known-sized
+  // objects settles it instantly — the same job the conifers do on the hills.
+  for (let i = 0; i < 14; i++) {
+    const boat = new THREE.Group();
+    const hull = new THREE.Mesh(
+      new THREE.BoxGeometry(1.6, 0.35, 0.6),
+      new THREE.MeshBasicMaterial({ color: 0xf4f7fa, fog: false }),
+    );
+    const sail = new THREE.Mesh(
+      new THREE.ConeGeometry(0.62, 1.7, 3),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }),
+    );
+    sail.position.y = 1.0;
+    boat.add(hull, sail);
+    // Nearer the viewer means lower on the water and slightly larger.
+    const t = rng.range(0, 1);
+    const scale = 0.55 + t * 0.9;
+    boat.scale.setScalar(scale);
+    boat.position.set(rng.range(-240, 240), -40 + (1 - t) * 11, -23.6);
+    envGroup.add(boat);
+  }
 
   // Horizon glow. Air is brightest where you look through the most of it, so
   // a pale band sits along the skyline in every landscape painting. It also
@@ -313,30 +369,53 @@ function createEnvironment(scene, rng, gradientMap) {
     envGroup.add(glow);
   }
 
-  // Field patchwork on the nearest slope. Farmland is not one green: it is
-  // parcels of slightly different crops, and that low-contrast variation is
-  // most of what separates cultivated country from a painted backdrop.
+  // Farmland. The valley in the reference is not one green — it is a quilt of
+  // parcels, each a different crop at a different stage, separated by tracks.
+  // That patchwork is most of what reads as cultivated country rather than a
+  // painted hillside, and the previous attempt failed because it was too
+  // timid: low opacity over a near-identical green is invisible at altitude.
   {
     const near = LAYERS[4];
-    for (let i = 0; i < 46; i++) {
-      const x = rng.range(-250, 250);
-      const n = ridgeNoise(x / near.wavelength, near.seed) ** 1.35;
-      const y = near.baseY + n * near.height;
-      const w = rng.range(7, 22);
-      const h = rng.range(2.2, 5);
-      const field = new THREE.Mesh(
-        new THREE.PlaneGeometry(w, h),
-        new THREE.MeshBasicMaterial({
-          color: new THREE.Color(near.color)
-            .lerp(new THREE.Color(rng.chance(0.5) ? 0x6fc44a : 0x1c6b28), rng.range(0.25, 0.6)),
-          fog: false,
-          transparent: true,
-          opacity: rng.range(0.35, 0.7),
-        }),
-      );
-      // Sit just below the crest so parcels read as lying on the slope.
-      field.position.set(x, y - rng.range(1.5, 6), near.z + 0.4);
-      envGroup.add(field);
+    const CROPS = [
+      0x7ec850, // young wheat
+      0x9ed84f, // barley
+      0x4f9e33, // pasture
+      0xc9c74e, // rape / stubble
+      0x6bb03f,
+      0x3f8a2e,
+    ];
+    const slopeY = (x) => near.baseY + ridgeNoise(x / near.wavelength, near.seed) ** 1.35 * near.height;
+
+    // Parcels are laid in runs so neighbours share an edge, the way real
+    // field boundaries do — scattering them independently reads as confetti.
+    let x = -250;
+    while (x < 250) {
+      const runWidth = rng.range(14, 34);
+      const rows = Math.floor(rng.range(1, 3));
+      for (let r = 0; r < rows; r++) {
+        const w = runWidth * rng.range(0.75, 1);
+        const h = rng.range(3.5, 7);
+        const cx = x + runWidth / 2 + rng.range(-1.5, 1.5);
+        const parcel = new THREE.Mesh(
+          new THREE.PlaneGeometry(w, h),
+          new THREE.MeshBasicMaterial({ color: rng.choice(CROPS), fog: false }),
+        );
+        // Below the crest, stacked downslope, so parcels sit ON the hill.
+        parcel.position.set(cx, slopeY(cx) - 2.5 - r * (h * 0.9), near.z + 0.35 + r * 0.02);
+        envGroup.add(parcel);
+      }
+
+      // A pale track along the boundary between runs.
+      if (rng.chance(0.55)) {
+        const track = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.7, rng.range(7, 13)),
+          new THREE.MeshBasicMaterial({ color: 0xd8cfa8, fog: false }),
+        );
+        track.position.set(x, slopeY(x) - 5, near.z + 0.45);
+        track.rotation.z = rng.range(-0.25, 0.25);
+        envGroup.add(track);
+      }
+      x += runWidth;
     }
   }
 
@@ -1874,7 +1953,11 @@ export function init({ renderer, state }) {
       const lookAhead = clamp(player.vel.x * 0.35, -10, 10);
       const halfView = camera.position.z * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
       camTarget.x = clamp(player.pos.x + lookAhead, WORLD.minX + halfView, WORLD.maxX - halfView);
-      camTarget.y = clamp(player.pos.y * 0.6, WORLD.groundY + 10, WORLD.ceilY - 6);
+      // Follow altitude only loosely. Tracking the player one-for-one keeps the
+      // horizon pinned to the bottom edge and throws away the landscape
+      // entirely; sitting lower than the aircraft puts the ground back in
+      // frame, which is where the reference keeps it.
+      camTarget.y = clamp(player.pos.y * 0.38, WORLD.groundY + 4, WORLD.ceilY - 6);
       camera.position.x = damp(camera.position.x, camTarget.x, 3.5, rawDt);
       camera.position.y = damp(camera.position.y, camTarget.y, 2.5, rawDt);
       camera.position.x += feel.offset.x;
