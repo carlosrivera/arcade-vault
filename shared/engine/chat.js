@@ -12,8 +12,11 @@
 import { exportEdits, overridesFor, revertAll, saveEdit } from '#engine/storage.js';
 
 const BACKEND = 'http://127.0.0.1:8787';
-// Fenced block tagged with the file it replaces: ```js path=/games/x/src/y.js
-const FILE_BLOCK = /```(?:js|javascript)\s+path=(\S+)\n([\s\S]*?)```/g;
+// Fenced block tagged with the file it changes:
+//   ```js path=/games/x/src/y.js            -> whole-module replacement
+//   ```js path=/games/x/src/y.js mode=patch -> SEARCH/REPLACE pairs
+const FILE_BLOCK = /```(?:js|javascript)\s+path=(\S+)([^\n]*)\n([\s\S]*?)```/g;
+const PATCH_PAIR = /<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE/g;
 
 const CSS = `
 .vault-chat { position: fixed; right: 16px; bottom: 16px; z-index: 99999;
@@ -47,11 +50,54 @@ const CSS = `
 .vault-chat__form button:disabled { opacity: .5; cursor: default; }
 `;
 
-/** Pull `path=` tagged code blocks out of a reply. */
-export function parseFileBlocks(text) {
+/**
+ * Apply SEARCH/REPLACE pairs to a source string.
+ *
+ * @throws if a search string is absent or ambiguous — a patch that silently
+ *   matched nothing would leave the game running stale code while the reply
+ *   claimed success.
+ */
+export function applyPatch(source, patchBody) {
+  let out = source;
+  let applied = 0;
+  for (const [, search, replace] of patchBody.matchAll(PATCH_PAIR)) {
+    const count = out.split(search).length - 1;
+    if (count === 0) throw new Error(`patch target not found: ${search.slice(0, 60)}…`);
+    if (count > 1)
+      throw new Error(`patch target matched ${count}× (must be unique): ${search.slice(0, 60)}…`);
+    out = out.replace(search, replace);
+    applied++;
+  }
+  if (!applied) throw new Error('patch block contained no SEARCH/REPLACE pairs');
+  return out;
+}
+
+/**
+ * Pull `path=` tagged blocks out of a reply and resolve them to full sources.
+ *
+ * @param {string} text  the model's reply
+ * @param {Record<string,string>} current  path -> source, for patch blocks
+ */
+export function parseFileBlocks(text, current = {}) {
   const files = {};
-  for (const [, path, source] of text.matchAll(FILE_BLOCK)) files[path] = source.trimEnd();
-  return files;
+  const errors = [];
+  for (const [, path, flags, body] of text.matchAll(FILE_BLOCK)) {
+    if (/\bmode=patch\b/.test(flags)) {
+      const base = files[path] ?? current[path];
+      if (base === undefined) {
+        errors.push(`${path}: patch block but no current source to apply it to`);
+        continue;
+      }
+      try {
+        files[path] = applyPatch(base, body);
+      } catch (error) {
+        errors.push(`${path}: ${error.message}`);
+      }
+    } else {
+      files[path] = body.trimEnd();
+    }
+  }
+  return { files, errors };
 }
 
 /**
@@ -143,10 +189,12 @@ export function mountChat({ game, gameId, sources = [] }) {
 
     const out = say('');
     try {
+      // Kept so patch blocks apply against exactly what the model was shown.
+      const sent = await currentSources();
       const response = await fetch(`${BACKEND}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, files: await currentSources() }),
+        body: JSON.stringify({ messages: history, files: sent }),
       });
       if (!response.ok) throw new Error(`backend ${response.status}: ${await response.text()}`);
 
@@ -163,9 +211,10 @@ export function mountChat({ game, gameId, sources = [] }) {
       }
       history.push({ role: 'assistant', content: full });
 
-      const files = parseFileBlocks(full);
+      const { files, errors } = parseFileBlocks(full, sent);
+      for (const problem of errors) say(problem, 'err');
       const paths = Object.keys(files);
-      if (!paths.length) return say('no file blocks in reply — nothing applied', 'note');
+      if (!paths.length) return say('no file blocks applied', 'note');
 
       for (const [path, source] of Object.entries(files)) {
         await saveEdit({ path, source, game: gameId });

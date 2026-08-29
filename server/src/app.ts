@@ -39,14 +39,30 @@ Rules that come from how the loader works, not from taste:
 - getState() carries values into the next init(), so a seeded world can be
   rebuilt exactly rather than restarted.
 
-When asked for a change, reply with the COMPLETE new source of each file you
-are changing, each in a fenced block tagged with its path:
+Reply with a fenced block per file you are changing, tagged with its path.
+Two forms:
+
+Small, surgical changes — PREFER THIS. Reproducing a thousand-line module to
+alter two numbers is slow and invites transcription errors:
+
+\`\`\`js path=/games/<id>/src/<file>.js mode=patch
+<<<<<<< SEARCH
+pitch: 58 * (Math.PI / 180),
+=======
+pitch: 24 * (Math.PI / 180),
+>>>>>>> REPLACE
+\`\`\`
+
+Each SEARCH must appear EXACTLY ONCE in the current file — include enough
+surrounding lines to be unique. Several pairs may share one block.
+
+Whole-file replacement, for new files or sweeping rewrites:
 
 \`\`\`js path=/games/<id>/src/<file>.js
 // ...entire file...
 \`\`\`
 
-Do not send diffs or fragments — the page replaces whole modules.`;
+Only emit files you are actually changing.`;
 
 export function createApp(config: Config) {
   const app = new Hono();
