@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SKY STRIKE</title>
+
+<!-- Metadata is generated from games.json — run tools/sync-meta.js after editing it. -->
+<!-- meta:start -->
+<meta name="description" content="A vanilla web game with zero build step.">
+<meta name="author" content="LLM Game Vault">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#06070a">
+<link rel="canonical" href="https://carlosrivera.github.io/arcade-vault/games/sky-strike/index.html">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arcade Vault">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="SKY STRIKE — A new experiment">
+<meta property="og:description" content="A vanilla web game with zero build step.">
+<meta property="og:url" content="https://carlosrivera.github.io/arcade-vault/games/sky-strike/index.html">
+<meta property="og:image" content="../../assets/og-card.png">
+<meta property="og:image:alt" content="Arcade Vault game gallery">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SKY STRIKE — A new experiment">
+<meta name="twitter:description" content="A vanilla web game with zero build step.">
+<meta name="twitter:image" content="../../assets/og-card.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "SKY STRIKE",
+  "url": "https://carlosrivera.github.io/arcade-vault/games/sky-strike/index.html",
+  "description": "A vanilla web game with zero build step.",
+  "image": "https://carlosrivera.github.io/arcade-vault/assets/og-card.png",
+  "author": {
+    "@type": "Person",
+    "name": "LLM Game Vault"
+  },
+  "applicationCategory": "Game",
+  "operatingSystem": "Any (Web Browser)",
+  "genre": "2D DOGFIGHTER",
+  "playMode": "SinglePlayer",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<!-- meta:end -->
+
+<style>
+  html, body { margin: 0; height: 100%; background: #06070a; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #menu {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; z-index: 50;
+    color: #e8ecf4; font-family: ui-monospace, Menlo, monospace; text-align: center;
+    background: radial-gradient(ellipse at center, rgba(16, 23, 37, 0.88) 0%, rgba(6, 7, 10, 0.95) 75%);
+    backdrop-filter: blur(4px);
+  }
+  #menu.hidden { display: none; }
+  #menu h1 { font-size: clamp(32px, 8vw, 68px); letter-spacing: 0.16em; margin: 0; color: #22ffbb; text-shadow: 0 0 20px rgba(34, 255, 187, 0.4); }
+  #menu .subtitle { font-size: 14px; opacity: 0.8; letter-spacing: 0.2em; text-transform: uppercase; color: #7fd6ff; margin-bottom: 8px; }
+  .controls-box {
+    display: grid; grid-template-columns: auto auto; gap: 8px 20px;
+    background: rgba(10, 18, 32, 0.75); border: 1px solid rgba(127, 214, 255, 0.25);
+    border-radius: 4px; padding: 14px 24px; font-size: 13px; text-align: left;
+  }
+  .controls-box .key { color: #22ffbb; font-weight: 700; }
+  .controls-box .desc { color: #c0d0e6; }
+  #startBtn {
+    margin-top: 14px; padding: 14px 36px; cursor: pointer;
+    background: #22ffbb; color: #06070a; border: 0; border-radius: 3px;
+    font: inherit; font-size: 16px; font-weight: 800; letter-spacing: 0.2em;
+    box-shadow: 0 0 24px rgba(34, 255, 187, 0.4);
+    transition: transform 0.1s ease, filter 0.1s ease;
+  }
+  #startBtn:hover { transform: scale(1.05); filter: brightness(1.15); }
+  #startBtn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<div id="menu">
+  <h1>SKY STRIKE</h1>
+  <div class="subtitle">3D Cel-Shaded 2D Dogfighter</div>
+  <div class="controls-box">
+    <div><span class="key">A / D</span> or <span class="key">◀ / ▶</span></div><div class="desc">Pitch / Loop-the-Loop</div>
+    <div><span class="key">W</span> or <span class="key">▲</span></div><div class="desc">Afterburner Throttle</div>
+    <div><span class="key">S</span> or <span class="key">▼</span></div><div class="desc">Airbrakes</div>
+    <div><span class="key">SPACE</span> or <span class="key">J</span></div><div class="desc">Plasma Laser Cannon</div>
+    <div><span class="key">X</span> or <span class="key">K</span> / <span class="key">SHIFT</span></div><div class="desc">Homing Swarm Missiles</div>
+  </div>
+  <button id="startBtn" type="button">LAUNCH JET</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "../../shared/vendor/three.module.js",
+    "three/addons/": "../../shared/vendor/jsm/",
+    "#engine/": "../../shared/engine/"
+  }
+}
+</script>
+<script type="module" src="../../shared/eject.js"></script>
+<script type="module">
+  // Booted through the shared host so the game can be hot-swapped in place;
+  // see shared/engine/boot.js.
+  import { boot } from '#engine/boot.js';
+
+  boot({ entry: './src/main.js', maxPixelRatio: 2 });
+</script>
+</body>
+</html>
