@@ -4,97 +4,15 @@
 // session). Terrain streams as a grid of chunk meshes recycled around the
 // player. Also provides heightAt(x, z) for collision and AI ground avoidance.
 
-import { mulberry32 } from '#engine/rng.js';
 import * as THREE from 'three';
+import { createNoise2D } from '#engine/noise.js';
+import { mulberry32 } from '#engine/rng.js';
 
 // ---------------------------------------------------------------- noise
-// Compact 2D simplex noise (Gustavson-style), seeded permutation.
+// Seeded lattice: the same NOISE_SEED yields the same world every session, so
+// nothing about the terrain needs storing.
 const NOISE_SEED = 1337;
-function makePerm(seed) {
-  const p = new Uint8Array(256);
-  for (let i = 0; i < 256; i++) p[i] = i;
-  let s = seed >>> 0;
-  const rnd = () => {
-    s ^= s << 13;
-    s ^= s >>> 17;
-    s ^= s << 5;
-    s >>>= 0;
-    return s / 4294967296;
-  };
-  for (let i = 255; i > 0; i--) {
-    const j = Math.floor(rnd() * (i + 1));
-    [p[i], p[j]] = [p[j], p[i]];
-  }
-  const perm = new Uint8Array(512);
-  for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
-  return perm;
-}
-const PERM = makePerm(NOISE_SEED);
-const GRAD2 = [
-  [1, 1],
-  [-1, 1],
-  [1, -1],
-  [-1, -1],
-  [1, 0],
-  [-1, 0],
-  [0, 1],
-  [0, -1],
-];
-
-function simplex2(xin, yin) {
-  const F2 = 0.5 * (Math.sqrt(3) - 1),
-    G2 = (3 - Math.sqrt(3)) / 6;
-  let n0 = 0,
-    n1 = 0,
-    n2 = 0;
-  const s = (xin + yin) * F2;
-  const i = Math.floor(xin + s),
-    j = Math.floor(yin + s);
-  const t = (i + j) * G2;
-  const x0 = xin - (i - t),
-    y0 = yin - (j - t);
-  const i1 = x0 > y0 ? 1 : 0,
-    j1 = x0 > y0 ? 0 : 1;
-  const x1 = x0 - i1 + G2,
-    y1 = y0 - j1 + G2;
-  const x2 = x0 - 1 + 2 * G2,
-    y2 = y0 - 1 + 2 * G2;
-  const ii = i & 255,
-    jj = j & 255;
-  let t0 = 0.5 - x0 * x0 - y0 * y0;
-  if (t0 > 0) {
-    t0 *= t0;
-    const g = GRAD2[PERM[ii + PERM[jj]] & 7];
-    n0 = t0 * t0 * (g[0] * x0 + g[1] * y0);
-  }
-  let t1 = 0.5 - x1 * x1 - y1 * y1;
-  if (t1 > 0) {
-    t1 *= t1;
-    const g = GRAD2[PERM[ii + i1 + PERM[jj + j1]] & 7];
-    n1 = t1 * t1 * (g[0] * x1 + g[1] * y1);
-  }
-  let t2 = 0.5 - x2 * x2 - y2 * y2;
-  if (t2 > 0) {
-    t2 *= t2;
-    const g = GRAD2[PERM[ii + 1 + PERM[jj + 1]] & 7];
-    n2 = t2 * t2 * (g[0] * x2 + g[1] * y2);
-  }
-  return 70 * (n0 + n1 + n2);
-}
-
-function fbm(x, y, octaves, lacunarity, gain) {
-  let amp = 1,
-    freq = 1,
-    sum = 0,
-    norm = 0;
-  for (let o = 0; o < octaves; o++) {
-    sum += amp * simplex2(x * freq, y * freq);
-    norm += amp;
-    amp *= gain;
-    freq *= lacunarity;
-  }
-  return sum / norm;
-}
+const { simplex2, fbm } = createNoise2D(NOISE_SEED);
 
 const saturate = (v) => Math.max(0, Math.min(1, v));
 const smoothstep = (a, b, v) => {

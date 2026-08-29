@@ -3,8 +3,8 @@
  * 100% Voxel Diorama with Raised Terraces, Sunken Chambers, and Portal Gateway
  */
 
-import { PRNG } from '#engine/rng.js';
 import * as THREE from 'three';
+import { PRNG } from '#engine/rng.js';
 import { CONFIG } from './config.js';
 import { CELL_STATE } from './game_state.js';
 import {

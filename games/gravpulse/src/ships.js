@@ -1,5 +1,5 @@
-import { damp } from '#engine/math.js';
 import * as THREE from 'three';
+import { damp } from '#engine/math.js';
 import { fitToShipSpace, loadModel } from './models.js';
 import { WALL_LAT } from './track.js';
 

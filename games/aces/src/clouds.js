@@ -3,10 +3,10 @@
 // dual-lobe Henyey-Greenstein phase scattering, Beer's law light marching,
 // powder effect, and cumulus height profiling.
 
+import * as THREE from 'three';
 import { damp } from '#engine/math.js';
 import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
 import { mulberry32 } from '#engine/rng.js';
-import * as THREE from 'three';
 
 // ---------------------------------------------------------------- 2D puff fallback for trails
 export function puffTexture(_hardCore = false) {

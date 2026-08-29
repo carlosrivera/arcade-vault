@@ -7,26 +7,9 @@
  * 16-bit rules: dark outline + one highlight + one shade per material.
  */
 
+import { applyPixelIcons as applyIcons, drawSprite } from '#engine/pixel-sprites.js';
+
 const OUT = '#241a10'; // warm near-black outline
-
-function drawSprite(rows, palette) {
-  const size = 16;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-
-  for (let y = 0; y < size; y++) {
-    const row = rows[y];
-    for (let x = 0; x < 16; x++) {
-      const ch = row[x];
-      if (!ch || ch === '.') continue;
-      ctx.fillStyle = palette[ch] || '#ff00ff';
-      ctx.fillRect(x, y, 1, 1);
-    }
-  }
-  return canvas.toDataURL('image/png');
-}
 
 const HEART_ROWS = [
   '................',
@@ -403,10 +386,5 @@ export function pixIcon(name, size = 16, extraClass = '') {
  */
 export function applyPixelIcons(root = document) {
   getSprites(); // ensure the sheet is rendered once before any lookups
-  for (const el of root.querySelectorAll('[data-icon]')) {
-    const name = el.dataset.icon;
-    const size = Number(el.dataset.size || 18);
-    el.innerHTML = pixIcon(name, size);
-    el.classList.add('pix');
-  }
+  applyIcons(root, pixIcon);
 }

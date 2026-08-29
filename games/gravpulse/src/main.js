@@ -1,6 +1,3 @@
-import { damp } from '#engine/math.js';
-import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
-import { createRenderer, handleResize } from '#engine/render.js';
 import * as THREE from 'three';
 import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
@@ -9,6 +6,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { damp } from '#engine/math.js';
+import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { createRenderer, handleResize } from '#engine/render.js';
 import { Sound } from './audio.js';
 import { buildEnvironment, loadSceneryModels, updateEnvironment } from './environment.js';
 import { Hud } from './hud.js';

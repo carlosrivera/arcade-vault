@@ -1,15 +1,15 @@
 // main.js — STRIKEVECTOR: scene, input, camera, targeting, game flow.
 
-import { Keyboard } from '#engine/input.js';
-import { damp } from '#engine/math.js';
-import { createComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
-import { createRenderer, handleResize } from '#engine/render.js';
 import * as THREE from 'three';
 import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { Pass } from 'three/addons/postprocessing/Pass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { Keyboard } from '#engine/input.js';
+import { damp } from '#engine/math.js';
+import { createComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { createRenderer, handleResize } from '#engine/render.js';
 import { Audio } from './audio.js';
 import { buildCloudSystem } from './clouds.js';
 import {
