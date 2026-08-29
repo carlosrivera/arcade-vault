@@ -35,7 +35,10 @@ export function loadConfig(env: EnvSource = denoEnv): Config {
     port: Number(env.get('PORT') ?? 8787),
     // The editing surface is a development tool: it can read and rewrite game
     // source, so it is bound to loopback rather than exposed to a network.
-    allowedOrigins: (env.get('ALLOWED_ORIGINS') ?? 'http://localhost:8080,http://127.0.0.1:8080')
+    allowedOrigins: (
+      env.get('ALLOWED_ORIGINS') ??
+      'http://localhost:8137,http://127.0.0.1:8137,http://localhost:8080,http://127.0.0.1:8080'
+    )
       .split(',')
       .map((o) => o.trim()),
   };

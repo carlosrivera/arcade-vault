@@ -47,7 +47,7 @@ Fly an F-22-style fighter with a realistic 6DOF flight model — angle-of-attack
 
 ### 🛩️ SKY STRIKE
 
-[<img src="./assets/games/sky-strike.jpg" alt="SKY STRIKE 3D cel-shaded dogfighter with smoke ribbon trails over anime rolling hills" width="100%">](https://carlosrivera.github.io/arcade-vault/games/sky-strike/)
+[<img src="./assets/games/sky-strike.jpg" alt="SKY STRIKE gameplay: the player jet destroying a bandit with plasma tracers, over layered green hills, farmland and villages under a cumulus sky" width="100%">](https://carlosrivera.github.io/arcade-vault/games/sky-strike/)
 
 High-energy 2D arcade dogfights rendered with 3D cel-shaded graphics. Pull acrobatic 360° loops, fire plasma lasers, launch homing micro-missiles with swirling smoke contrails, and dogfight bandit aces over lush anime rolling hills.
 
@@ -96,6 +96,75 @@ pnpm dlx serve . -p 8137
 ```
 
 Open `http://localhost:8137/` in your browser.
+
+<img src="./assets/pixel-divider.svg" width="100%">
+
+## ✎ Edit a Game While It Runs (OpenRouter)
+
+Every game page carries an **EDIT** button when it is served from localhost. Describe a change in
+plain language and the running game rewrites itself — no page reload, no build step, and nothing
+written to disk until you choose to keep it.
+
+It is a development tool by construction: the panel is mounted only on loopback origins, so a
+deployed page never ships it. On any other host `chat.js` is not merely hidden — it is never
+fetched.
+
+### 1. Get a key
+
+Create one at [openrouter.ai/keys](https://openrouter.ai/keys). A browser cannot keep a secret, so
+the key lives in the local backend and the model call is proxied — it is never sent to the page.
+
+```bash
+cp server/.env.example server/.env
+# then put your key in server/.env
+```
+
+```bash
+OPENROUTER_API_KEY=sk-or-v1-...
+MODEL=z-ai/glm-5.3-flash     # any OpenRouter model slug
+PORT=8787
+```
+
+`server/.env` is gitignored. Do not commit it.
+
+### 2. Run both halves
+
+```bash
+pnpm server   # Deno backend on :8787  (or: cd server && deno task dev)
+pnpm serve    # the site, in another shell
+```
+
+### 3. Edit
+
+Open a game on `localhost`, click **EDIT**, and ask for something:
+
+> *make the camera lower and pull back so the whole valley is visible*
+
+The model lists the game's files, reads the ones it needs, patches them, and reloads — you watch
+each step in the panel. Edits are held in the browser (IndexedDB), so:
+
+- **REVERT** drops them and runs from disk again.
+- **EXPORT** copies a shell script to your clipboard that writes the files at the repo root, for
+  when a change is worth committing.
+
+### Choosing a model
+
+Any OpenRouter slug works. Editing sends the source of the files being changed, so input tokens
+dominate the cost:
+
+| Model | in / out per 1M | ~cost per edit |
+| --- | --- | --- |
+| `z-ai/glm-5.3-flash` | $0.075 / $0.25 | ~$0.005 |
+| `openai/gpt-5.6-luna` | $0.20 / $1.20 | ~$0.011 |
+| `google/gemini-3.7-flash` | $0.75 / $3.75 | ~$0.039 |
+
+Start on GLM 5.3 Flash — at these prices an afternoon of editing costs less than a coffee, so the
+deciding factor is capability, not spend. Step up if replies stop respecting the engine contract.
+
+### Requirements
+
+- [Deno](https://deno.com/) 2.x for the backend (`deno.json` pins its dependencies)
+- Node 18+ and pnpm for the site tooling
 
 <img src="./assets/pixel-divider.svg" width="100%">
 

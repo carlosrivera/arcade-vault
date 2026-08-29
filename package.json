@@ -11,7 +11,7 @@
     "format": "biome format --write .",
     "check": "biome check --write .",
     "check:ci": "biome check .",
-    "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
+    "serve": "python3 -m http.server 8137 --bind 127.0.0.1",
     "server": "pnpm --filter @vault/server dev",
     "new-game": "node tools/new-game.js",
     "sync-meta": "node tools/sync-meta.js",
