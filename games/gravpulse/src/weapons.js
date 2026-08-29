@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { disposeMaterial } from '#engine/assets.js';
 import { shipEvents, sparkBurst } from './ships.js';
 import { WEAPON_PAD_FRACTIONS } from './track.js';
 
@@ -505,15 +506,13 @@ export class WeaponSystem {
   dispose() {
     this.clear();
     for (const p of this.pads) {
-      if (p.mesh) {
-        this.scene.remove(p.mesh);
-        p.mesh.geometry.dispose();
-        p.mesh.material.dispose();
-      }
-      if (p.halo) {
-        this.scene.remove(p.halo);
-        p.halo.geometry.dispose();
-        p.halo.material.dispose();
+      for (const mesh of [p.mesh, p.halo]) {
+        if (!mesh) continue;
+        this.scene.remove(mesh);
+        mesh.geometry.dispose();
+        // Releases the pad and glow textures too, which material.dispose()
+        // leaves behind.
+        disposeMaterial(mesh.material);
       }
     }
     this.pads.length = 0;

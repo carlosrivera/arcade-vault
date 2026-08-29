@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { disposeMaterial } from '#engine/assets.js';
 
 // Closed-loop anti-grav circuit built from a Catmull-Rom spline.
 // Everything on the track is addressed by arc-length distance `s` in
@@ -551,19 +552,17 @@ export class Track {
   }
 
   dispose() {
-    if (this.group) {
-      this.scene.remove(this.group);
-      this.group.traverse((obj) => {
-        if (obj.geometry) obj.geometry.dispose();
-        if (obj.material) {
-          if (Array.isArray(obj.material)) {
-            obj.material.forEach((m) => {
-              m.dispose();
-            });
-          } else obj.material.dispose();
-        }
-      });
-    }
+    if (!this.group) return;
+    this.scene.remove(this.group);
+    this.group.traverse((obj) => {
+      obj.geometry?.dispose();
+      const mats = Array.isArray(obj.material) ? obj.material : obj.material ? [obj.material] : [];
+      // disposeMaterial, not material.dispose(): the latter leaves every map
+      // attached to it resident. This track bakes eleven CanvasTextures, and
+      // detaching the group from the scene first puts them out of reach of any
+      // later scene-walking sweep.
+      for (const m of mats) disposeMaterial(m);
+    });
   }
 
   _buildHoloBillboards() {

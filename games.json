@@ -15,12 +15,71 @@
     "description": "High-speed anti-gravity racing tournament. Bank through neon circuits, deploy shields, fire rockets, and claim pole position.",
     "thumbnail": "",
     "path": "games/gravpulse/index.html",
-    "tags": ["3D", "Racing", "Arcade"],
+    "tags": [
+      "3D",
+      "Racing",
+      "Arcade"
+    ],
     "style": {
       "theme": "neon-cyber",
       "primaryColor": "#35f0ff",
       "accentColor": "#ff2fd6",
       "tagColor": "#ffb02e"
+    },
+    "seo": {
+      "tags": [
+        "<meta name=\"description\" content=\"Race the neon circuits of GRAVPULSE 2097, a free 3D anti-gravity browser game with weapons, shields, boost, and local multiplayer.\">",
+        "<meta name=\"author\" content=\"Carlos Rivera\">",
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large\">",
+        "<meta name=\"theme-color\" content=\"#0a0a14\">",
+        "<link rel=\"canonical\" href=\"https://carlosrivera.github.io/arcade-vault/games/gravpulse/\">",
+        "<link rel=\"icon\" href=\"../../assets/favicon.svg\" type=\"image/svg+xml\">",
+        "<link rel=\"apple-touch-icon\" href=\"../../assets/apple-touch-icon.png\">",
+        "<link rel=\"manifest\" href=\"../../site.webmanifest\">",
+        "<meta property=\"og:type\" content=\"website\">",
+        "<meta property=\"og:site_name\" content=\"Arcade Vault\">",
+        "<meta property=\"og:locale\" content=\"en_US\">",
+        "<meta property=\"og:title\" content=\"GRAVPULSE 2097 \u2014 Neon Anti-Gravity Racer\">",
+        "<meta property=\"og:description\" content=\"Bank through neon circuits, deploy shields, fire rockets, and race for pole position in your browser.\">",
+        "<meta property=\"og:url\" content=\"https://carlosrivera.github.io/arcade-vault/games/gravpulse/\">",
+        "<meta property=\"og:image\" content=\"https://carlosrivera.github.io/arcade-vault/assets/og-card.png\">",
+        "<meta property=\"og:image:width\" content=\"1200\">",
+        "<meta property=\"og:image:height\" content=\"630\">",
+        "<meta property=\"og:image:alt\" content=\"Arcade Vault game gallery showing GRAVPULSE 2097 and DUNESWEEPER\">",
+        "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+        "<meta name=\"twitter:title\" content=\"GRAVPULSE 2097 \u2014 Neon Anti-Gravity Racer\">",
+        "<meta name=\"twitter:description\" content=\"Bank through neon circuits, deploy shields, fire rockets, and race for pole position in your browser.\">",
+        "<meta name=\"twitter:image\" content=\"https://carlosrivera.github.io/arcade-vault/assets/og-card.png\">",
+        "<meta name=\"twitter:image:alt\" content=\"Arcade Vault game gallery showing GRAVPULSE 2097 and DUNESWEEPER\">"
+      ],
+      "scripts": [
+        "<script defer src=\"https://umami-production-f25f.up.railway.app/script.js\" data-website-id=\"4d83835a-a442-46fe-8f1c-cc2e0da0b3a7\"></script>"
+      ],
+      "jsonLd": {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "GRAVPULSE 2097",
+        "url": "https://carlosrivera.github.io/arcade-vault/games/gravpulse/",
+        "description": "A high-speed 3D anti-gravity racing tournament with neon circuits, shields, rockets, and local multiplayer.",
+        "image": "https://carlosrivera.github.io/arcade-vault/assets/og-card.png",
+        "author": {
+          "@type": "Person",
+          "name": "Carlos Rivera",
+          "url": "https://github.com/carlosrivera"
+        },
+        "applicationCategory": "Game",
+        "gamePlatform": "Web browser",
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "genre": [
+          "Racing",
+          "Arcade"
+        ],
+        "inLanguage": "en",
+        "isAccessibleForFree": true
+      }
     }
   },
   {
@@ -39,12 +98,71 @@
     "description": "Excavate ancient ruins buried beneath the desert in a 100% procedural voxel diorama. Dodge scorpions and spike traps, uncover golden relics, and descend into forgotten tombs.",
     "thumbnail": "",
     "path": "games/dunesweeper/index.html",
-    "tags": ["3D", "Voxel", "Puzzle", "Minesweeper", "Procedural"],
+    "tags": [
+      "3D",
+      "Voxel",
+      "Puzzle",
+      "Minesweeper",
+      "Procedural"
+    ],
     "style": {
       "theme": "desert-ruins",
       "primaryColor": "#f5b700",
       "accentColor": "#e02438",
       "tagColor": "#2b82d9"
+    },
+    "seo": {
+      "tags": [
+        "<meta name=\"description\" content=\"Excavate procedural voxel ruins in DUNESWEEPER, a free archaeological minesweeper game with relics, traps, and desert tombs.\">",
+        "<meta name=\"author\" content=\"Carlos Rivera\">",
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large\">",
+        "<meta name=\"theme-color\" content=\"#18191c\">",
+        "<link rel=\"canonical\" href=\"https://carlosrivera.github.io/arcade-vault/games/dunesweeper/\">",
+        "<link rel=\"icon\" href=\"../../assets/favicon.svg\" type=\"image/svg+xml\">",
+        "<link rel=\"apple-touch-icon\" href=\"../../assets/apple-touch-icon.png\">",
+        "<link rel=\"manifest\" href=\"../../site.webmanifest\">",
+        "<meta property=\"og:type\" content=\"website\">",
+        "<meta property=\"og:site_name\" content=\"Arcade Vault\">",
+        "<meta property=\"og:locale\" content=\"en_US\">",
+        "<meta property=\"og:title\" content=\"DUNESWEEPER \u2014 Voxel Ruins Adventure\">",
+        "<meta property=\"og:description\" content=\"Excavate procedural desert ruins, dodge traps, uncover relics, and descend into forgotten tombs.\">",
+        "<meta property=\"og:url\" content=\"https://carlosrivera.github.io/arcade-vault/games/dunesweeper/\">",
+        "<meta property=\"og:image\" content=\"https://carlosrivera.github.io/arcade-vault/assets/og-card.png\">",
+        "<meta property=\"og:image:width\" content=\"1200\">",
+        "<meta property=\"og:image:height\" content=\"630\">",
+        "<meta property=\"og:image:alt\" content=\"Arcade Vault game gallery showing GRAVPULSE 2097 and DUNESWEEPER\">",
+        "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+        "<meta name=\"twitter:title\" content=\"DUNESWEEPER \u2014 Voxel Ruins Adventure\">",
+        "<meta name=\"twitter:description\" content=\"Excavate procedural desert ruins, dodge traps, uncover relics, and descend into forgotten tombs.\">",
+        "<meta name=\"twitter:image\" content=\"https://carlosrivera.github.io/arcade-vault/assets/og-card.png\">",
+        "<meta name=\"twitter:image:alt\" content=\"Arcade Vault game gallery showing GRAVPULSE 2097 and DUNESWEEPER\">"
+      ],
+      "scripts": [
+        "<script defer src=\"https://umami-production-f25f.up.railway.app/script.js\" data-website-id=\"4d83835a-a442-46fe-8f1c-cc2e0da0b3a7\"></script>"
+      ],
+      "jsonLd": {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "DUNESWEEPER",
+        "url": "https://carlosrivera.github.io/arcade-vault/games/dunesweeper/",
+        "description": "A procedural voxel archaeological minesweeper game set among desert ruins, relics, traps, and forgotten tombs.",
+        "image": "https://carlosrivera.github.io/arcade-vault/assets/og-card.png",
+        "author": {
+          "@type": "Person",
+          "name": "Carlos Rivera",
+          "url": "https://github.com/carlosrivera"
+        },
+        "applicationCategory": "Game",
+        "gamePlatform": "Web browser",
+        "playMode": "SinglePlayer",
+        "genre": [
+          "Puzzle",
+          "Minesweeper",
+          "Adventure"
+        ],
+        "inLanguage": "en",
+        "isAccessibleForFree": true
+      }
     }
   },
   {
@@ -63,13 +181,68 @@
     "description": "Fly an F-22-style fighter with a realistic 6DOF physics model over infinite procedural terrain. Full fighter HUD with artificial horizon, lock-on missiles, cannon, and enemy ace AI.",
     "thumbnail": "assets/games/aces.jpg",
     "path": "games/aces/index.html",
-    "tags": ["3D", "Flight", "Combat", "Simulation", "Procedural"],
+    "tags": [
+      "3D",
+      "Flight",
+      "Combat",
+      "Simulation",
+      "Procedural"
+    ],
     "style": {
       "theme": "air-combat",
       "primaryColor": "#6cf0a0",
       "accentColor": "#ffb02e",
       "tagColor": "#ff3b47"
     },
-    "badge": "FLIGHT SIM"
+    "badge": "FLIGHT SIM",
+    "seo": {
+      "tags": [
+        "<meta name=\"description\" content=\"Fly an F-22-style fighter over infinite procedural terrain. Realistic 6DOF flight model, full fighter HUD with artificial horizon, lock-on missiles and cannon. Free browser game.\">",
+        "<meta name=\"author\" content=\"Carlos Rivera\">",
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large\">",
+        "<meta name=\"theme-color\" content=\"#05080f\">",
+        "<link rel=\"canonical\" href=\"https://carlosrivera.github.io/arcade-vault/games/aces/\">",
+        "<link rel=\"icon\" href=\"../../assets/favicon.svg\" type=\"image/svg+xml\">",
+        "<link rel=\"apple-touch-icon\" href=\"../../assets/apple-touch-icon.png\">",
+        "<link rel=\"manifest\" href=\"../../site.webmanifest\">",
+        "<meta property=\"og:type\" content=\"website\">",
+        "<meta property=\"og:site_name\" content=\"Arcade Vault\">",
+        "<meta property=\"og:locale\" content=\"en_US\">",
+        "<meta property=\"og:title\" content=\"STRIKEVECTOR \u2014 Air Dominance Fighter\">",
+        "<meta property=\"og:description\" content=\"Realistic 6DOF flight physics, infinite procedural terrain, modern fighter HUD. Fly the jet in your browser.\">",
+        "<meta property=\"og:url\" content=\"https://carlosrivera.github.io/arcade-vault/games/aces/\">",
+        "<meta property=\"og:image\" content=\"../../assets/og-card.png\">",
+        "<meta property=\"og:image:alt\" content=\"Arcade Vault game gallery\">",
+        "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+        "<meta name=\"twitter:title\" content=\"STRIKEVECTOR \u2014 Air Dominance Fighter\">",
+        "<meta name=\"twitter:description\" content=\"Realistic 6DOF flight physics, infinite procedural terrain, modern fighter HUD.\">",
+        "<meta name=\"twitter:image\" content=\"../../assets/og-card.png\">"
+      ],
+      "scripts": [
+        "<script defer src=\"https://umami-production-f25f.up.railway.app/script.js\" data-website-id=\"4d83835a-a442-46fe-8f1c-cc2e0da0b3a7\"></script>"
+      ],
+      "jsonLd": {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "STRIKEVECTOR",
+        "url": "https://carlosrivera.github.io/arcade-vault/games/aces/",
+        "description": "An air-combat flight game with a realistic 6DOF physics model, infinite procedural terrain, and a modern fighter HUD with artificial horizon, lock-on missiles and cannon.",
+        "image": "https://carlosrivera.github.io/arcade-vault/assets/og-card.png",
+        "author": {
+          "@type": "Person",
+          "name": "Carlos Rivera",
+          "url": "https://github.com/carlosrivera"
+        },
+        "applicationCategory": "Game",
+        "operatingSystem": "Any (Web Browser)",
+        "genre": "Flight Combat",
+        "playMode": "SinglePlayer",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    }
   }
 ]

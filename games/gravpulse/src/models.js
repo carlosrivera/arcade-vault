@@ -1,25 +1,15 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Small GLTF loading layer. Everything is CC0 Kenney Space Kit
 // (kenney.nl/assets/space-kit); models live in assets/models/.
 // Loading is async + cached: if it fails (e.g. offline), callers keep
 // their procedural fallbacks.
-
-const loader = new GLTFLoader();
-const cache = new Map();
-
-export function loadModel(url) {
-  if (!cache.has(url)) {
-    cache.set(
-      url,
-      new Promise((resolve, reject) => {
-        loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
-      }),
-    );
-  }
-  return cache.get(url);
-}
+//
+// The cache lives in the engine rather than here on purpose. This module is
+// rebuilt on every hot reload, so a local cache re-parsed every model and
+// stranded the previous copies: templates are cloned into the scene, never
+// added to it, so a scene-walking dispose could never reach them.
+export { loadModel } from '#engine/assets.js';
 
 // Normalizes a loaded scene for ship space: centered, longest horizontal
 // axis pointed down +Z, scaled to targetLen world units. Returns a wrapper

@@ -8,6 +8,7 @@
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { disposeMaterial } from '#engine/assets.js';
 
 /**
  * The only vertex shader a full-screen pass ever needs: pass uv through and
@@ -50,4 +51,29 @@ export function createComposer(renderer, scene, camera, { depth = false } = {}) 
   const composer = new EffectComposer(renderer, target);
   composer.addPass(new RenderPass(scene, camera));
   return composer;
+}
+
+/**
+ * Dispose a composer and every pass in it.
+ *
+ * EffectComposer.dispose() releases only its own two render targets and copy
+ * pass — the passes you added are left alone. That is most of the memory:
+ * UnrealBloomPass alone holds eleven render targets for its mip chain, and
+ * bokeh and afterimage carry their own. Dropping the reference frees none of
+ * it, so a hot reload that rebuilds the chain leaks roughly twenty textures
+ * per swap.
+ */
+export function disposeComposer(composer) {
+  if (!composer) return;
+  for (const pass of composer.passes ?? []) {
+    pass.dispose?.();
+    // A pass's own dispose() frees its render targets but not the textures its
+    // shader holds. Procedural games put real data there -- STRIKEVECTOR's
+    // cloud volume is a 3D texture in a uniform -- so the material has to be
+    // released with the uniform-aware helper, not material.dispose().
+    disposeMaterial(pass.material);
+    pass.fsQuad?.dispose?.();
+  }
+  composer.passes = [];
+  composer.dispose();
 }

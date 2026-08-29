@@ -6,8 +6,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { disposeScene } from '#engine/assets.js';
 import { damp } from '#engine/math.js';
-import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { disposeComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
 import { createRenderer, handleResize } from '#engine/render.js';
 import { Sound } from './audio.js';
 import { buildEnvironment, loadSceneryModels, updateEnvironment } from './environment.js';
@@ -816,23 +817,8 @@ export function init(ctx = {}) {
       clearInterval(audio._musicTimer);
       track?.dispose?.();
       weapons?.dispose?.();
-      for (const r of racers ?? []) r.mesh?.parent?.remove(r.mesh);
-      // GPU memory is not garbage collected: without this the whole city,
-      // track and ship set is retained on every swap.
-      scene.traverse((obj) => {
-        obj.geometry?.dispose();
-        const mats = Array.isArray(obj.material)
-          ? obj.material
-          : obj.material
-            ? [obj.material]
-            : [];
-        for (const m of mats) {
-          for (const key of Object.keys(m)) m[key]?.isTexture && m[key].dispose();
-          m.dispose();
-        }
-      });
-      scene.environment?.dispose();
-      scene.clear();
+      disposeComposer(composer);
+      disposeScene(scene);
       composer = null;
     },
   };

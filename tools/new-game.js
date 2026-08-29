@@ -11,11 +11,16 @@
 // The generated main.js exports init(ctx) -> { update, dispose } so the game
 // can be swapped in a running page; see shared/engine/host.js.
 
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
+const SITE = 'https://carlosrivera.github.io/arcade-vault';
+
+const escapeAttr = (v) =>
+  String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 function parseArgs(argv) {
   const [id, ...rest] = argv;
@@ -26,7 +31,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-const INDEX_HTML = ({ id, title, subtitle, description }) => `<!doctype html>
+const INDEX_HTML = ({ title, subtitle, description }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -212,6 +217,50 @@ function main() {
     style: opts.style ?? 'arcade',
   };
 
+  // sync-meta.js renders this verbatim into the page's <head>. It lives in
+  // games.json so the description exists in exactly one place; edit it here,
+  // then run sync-meta.js.
+  const url = `${SITE}/${entry.path}`;
+  entry.seo = {
+    tags: [
+      `<meta name="description" content="${escapeAttr(entry.description)}">`,
+      `<meta name="author" content="${escapeAttr(entry.author)}">`,
+      '<meta name="robots" content="index, follow, max-image-preview:large">',
+      '<meta name="theme-color" content="#06070a">',
+      `<link rel="canonical" href="${url}">`,
+      '<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">',
+      '<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">',
+      '<link rel="manifest" href="../../site.webmanifest">',
+      '<meta property="og:type" content="website">',
+      '<meta property="og:site_name" content="Arcade Vault">',
+      '<meta property="og:locale" content="en_US">',
+      `<meta property="og:title" content="${escapeAttr(entry.title)} — ${escapeAttr(entry.subtitle)}">`,
+      `<meta property="og:description" content="${escapeAttr(entry.description)}">`,
+      `<meta property="og:url" content="${url}">`,
+      '<meta property="og:image" content="../../assets/og-card.png">',
+      '<meta property="og:image:alt" content="Arcade Vault game gallery">',
+      '<meta name="twitter:card" content="summary_large_image">',
+      `<meta name="twitter:title" content="${escapeAttr(entry.title)} — ${escapeAttr(entry.subtitle)}">`,
+      `<meta name="twitter:description" content="${escapeAttr(entry.description)}">`,
+      '<meta name="twitter:image" content="../../assets/og-card.png">',
+    ],
+    scripts: [],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'VideoGame',
+      name: entry.title,
+      url,
+      description: entry.description,
+      image: `${SITE}/assets/og-card.png`,
+      author: { '@type': 'Person', name: entry.author },
+      applicationCategory: 'Game',
+      operatingSystem: 'Any (Web Browser)',
+      genre: entry.genre,
+      playMode: 'SinglePlayer',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+  };
+
   fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'assets'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), INDEX_HTML(entry));
@@ -226,7 +275,13 @@ function main() {
   console.log(`  index.html   shell, import map, boot`);
   console.log(`  src/main.js  init(ctx) -> { update, dispose, getState }`);
   console.log(`added "${entry.title}" to games.json`);
-  console.log(`\nnext: node tools/sync-meta.js   (fills in <head> metadata)`);
+
+  // Write the <head> block immediately: leaving it as a manual follow-up means
+  // the page ships with empty markers and sync-meta --check fails in CI.
+  execFileSync(process.execPath, [path.join(import.meta.dirname, 'sync-meta.js')], {
+    stdio: 'inherit',
+  });
+  console.log(`\nrun it:  http://localhost:8080/games/${opts.id}/index.html`);
 }
 
 main();

@@ -6,9 +6,10 @@ import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { Pass } from 'three/addons/postprocessing/Pass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { disposeScene } from '#engine/assets.js';
 import { Keyboard } from '#engine/input.js';
 import { damp } from '#engine/math.js';
-import { createComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { createComposer, disposeComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
 import { createRenderer, handleResize } from '#engine/render.js';
 import { Audio } from './audio.js';
 import { buildCloudSystem } from './clouds.js';
@@ -887,21 +888,8 @@ export function init(ctx = {}) {
       _unbind.length = 0;
       keys.dispose();
       running = false;
-      // GPU memory is not collected: without this the terrain field, cloud
-      // volume and jet are retained on every swap.
-      scene.traverse((obj) => {
-        obj.geometry?.dispose();
-        const mats = Array.isArray(obj.material)
-          ? obj.material
-          : obj.material
-            ? [obj.material]
-            : [];
-        for (const m of mats) {
-          for (const key of Object.keys(m)) m[key]?.isTexture && m[key].dispose();
-          m.dispose();
-        }
-      });
-      scene.clear();
+      disposeComposer(composer);
+      disposeScene(scene);
       window.__dbg = null;
     },
   };
