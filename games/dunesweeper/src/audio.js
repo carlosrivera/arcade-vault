@@ -1,16 +1,24 @@
 /**
- * DUNESWEEPER - Procedural Web Audio API Sound Engine
- * Zero external audio files. 100% synthesized procedural audio.
+ * DUNESWEEPER - Procedural sound design.
+ * Zero external audio files. 100% synthesized.
+ *
+ * WebAudio plumbing lives in the shared kernel; this file is the tuning that
+ * makes an excavation sound like sand, stone and old brass.
  */
+
+import { AudioKernel } from '#engine/audio.js';
 
 export class AudioManager {
   constructor() {
-    this.ctx = null;
+    // Unity master: these sounds were mixed against a direct destination
+    // connection, so any master attenuation would quietly rebalance them all.
+    this.kernel = new AudioKernel({ masterGain: 1.0 });
     this.isMuted = false;
-    this.ambientGain = null;
+    this.ambient = null;
     this.isUnlocked = false;
 
-    // Pentatonic scale frequencies for cascade chimes
+    // Pentatonic scale — any subset sounds consonant in any order, so the
+    // cascade chime can follow the flood-fill without ever landing sour.
     this.pentatonic = [
       261.63, // C4
       293.66, // D4
@@ -25,322 +33,165 @@ export class AudioManager {
     ];
   }
 
+  get ctx() {
+    return this.kernel.ctx;
+  }
+
+  /** Browsers block audio until a gesture, so every sound path calls this first. */
   ensureContext() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
-      }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    this.kernel.start().resume();
+    if (!this.noise) this.noise = this.kernel.noiseBuffer({ seconds: 2, type: 'white' });
     this.isUnlocked = true;
   }
 
   toggleMute() {
-    this.isMuted = !this.isMuted;
-    if (this.ambientGain) {
-      this.ambientGain.gain.setValueAtTime(this.isMuted ? 0 : 0.04, this.ctx.currentTime);
-    }
+    this.isMuted = this.kernel.toggleMute();
     return this.isMuted;
   }
 
-  /**
-   * Sound: Sand excavation dig & crumble
-   */
+  /** Guard shared by every play method: muted, or no context yet. */
+  _ready() {
+    if (this.isMuted) return false;
+    this.ensureContext();
+    return !!this.kernel.ctx;
+  }
+
+  /** Sand excavation dig & crumble. */
   playDig() {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
-    const t = this.ctx.currentTime;
-
-    // Noise buffer for sand friction
-    const bufferSize = this.ctx.sampleRate * 0.12;
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-
-    const noise = this.ctx.createBufferSource();
-    noise.buffer = buffer;
-
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(1400, t);
-    filter.frequency.exponentialRampToValueAtTime(400, t + 0.12);
-    filter.Q.setValueAtTime(3.0, t);
-
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.35, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    noise.start(t);
-    noise.stop(t + 0.12);
-
-    // Stone thud body
-    const osc = this.ctx.createOscillator();
-    const oscGain = this.ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(160, t);
-    osc.frequency.exponentialRampToValueAtTime(50, t + 0.08);
-
-    oscGain.gain.setValueAtTime(0.2, t);
-    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-
-    osc.connect(oscGain);
-    oscGain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.08);
+    if (!this._ready()) return;
+    // Friction: bandpassed noise falling in pitch as the sand settles.
+    this.kernel.burst({
+      buffer: this.noise,
+      duration: 0.12,
+      filterType: 'bandpass',
+      frequency: 1400,
+      sweepTo: 400,
+      Q: 3.0,
+      gain: 0.35,
+    });
+    // Body: a short low thud so the dig has weight under the hiss.
+    this.kernel.tone({ frequency: 160, sweepTo: 50, duration: 0.08, type: 'triangle', gain: 0.2 });
   }
 
-  /**
-   * Sound: Melodic ascending cascade chime
-   */
+  /** Melodic ascending cascade chime, one step per revealed cell. */
   playCascade(stepIndex = 0) {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
-    const t = this.ctx.currentTime;
+    if (!this._ready()) return;
     const noteIdx = Math.min(stepIndex, this.pentatonic.length - 1);
-    const freq = this.pentatonic[noteIdx];
-
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t);
-
-    gain.gain.setValueAtTime(0.18, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.35);
+    this.kernel.tone({
+      frequency: this.pentatonic[noteIdx],
+      duration: 0.35,
+      type: 'sine',
+      gain: 0.18,
+    });
   }
 
-  /**
-   * Sound: Flag stake planted / removed
-   */
+  /** Flag stake planted (rising) or removed (falling). */
   playFlag(isPlacing = true) {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
-    const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = isPlacing ? 'triangle' : 'sine';
-    osc.frequency.setValueAtTime(isPlacing ? 380 : 260, t);
-    osc.frequency.exponentialRampToValueAtTime(isPlacing ? 520 : 180, t + 0.09);
-
-    gain.gain.setValueAtTime(0.25, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.09);
+    if (!this._ready()) return;
+    this.kernel.tone({
+      frequency: isPlacing ? 380 : 260,
+      sweepTo: isPlacing ? 520 : 180,
+      duration: 0.09,
+      type: isPlacing ? 'triangle' : 'sine',
+      gain: 0.25,
+    });
   }
 
-  /**
-   * Sound: Ancient Relic discovered fanfare
-   */
+  /** Ancient relic discovered — C major arpeggio. */
   playRelicFound() {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
+    if (!this._ready()) return;
+    const chord = [523.25, 659.25, 783.99, 1046.5];
+    const start = this.kernel.ctx.currentTime;
+    chord.forEach((frequency, i) => {
+      this.kernel.tone({
+        frequency,
+        duration: 0.6,
+        type: 'sine',
+        gain: 0.22,
+        when: start + i * 0.09,
+      });
+    });
+  }
 
-    const chords = [523.25, 659.25, 783.99, 1046.5]; // C Major arpeggio
-    chords.forEach((freq, i) => {
-      const t = this.ctx.currentTime + i * 0.09;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
+  /** Trap triggered — sawtooth boom collapsing to a sub thud. */
+  playTrapHit() {
+    if (!this._ready()) return;
+    this.kernel.tone({
+      frequency: 140,
+      sweepTo: 30,
+      duration: 0.45,
+      type: 'sawtooth',
+      gain: 0.45,
+    });
+  }
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, t);
-
-      gain.gain.setValueAtTime(0.22, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(t);
-      osc.stop(t + 0.6);
+  /** Archaeologist brush — soft high noise sweeping down. */
+  playBrush() {
+    if (!this._ready()) return;
+    this.kernel.burst({
+      buffer: this.noise,
+      duration: 0.22,
+      filterType: 'highpass',
+      frequency: 2000,
+      sweepTo: 800,
+      gain: 0.2,
     });
   }
 
   /**
-   * Sound: Trap triggered (hazard strike / scorpion sting)
-   */
-  playTrapHit() {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
-    const t = this.ctx.currentTime;
-
-    // Heavy dramatic boom
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(140, t);
-    osc.frequency.exponentialRampToValueAtTime(30, t + 0.4);
-
-    gain.gain.setValueAtTime(0.45, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.45);
-  }
-
-  /**
-   * Sound: Archaeologist Brush
-   */
-  playBrush() {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
-    const t = this.ctx.currentTime;
-    const bufferSize = this.ctx.sampleRate * 0.22;
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-
-    const noise = this.ctx.createBufferSource();
-    noise.buffer = buffer;
-
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.setValueAtTime(2000, t);
-    filter.frequency.exponentialRampToValueAtTime(800, t + 0.22);
-
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.2, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    noise.start(t);
-    noise.stop(t + 0.22);
-  }
-
-  /**
-   * Sound: Ancient Compass Scan
+   * Ancient compass scan. Hand-built rather than kernel.tone(): the ping
+   * sweeps up and then back down, and a two-stage glide is one shape past
+   * what a single sweepTo can express.
    */
   playCompass() {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
-    const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
+    if (!this._ready()) return;
+    const ctx = this.kernel.ctx;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(880, t);
     osc.frequency.exponentialRampToValueAtTime(1760, t + 0.15);
     osc.frequency.exponentialRampToValueAtTime(440, t + 0.35);
-
     gain.gain.setValueAtTime(0.25, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
+    osc.connect(gain).connect(this.kernel.master);
     osc.start(t);
     osc.stop(t + 0.38);
   }
 
-  /**
-   * Sound: Victory Fanfare
-   */
+  /** Victory fanfare — notes overlap slightly so it reads as one phrase. */
   playVictory() {
-    if (this.isMuted) return;
-    this.ensureContext();
-    if (!this.ctx) return;
-
+    if (!this._ready()) return;
     const notes = [
       { f: 523.25, d: 0.15 },
       { f: 659.25, d: 0.15 },
       { f: 783.99, d: 0.15 },
       { f: 1046.5, d: 0.45 },
     ];
-
     let delay = 0;
-    notes.forEach((n) => {
-      const t = this.ctx.currentTime + delay;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(n.f, t);
-
-      gain.gain.setValueAtTime(0.3, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + n.d);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(t);
-      osc.stop(t + n.d);
-
+    const start = this.kernel.ctx.currentTime;
+    for (const n of notes) {
+      this.kernel.tone({
+        frequency: n.f,
+        duration: n.d,
+        type: 'triangle',
+        gain: 0.3,
+        when: start + delay,
+      });
       delay += n.d * 0.85;
-    });
+    }
   }
 
-  /**
-   * Background gentle desert wind drone
-   */
+  /** Background desert wind drone. */
   startDesertAmbience() {
-    if (!this.ctx) return;
-    try {
-      const bufferSize = this.ctx.sampleRate * 2;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-
-      const noise = this.ctx.createBufferSource();
-      noise.buffer = buffer;
-      noise.loop = true;
-
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(280, this.ctx.currentTime);
-
-      this.ambientGain = this.ctx.createGain();
-      this.ambientGain.gain.setValueAtTime(this.isMuted ? 0 : 0.04, this.ctx.currentTime);
-
-      noise.connect(filter);
-      filter.connect(this.ambientGain);
-      this.ambientGain.connect(this.ctx.destination);
-
-      noise.start();
-    } catch {
-      // Audio context might be restricted before gesture
-    }
+    this.ensureContext();
+    if (!this.kernel.ctx || this.ambient) return;
+    this.ambient = this.kernel.drone({
+      buffer: this.noise,
+      filterType: 'lowpass',
+      frequency: 280,
+      gain: this.isMuted ? 0 : 0.04,
+    });
   }
 }

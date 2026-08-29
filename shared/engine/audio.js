@@ -124,12 +124,18 @@ export class AudioKernel {
     src.stop(t + duration + 0.05);
   }
 
-  /** One-shot oscillator with the same exponential decay — beeps, blips, UI. */
+  /**
+   * One-shot oscillator with the same exponential decay — beeps, blips, UI.
+   *
+   * `sweepTo` glides the pitch across the note. Downward sweeps read as
+   * impact and weight; upward ones as pickups and confirmation.
+   */
   tone({
     frequency = 440,
     duration = 0.2,
     type = 'sine',
     gain = 0.3,
+    sweepTo = null,
     when = null,
     destination = null,
   }) {
@@ -138,6 +144,7 @@ export class AudioKernel {
     const osc = this.ctx.createOscillator();
     osc.type = type;
     osc.frequency.setValueAtTime(frequency, t);
+    if (sweepTo) osc.frequency.exponentialRampToValueAtTime(sweepTo, t + duration);
     const g = this.ctx.createGain();
     g.gain.setValueAtTime(gain, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + duration);

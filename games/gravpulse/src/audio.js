@@ -1,24 +1,31 @@
-// Fully synthesized WebAudio soundtrack & SFX — no assets.
+// GRAVPULSE sound design — fully synthesized soundtrack & SFX, no assets.
+// Context, master bus, mute, noise and the one-shot primitives come from the
+// shared kernel; the engine stack and sequencer below are this game's own.
+import { AudioKernel } from '#engine/audio.js';
+
 export class Sound {
   constructor() {
-    this.ctx = null;
+    this.kernel = new AudioKernel({ masterGain: 0.85 });
     this.muted = false;
     this._musicTimer = null;
   }
 
+  get ctx() {
+    return this.kernel.ctx;
+  }
+
+  get master() {
+    return this.kernel.master;
+  }
+
   ensure() {
-    if (this.ctx) {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.kernel.started) {
+      this.kernel.resume();
       return;
     }
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    this.ctx = new AC();
-    const ctx = this.ctx;
-
-    this.master = ctx.createGain();
-    this.master.gain.value = 0.85;
-    this.master.connect(ctx.destination);
+    this.kernel.start();
+    const ctx = this.kernel.ctx;
+    if (!ctx) return;
 
     // ---- engine: two detuned saws + sub, through a lowpass ----
     this.engGain = ctx.createGain();
@@ -53,24 +60,16 @@ export class Sound {
     this.subOsc.start();
 
     // ---- wind: looped noise through bandpass ----
-    const len = ctx.sampleRate * 2;
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    this.noiseBuf = buf;
-    this.windSrc = ctx.createBufferSource();
-    this.windSrc.buffer = buf;
-    this.windSrc.loop = true;
-    this.windFilter = ctx.createBiquadFilter();
-    this.windFilter.type = 'bandpass';
-    this.windFilter.frequency.value = 900;
-    this.windFilter.Q.value = 0.6;
-    this.windGain = ctx.createGain();
-    this.windGain.gain.value = 0;
-    this.windSrc.connect(this.windFilter);
-    this.windFilter.connect(this.windGain);
-    this.windGain.connect(this.master);
-    this.windSrc.start();
+    this.noiseBuf = this.kernel.noiseBuffer({ seconds: 2, type: 'white' });
+    const wind = this.kernel.drone({
+      buffer: this.noiseBuf,
+      filterType: 'bandpass',
+      frequency: 900,
+      Q: 0.6,
+    });
+    this.windSrc = wind.source;
+    this.windFilter = wind.filter;
+    this.windGain = wind.gain;
 
     // ---- music bus ----
     this.musGain = ctx.createGain();
@@ -86,7 +85,7 @@ export class Sound {
 
   setMuted(m) {
     this.muted = m;
-    if (this.master) this.master.gain.setTargetAtTime(m ? 0 : 0.85, this.ctx.currentTime, 0.05);
+    this.kernel.setMuted(m);
   }
 
   // called every frame
@@ -140,20 +139,19 @@ export class Sound {
   }
 
   _blip(freq, when, dur, type, gain) {
-    const ctx = this.ctx;
-    const o = ctx.createOscillator();
-    o.type = type;
-    o.frequency.value = freq;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(gain, when);
-    g.gain.exponentialRampToValueAtTime(0.001, when + dur);
-    o.connect(g);
-    g.connect(this.musGain);
-    o.start(when);
-    o.stop(when + dur + 0.02);
+    this.kernel.tone({
+      frequency: freq,
+      duration: dur,
+      type,
+      gain,
+      when,
+      destination: this.musGain,
+    });
   }
 
   _hat(when, gain) {
+    // Scheduled ahead of time by the sequencer, so it keeps an explicit
+    // `when` rather than firing at the current time like the SFX do.
     const ctx = this.ctx;
     const src = ctx.createBufferSource();
     src.buffer = this.noiseBuf;
@@ -163,9 +161,7 @@ export class Sound {
     const g = ctx.createGain();
     g.gain.setValueAtTime(gain, when);
     g.gain.exponentialRampToValueAtTime(0.001, when + 0.06);
-    src.connect(f);
-    f.connect(g);
-    g.connect(this.musGain);
+    src.connect(f).connect(g).connect(this.musGain);
     src.start(when);
     src.stop(when + 0.08);
   }
