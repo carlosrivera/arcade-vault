@@ -19,6 +19,7 @@
 | **GRAVPULSE 2097** | 3D anti-gravity racer | 1–4 players | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/gravpulse/) |
 | **DUNESWEEPER** | Voxel archaeological minesweeper | 1 player | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/dunesweeper/) |
 | **STRIKEVECTOR** | Flight combat | 1 player | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/aces/) |
+| **SKY STRIKE** | 3D Cel-shaded 2D dogfighter | 1 player | [▶ Launch game](https://carlosrivera.github.io/arcade-vault/games/sky-strike/) |
 
 ### ⚡ GRAVPULSE 2097
 
@@ -43,6 +44,14 @@ Excavate procedural voxel ruins, dodge scorpions and traps, uncover golden relic
 Fly an F-22-style fighter with a realistic 6DOF flight model — angle-of-attack lift curve, induced drag, afterburner, G-load, and stalls — over infinite procedural terrain streamed in chunks. Full modern fighter HUD: artificial horizon pitch ladder, heading tape, speed/altitude tapes, flight-path marker, radar, and missile lock. Hunt enemy aces with cannon and seeker missiles.
 
 [**▶ PLAY STRIKEVECTOR**](https://carlosrivera.github.io/arcade-vault/games/aces/) · [View source](./games/aces/)
+
+### 🛩️ SKY STRIKE
+
+[<img src="./assets/games/sky-strike.jpg" alt="SKY STRIKE 3D cel-shaded dogfighter with smoke ribbon trails over anime rolling hills" width="100%">](https://carlosrivera.github.io/arcade-vault/games/sky-strike/)
+
+High-energy 2D arcade dogfights rendered with 3D cel-shaded graphics. Pull acrobatic 360° loops, fire plasma lasers, launch homing micro-missiles with swirling smoke contrails, and dogfight bandit aces over lush anime rolling hills.
+
+[**▶ PLAY SKY STRIKE**](https://carlosrivera.github.io/arcade-vault/games/sky-strike/) · [View source](./games/sky-strike/)
 
 <img src="./assets/pixel-divider.svg" width="100%">
 

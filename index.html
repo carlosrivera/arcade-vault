@@ -749,6 +749,226 @@
     const height = 200;
     let frame = 0;
 
+    if (gameId === 'sky-strike') {
+      const clouds = Array.from({ length: 6 }, () => ({
+        x: Math.random() * width,
+        y: 15 + Math.random() * 50,
+        r: 18 + Math.random() * 22,
+        speed: 0.4 + Math.random() * 0.6,
+      }));
+
+      const trails = [];
+
+      const renderSkyStrike = () => {
+        frame++;
+        // Anime blue sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, 140);
+        skyGrad.addColorStop(0, '#1c8ee6');
+        skyGrad.addColorStop(0.65, '#56b8ff');
+        skyGrad.addColorStop(1, '#aae3ff');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, width, 140);
+
+        // Distant Lake
+        ctx.fillStyle = '#3a8eb8';
+        ctx.fillRect(0, 140, width, 60);
+
+        // Distant Blue-Green Mountain Ridge
+        ctx.fillStyle = '#2d686c';
+        ctx.beginPath();
+        ctx.moveTo(0, 140);
+        ctx.lineTo(60, 105);
+        ctx.lineTo(140, 140);
+        ctx.lineTo(220, 110);
+        ctx.lineTo(310, 140);
+        ctx.lineTo(400, 115);
+        ctx.lineTo(400, 140);
+        ctx.fill();
+
+        // Midground Hills
+        ctx.fillStyle = '#2c8a48';
+        ctx.beginPath();
+        ctx.arc(100, 195, 75, Math.PI, 0);
+        ctx.arc(260, 205, 85, Math.PI, 0);
+        ctx.arc(380, 190, 65, Math.PI, 0);
+        ctx.fill();
+
+        // Foreground Lush Green Rolling Hill
+        ctx.fillStyle = '#38b85c';
+        ctx.beginPath();
+        ctx.arc(40, 200, 70, Math.PI, 0);
+        ctx.arc(180, 205, 75, Math.PI, 0);
+        ctx.arc(320, 200, 65, Math.PI, 0);
+        ctx.fill();
+
+        // Little red-roof cottage on the hill
+        ctx.fillStyle = '#f0ece1';
+        ctx.fillRect(170, 138, 14, 10);
+        ctx.fillStyle = '#cc3322';
+        ctx.beginPath();
+        ctx.moveTo(167, 138);
+        ctx.lineTo(177, 128);
+        ctx.lineTo(187, 138);
+        ctx.fill();
+
+        // Drifting Fluffy Anime Cumulus Clouds
+        for (const c of clouds) {
+          c.x -= c.speed;
+          if (c.x < -c.r * 2) c.x = width + c.r;
+
+          // Shadow under cloud puff
+          ctx.fillStyle = '#9bd0ea';
+          ctx.beginPath();
+          ctx.arc(c.x, c.y + 4, c.r, 0, Math.PI * 2);
+          ctx.arc(c.x - c.r * 0.5, c.y + 7, c.r * 0.7, 0, Math.PI * 2);
+          ctx.arc(c.x + c.r * 0.5, c.y + 7, c.r * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+
+          // White sunlit cloud puff
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+          ctx.arc(c.x - c.r * 0.5, c.y + 2, c.r * 0.7, 0, Math.PI * 2);
+          ctx.arc(c.x + c.r * 0.5, c.y + 2, c.r * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Looping flight trajectory for Player Green Fighter
+        const loopT = frame * 0.045;
+        const centerX = 160 + Math.sin(frame * 0.02) * 50;
+        const centerY = 75;
+        const radX = 55;
+        const radY = 40;
+        const px = centerX + Math.cos(loopT) * radX;
+        const py = centerY + Math.sin(loopT * 2) * (radY * 0.6) - Math.sin(loopT) * 20;
+        const pAngle = Math.atan2(
+          centerY + Math.sin((loopT + 0.05) * 2) * (radY * 0.6) - Math.sin(loopT + 0.05) * 20 - py,
+          centerX + Math.cos(loopT + 0.05) * radX - px,
+        );
+
+        // Add to ribbon smoke trail
+        if (frame % 2 === 0) {
+          trails.push({ x: px, y: py, alpha: 0.9, r: 3 });
+          if (trails.length > 55) trails.shift();
+        }
+
+        // Draw Ribbon Smoke Trails
+        for (let i = 0; i < trails.length; i++) {
+          const t = trails[i];
+          t.alpha -= 0.012;
+          t.r += 0.05;
+          if (t.alpha > 0) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${t.alpha * 0.8})`;
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // Green Laser Blast from Player Jet
+        if (frame % 16 < 8) {
+          const ldx = Math.cos(pAngle) * 70;
+          const ldy = Math.sin(pAngle) * 70;
+          ctx.strokeStyle = '#00ff99';
+          ctx.lineWidth = 3;
+          ctx.shadowColor = '#00ff99';
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px + ldx, py + ldy);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        // Draw Player Green Jet (Rotated)
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(pAngle);
+
+        // Jet Outline & Body
+        ctx.fillStyle = '#060a12';
+        ctx.beginPath();
+        ctx.moveTo(14, 0);
+        ctx.lineTo(-12, 10);
+        ctx.lineTo(-8, 0);
+        ctx.lineTo(-12, -10);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#22cc55';
+        ctx.beginPath();
+        ctx.moveTo(12, 0);
+        ctx.lineTo(-10, 8);
+        ctx.lineTo(-7, 0);
+        ctx.lineTo(-10, -8);
+        ctx.closePath();
+        ctx.fill();
+
+        // Canopy
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(0, -2, 5, 4);
+
+        // Afterburner Flame
+        ctx.fillStyle = frame % 4 < 2 ? '#ffaa00' : '#ff4400';
+        ctx.beginPath();
+        ctx.moveTo(-8, -3);
+        ctx.lineTo(-18, 0);
+        ctx.lineTo(-8, 3);
+        ctx.fill();
+
+        ctx.restore();
+
+        // Enemy Purple Jet Chasing
+        const ex = 310 + Math.sin(frame * 0.03) * 20;
+        const ey = 55 + Math.cos(frame * 0.04) * 15;
+        const eAngle = Math.PI - 0.2 + Math.sin(frame * 0.05) * 0.3;
+
+        ctx.save();
+        ctx.translate(ex, ey);
+        ctx.rotate(eAngle);
+
+        ctx.fillStyle = '#060a12';
+        ctx.beginPath();
+        ctx.moveTo(12, 0);
+        ctx.lineTo(-10, 8);
+        ctx.lineTo(-6, 0);
+        ctx.lineTo(-10, -8);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#9b30ff';
+        ctx.beginPath();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(-8, 7);
+        ctx.lineTo(-5, 0);
+        ctx.lineTo(-8, -7);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillRect(0, -2, 4, 4);
+        ctx.restore();
+
+        // Enemy Health Bar & Hit numbers
+        ctx.fillStyle = '#060a12';
+        ctx.fillRect(ex - 12, ey - 16, 24, 5);
+        ctx.fillStyle = '#ff3344';
+        ctx.fillRect(ex - 11, ey - 15, 14, 3);
+
+        // Floating Damage Number "+10"
+        const dmgY = ey - 22 - (frame % 30) * 0.4;
+        ctx.font = 'bold 11px monospace';
+        ctx.fillStyle = '#060a12';
+        ctx.fillText('+10', ex + 8, dmgY + 1);
+        ctx.fillStyle = '#00ff99';
+        ctx.fillText('+10', ex + 7, dmgY);
+
+        requestAnimationFrame(renderSkyStrike);
+      };
+      renderSkyStrike();
+      return;
+    }
+
     if (gameId === 'aces') {
       // 8-bit F-22 over scrolling mountains, contrail and all
       const ridgeA = Array.from({ length: 26 }, (_, i) => 120 + Math.sin(i * 1.7) * 18 + Math.sin(i * 0.7 + 2) * 26);
@@ -1114,12 +1334,12 @@
       if (canvas) startPixelCanvas(canvas, game.id, st);
     });
 
-    // Append slot 03 placeholder
+    // Append slot 05 placeholder
     const emptyCard = document.createElement('div');
     emptyCard.className = 'empty-card';
     emptyCard.innerHTML = `
       <div class="empty-icon">⛏</div>
-      <div class="empty-title">[ SLOT 03: EMPTY ]</div>
+      <div class="empty-title">[ SLOT 05: EMPTY ]</div>
       <div class="empty-desc">READY FOR NEXT LLM GENERATED GAME MODULE. SHARED THREE.JS READY.</div>
     `;
     galleryEl.appendChild(emptyCard);

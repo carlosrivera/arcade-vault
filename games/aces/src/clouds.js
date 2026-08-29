@@ -208,8 +208,12 @@ export const CloudShader = {
     }
     float weatherMod(vec2 xz, float d) {
       float w = weather(xz);
-      d *= 0.15 + 1.55 * w;             // dense regions thicken
-      d *= smoothstep(0.16, 0.42, w);   // low-weather regions go cloud-free
+      d *= 0.30 + 1.70 * w;             // dense regions thicken
+      // Broken cloud rather than overcast. Coverage has to leave real holes:
+      // solid cover looks convincing from above but hides the ground, and the
+      // ground is where the installations are. This window gives banks with
+      // gaps to descend through.
+      d *= smoothstep(0.15, 0.34, w);   // low-weather regions go cloud-free
       return d;
     }
 
@@ -223,11 +227,18 @@ export const CloudShader = {
       vec3 uvw = (p + vec3(uTime * 18.0, 0.0, uTime * 12.0)) * 0.00005;
       vec4 n = texture(uNoiseTex, uvw);
 
-      float base = max(0.0, (n.r - 0.44) / 0.56);
+      // Coverage threshold. Three culls used to stack here — this one, the
+      // erosion below, and the weather mask — and together they left only
+      // wisps at the horizon, where a long grazing ray accumulates enough to
+      // be visible at all. Lowered so there is a deck to look at.
+      float base = max(0.0, (n.r - 0.34) / 0.66);
       if (base <= 0.0) return 0.0;
 
-      float erosion = (1.0 - n.g) * 0.30 + (1.0 - n.b) * 0.42;
-      float d = max(0.0, base - erosion) * hGrad * 1.35;
+      // Erosion carves the billowy edges. It was subtracting up to 0.72 from a
+      // value that rarely exceeded that, which deleted most of the field
+      // rather than detailing it.
+      float erosion = (1.0 - n.g) * 0.20 + (1.0 - n.b) * 0.28;
+      float d = max(0.0, base - erosion) * hGrad * 1.9;
       return weatherMod(p.xz, d);
     }
 
@@ -345,7 +356,9 @@ export const CloudShader = {
           // mottling instead of uniform white.
           stepLight *= mix(0.45, 1.0, smoothstep(0.03, 0.26, density));
 
-          float deltaTau = density * stepSize * 0.0016;
+          // Extinction. At the old value the deck was translucent even where
+          // density existed, so clouds never occluded anything behind them.
+          float deltaTau = density * stepSize * 0.0034;
           float stepTrans = exp(-deltaTau);
 
           colAcc += stepLight * transAcc * (1.0 - stepTrans);
@@ -616,8 +629,12 @@ export function buildCloudSystem(_renderer) {
     }
     float weatherMod(vec2 xz, float d) {
       float w = weather(xz);
-      d *= 0.15 + 1.55 * w;             // dense regions thicken
-      d *= smoothstep(0.16, 0.42, w);   // low-weather regions go cloud-free
+      d *= 0.30 + 1.70 * w;             // dense regions thicken
+      // Broken cloud rather than overcast. Coverage has to leave real holes:
+      // solid cover looks convincing from above but hides the ground, and the
+      // ground is where the installations are. This window gives banks with
+      // gaps to descend through.
+      d *= smoothstep(0.15, 0.34, w);   // low-weather regions go cloud-free
       return d;
     }
 
