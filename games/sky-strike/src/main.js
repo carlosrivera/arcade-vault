@@ -422,7 +422,7 @@ function createEnvironment(scene, rng, gradientMap) {
     { count: 22, z: [-46, -34], haze: 0.62, scale: [1.6, 3.2], puffs: [4, 7], outline: 0 },
     { count: 16, z: [-32, -22], haze: 0.34, scale: [2.4, 4.6], puffs: [5, 9], outline: 0.0 },
     // Near: full colour and a crisp edge, which now reads as proximity.
-    { count: 11, z: [-20, -11], haze: 0.0, scale: [3.2, 6.4], puffs: [6, 11], outline: 1.05 },
+    { count: 9, z: [-22, -14], haze: 0.0, scale: [2.4, 4.4], puffs: [6, 11], outline: 1.05 },
   ];
 
   for (const band of CLOUD_BANDS) {
@@ -432,13 +432,46 @@ function createEnvironment(scene, rng, gradientMap) {
       const clusterCount = Math.floor(rng.range(band.puffs[0], band.puffs[1]));
       // Track the cluster's own extent so the shading ramp is relative to the
       // cloud, not to world height — a low cloud is still bright on top.
+      // A cumulus is not a pile of balls. It has a FLAT BASE, where rising
+      // air hits the condensation level and stops, and a billowing crown above
+      // it. Scattering equal spheres in a blob gives neither, which is why the
+      // old clouds read as spheres however many were added.
+      //
+      // So: a row of wide, squat puffs pinned to a common baseline, and a
+      // smaller number of taller, rounder ones stacked toward the middle.
       const puffSpecs = [];
-      for (let p = 0; p < clusterCount; p++) {
+      const spread = band.scale[1] * 1.7;
+
+      const baseCount = Math.max(3, Math.round(clusterCount * 0.55));
+      for (let p = 0; p < baseCount; p++) {
+        const t = baseCount === 1 ? 0.5 : p / (baseCount - 1);
+        const r = rng.range(band.scale[0], band.scale[1]);
         puffSpecs.push({
-          r: rng.range(band.scale[0], band.scale[1]),
-          x: rng.range(-5, 5),
-          y: rng.range(-2, 3.5),
-          z: rng.range(-2, 2),
+          r,
+          // Evenly spaced along the base so the underside stays level rather
+          // than sagging into lumps.
+          x: (t - 0.5) * spread * 2 + rng.range(-0.4, 0.4),
+          y: rng.range(-0.25, 0.25),
+          z: rng.range(-1.5, 1.5),
+          // Squashed: wide and shallow is what makes the base read as flat.
+          sx: rng.range(1.15, 1.5),
+          sy: rng.range(0.55, 0.75),
+        });
+      }
+
+      const crownCount = clusterCount - baseCount;
+      for (let p = 0; p < crownCount; p++) {
+        const r = rng.range(band.scale[0] * 0.7, band.scale[1] * 0.95);
+        // Crown puffs bunch toward the centre and climb, giving the
+        // cauliflower profile rather than an even dome.
+        const bias = rng.range(-1, 1) ** 3;
+        puffSpecs.push({
+          r,
+          x: bias * spread * 0.8,
+          y: rng.range(0.5, 1.0) * r * rng.range(0.8, 2.0),
+          z: rng.range(-1.5, 1.5),
+          sx: rng.range(0.95, 1.2),
+          sy: rng.range(0.85, 1.15),
         });
       }
       const lo = Math.min(...puffSpecs.map((q) => q.y));
@@ -449,6 +482,13 @@ function createEnvironment(scene, rng, gradientMap) {
         const mat = t > 0.72 ? pal.crown : t > 0.45 ? pal.body : t > 0.2 ? pal.shade : pal.base;
         const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(q.r, 1), mat);
         puff.position.set(q.x, q.y, q.z);
+        // Ellipsoids, not spheres. A sphere has one silhouette from every
+        // angle, which is exactly the uniformity that reads as "ball".
+        puff.scale.set(q.sx, q.sy, 1);
+        // Deliberately NOT rotated. Tilting a squashed ellipsoid tips its flat
+        // axis off horizontal, which destroys the level base the whole shape
+        // depends on and turns the cloud into a scatter of lozenges. The
+        // variation has to come from size and placement, not spin.
         // A soft blue-grey edge rather than the near-black used on aircraft.
         // Ink-black on a cloud reads as a drawn outline; on white it is the
         // difference between cel shading and a comic panel.
@@ -1237,9 +1277,12 @@ export function init({ renderer, state }) {
     update(rawDt, _elapsed) {
       const dt = feel.step(rawDt);
       if (!running) {
+        const menuGroupX = env.envGroup.position.x;
         for (const cloud of env.clouds) {
           cloud.position.x -= cloud.userData.speed * dt;
-          if (cloud.position.x < -70) cloud.position.x = 70;
+          if (menuGroupX + cloud.position.x < camera.position.x - 130) {
+            cloud.position.x = camera.position.x + 130 - menuGroupX;
+          }
         }
         renderer.render(scene, camera);
         return;
@@ -1843,11 +1886,18 @@ export function init({ renderer, state }) {
       updateOffscreenIndicators();
 
       // --- Background Clouds Parallax ---
+      // Clouds live inside envGroup, which is itself parallaxed, so a cloud's
+      // world position is the group's offset plus its own. Comparing its LOCAL
+      // x against the camera's WORLD x — as this did — mixes two spaces that
+      // drift apart as you fly, which teleported clouds off-screen while you
+      // were still looking at them, and piled them up somewhere invisible.
+      const groupX = env.envGroup.position.x;
       for (const cloud of env.clouds) {
         cloud.position.x -= cloud.userData.speed * dt;
-        if (cloud.position.x < camera.position.x - 90) {
-          cloud.position.x = camera.position.x + 90;
-          cloud.position.y = rng.range(0, 26);
+        const worldX = groupX + cloud.position.x;
+        if (worldX < camera.position.x - 130) {
+          cloud.position.x = camera.position.x + 130 - groupX;
+          cloud.position.y = rng.range(2, 34);
         }
       }
 
