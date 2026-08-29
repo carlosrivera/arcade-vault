@@ -11,6 +11,9 @@ importers:
       '@biomejs/biome':
         specifier: 2.5.10
         version: 2.5.10
+      three:
+        specifier: 0.185.1
+        version: 0.185.1
 
 packages:
 
@@ -71,6 +74,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  three@0.185.1:
+    resolution: {integrity: sha512-5aojFCXKwnjBRZvUnt3WFfEcvUJgkN5LlijRFN95hMy8WVkG4I0QNcJE+OuWvuJ0bOdStrbfXn0pkd6/QyiAlg==}
+
 snapshots:
 
   '@biomejs/biome@2.5.10':
@@ -107,3 +113,5 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.5.10':
     optional: true
+
+  three@0.185.1: {}
