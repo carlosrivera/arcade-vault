@@ -11,11 +11,12 @@
     "format": "biome format --write .",
     "check": "biome check --write .",
     "check:ci": "biome check .",
-    "serve": "python3 -m http.server 8137 --bind 127.0.0.1",
+    "serve": "python3 -m http.server ${PORT:-8137} --bind 127.0.0.1",
     "server": "pnpm --filter @vault/server dev",
     "new-game": "node tools/new-game.js",
     "sync-meta": "node tools/sync-meta.js",
-    "meta:check": "node tools/sync-meta.js --check"
+    "meta:check": "node tools/sync-meta.js --check",
+    "serve:8080": "PORT=8080 pnpm serve"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.10",

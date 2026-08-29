@@ -88,14 +88,22 @@ High-energy 2D arcade dogfights rendered with 3D cel-shaded graphics. Pull acrob
 Start a local static HTTP server:
 
 ```bash
-# Python 3
-python3 -m http.server 8137
+pnpm serve                 # http://localhost:8137
+PORT=8080 pnpm serve       # any port you like
+```
 
-# Or pnpm dlx (serve)
+Or without the scripts:
+
+```bash
+python3 -m http.server 8137
 pnpm dlx serve . -p 8137
 ```
 
 Open `http://localhost:8137/` in your browser.
+
+Any localhost port works. If you use one other than 8137 or 8080 and want the
+in-game **EDIT** panel, add that origin to `ALLOWED_ORIGINS` in `server/.env` —
+the backend refuses origins it was not told about.
 
 <img src="./assets/pixel-divider.svg" width="100%">
 
