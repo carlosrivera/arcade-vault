@@ -1,0 +1,110 @@
+{
+ "referenceId": "exis07-sheet",
+ "regions": [
+  {
+   "componentId": "hull",
+   "regionId": "hull",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 1299,
+    "y": 690,
+    "width": 46,
+    "height": 46
+   },
+   "family": "coating",
+   "subtype": "paint-over-metal",
+   "finish": "gloss-or-satin",
+   "materialSpecId": "hull"
+  },
+  {
+   "componentId": "hull",
+   "regionId": "hull-shade",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 1056,
+    "y": 819,
+    "width": 34,
+    "height": 34
+   },
+   "family": "coating",
+   "subtype": "paint-over-metal",
+   "finish": "gloss-or-satin",
+   "materialSpecId": "hull-shade"
+  },
+  {
+   "componentId": "canopy",
+   "regionId": "canopy",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 953,
+    "y": 629,
+    "width": 40,
+    "height": 40
+   },
+   "family": "glass",
+   "subtype": "frosted",
+   "finish": "rough-transmissive",
+   "materialSpecId": "canopy"
+  },
+  {
+   "componentId": "chine-strip",
+   "regionId": "emissive",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 303,
+    "y": 390,
+    "width": 20,
+    "height": 20
+   },
+   "family": "plastic",
+   "subtype": "generic-polymer",
+   "finish": "glossy",
+   "materialSpecId": "emissive"
+  },
+  {
+   "componentId": "vent-block",
+   "regionId": "vent-orange",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 1197,
+    "y": 618,
+    "width": 18,
+    "height": 18
+   },
+   "family": "coating",
+   "subtype": "paint-over-metal",
+   "finish": "gloss-or-satin",
+   "materialSpecId": "vent-orange"
+  },
+  {
+   "componentId": "decal-set",
+   "regionId": "decal",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 357,
+    "y": 600,
+    "width": 16,
+    "height": 16
+   },
+   "family": "plastic",
+   "subtype": "generic-polymer",
+   "finish": "matte",
+   "materialSpecId": "decal"
+  },
+  {
+   "componentId": "nozzle-core",
+   "regionId": "nozzle-glow",
+   "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/reference.png",
+   "bbox": {
+    "x": 1266,
+    "y": 567,
+    "width": 22,
+    "height": 22
+   },
+   "family": "plastic",
+   "subtype": "generic-polymer",
+   "finish": "glossy",
+   "materialSpecId": "nozzle-glow"
+  }
+ ]
+}

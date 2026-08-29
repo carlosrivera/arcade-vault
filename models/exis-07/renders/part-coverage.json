@@ -1,0 +1,304 @@
+{
+  "model": null,
+  "specifiedComponents": 16,
+  "builtParts": 55,
+  "errors": 0,
+  "warnings": 0,
+  "result": "pass",
+  "findings": [
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "nose-wedge",
+      "detail": "no mesh of its own \u2014 folded into 'hull', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "dorsal-fin",
+      "detail": "no mesh of its own \u2014 folded into 'hull', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "nozzle-core",
+      "detail": "no mesh of its own \u2014 folded into 'engine-central', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "chine-strip",
+      "detail": "no mesh of its own \u2014 folded into 'hull', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "vent-block",
+      "detail": "no mesh of its own \u2014 folded into 'hull', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "chine-strip-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "chine-strip-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "decal-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "decal-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "dorsal-fin-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "dorsal-fin-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "dorsal-fins",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-central-grille",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-central-housing",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-outboard-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-outboard-l-grille",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-outboard-l-housing",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-outboard-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-outboard-r-grille",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "engine-outboard-r-housing",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "EXIS 07",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-l-0",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-l-1",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-l-2",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-l-3",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-r-0",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-r-1",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-r-2",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "feather-r-3",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "fin-strip-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "fin-strip-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "light-channels",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "nose-chevron-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "nose-chevron-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "tip-slot-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "tip-slot-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-mid-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-mid-l-socket",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-mid-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-mid-r-socket",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vents",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-spine-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-spine-l-socket",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-spine-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "vent-spine-r-socket",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "wing-loop-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "wing-loop-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "wingtip-pod-l",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "wingtip-pod-r",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    }
+  ]
+}

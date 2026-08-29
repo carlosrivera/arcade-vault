@@ -1,0 +1,14 @@
+{
+  "admitted": true,
+  "reasons": [],
+  "provenance": {
+    "viewpoint": "threequarter",
+    "sourcePath": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+    "width": 760,
+    "height": 520,
+    "foregroundCoverage": 0.4427,
+    "largestComponentFraction": 1.0,
+    "pHash": 12283001685645764620,
+    "duplicateOfHash": null
+  }
+}

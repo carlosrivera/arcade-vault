@@ -1,0 +1,169 @@
+{
+ "parts": [
+  {
+   "name": "EXIS 07"
+  },
+  {
+   "name": "canopy"
+  },
+  {
+   "name": "chine-strip-l"
+  },
+  {
+   "name": "chine-strip-r"
+  },
+  {
+   "name": "decal-l"
+  },
+  {
+   "name": "decal-r"
+  },
+  {
+   "name": "decal-set"
+  },
+  {
+   "name": "dorsal-fin-l"
+  },
+  {
+   "name": "dorsal-fin-r"
+  },
+  {
+   "name": "dorsal-fins"
+  },
+  {
+   "name": "dorsal-spine"
+  },
+  {
+   "name": "engine-central"
+  },
+  {
+   "name": "engine-central-grille"
+  },
+  {
+   "name": "engine-central-housing"
+  },
+  {
+   "name": "engine-outboard"
+  },
+  {
+   "name": "engine-outboard-l"
+  },
+  {
+   "name": "engine-outboard-l-grille"
+  },
+  {
+   "name": "engine-outboard-l-housing"
+  },
+  {
+   "name": "engine-outboard-r"
+  },
+  {
+   "name": "engine-outboard-r-grille"
+  },
+  {
+   "name": "engine-outboard-r-housing"
+  },
+  {
+   "name": "feather-l-0"
+  },
+  {
+   "name": "feather-l-1"
+  },
+  {
+   "name": "feather-l-2"
+  },
+  {
+   "name": "feather-l-3"
+  },
+  {
+   "name": "feather-plate"
+  },
+  {
+   "name": "feather-r-0"
+  },
+  {
+   "name": "feather-r-1"
+  },
+  {
+   "name": "feather-r-2"
+  },
+  {
+   "name": "feather-r-3"
+  },
+  {
+   "name": "fin-strip-l"
+  },
+  {
+   "name": "fin-strip-r"
+  },
+  {
+   "name": "hull"
+  },
+  {
+   "name": "light-channels"
+  },
+  {
+   "name": "nose-chevron"
+  },
+  {
+   "name": "nose-chevron-l"
+  },
+  {
+   "name": "nose-chevron-r"
+  },
+  {
+   "name": "propulsion"
+  },
+  {
+   "name": "tip-slot-l"
+  },
+  {
+   "name": "tip-slot-r"
+  },
+  {
+   "name": "vent-mid-l"
+  },
+  {
+   "name": "vent-mid-l-socket"
+  },
+  {
+   "name": "vent-mid-r"
+  },
+  {
+   "name": "vent-mid-r-socket"
+  },
+  {
+   "name": "vent-spine-l"
+  },
+  {
+   "name": "vent-spine-l-socket"
+  },
+  {
+   "name": "vent-spine-r"
+  },
+  {
+   "name": "vent-spine-r-socket"
+  },
+  {
+   "name": "vents"
+  },
+  {
+   "name": "wing"
+  },
+  {
+   "name": "wing-loop-l"
+  },
+  {
+   "name": "wing-loop-r"
+  },
+  {
+   "name": "wingtip-pod"
+  },
+  {
+   "name": "wingtip-pod-l"
+  },
+  {
+   "name": "wingtip-pod-r"
+  }
+ ]
+}

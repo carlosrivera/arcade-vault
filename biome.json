@@ -12,6 +12,7 @@
       "!shared/vendor",
       "!node_modules",
       "!models/*/src/createIsleDioramaModel.ts",
+      "!models/*/src/createExis07Model.ts",
       "!models/*/dist",
       "!models/*/material-evidence"
     ]

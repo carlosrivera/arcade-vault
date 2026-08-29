@@ -1,0 +1,98 @@
+{
+  "angles": [
+    {
+      "azimuth": 0.0,
+      "path": "/Users/carlos/code/wipeout/models/exis-07/renders/turn-0.png",
+      "isReference": true,
+      "segmented": true,
+      "holed": false,
+      "interiorHolePixelCount": 1357,
+      "interiorHoleFraction": 0.006267579938201754,
+      "largestHolePixelCount": 857,
+      "largestHoleBBox": {
+        "x": 422,
+        "y": 457,
+        "width": 67,
+        "height": 29
+      },
+      "areaFraction": 0.13921746399176954,
+      "ratio": 1.0,
+      "degenerate": false
+    },
+    {
+      "azimuth": 90.0,
+      "path": "/Users/carlos/code/wipeout/models/exis-07/renders/turn-90.png",
+      "isReference": false,
+      "segmented": true,
+      "holed": false,
+      "interiorHolePixelCount": 636,
+      "interiorHoleFraction": 0.002214947412412064,
+      "largestHolePixelCount": 619,
+      "largestHoleBBox": {
+        "x": 1235,
+        "y": 598,
+        "width": 34,
+        "height": 58
+      },
+      "areaFraction": 0.18463220164609054,
+      "ratio": 1.3262143724799202,
+      "degenerate": false
+    },
+    {
+      "azimuth": 180.0,
+      "path": "/Users/carlos/code/wipeout/models/exis-07/renders/turn-180.png",
+      "isReference": false,
+      "segmented": true,
+      "holed": false,
+      "interiorHolePixelCount": 1709,
+      "interiorHoleFraction": 0.0057924545568551955,
+      "largestHolePixelCount": 1056,
+      "largestHoleBBox": {
+        "x": 1031,
+        "y": 804,
+        "width": 45,
+        "height": 59
+      },
+      "areaFraction": 0.18971129115226337,
+      "ratio": 1.362697507286004,
+      "degenerate": false
+    },
+    {
+      "azimuth": 270.0,
+      "path": "/Users/carlos/code/wipeout/models/exis-07/renders/turn-270.png",
+      "isReference": false,
+      "segmented": true,
+      "holed": false,
+      "interiorHolePixelCount": 2726,
+      "interiorHoleFraction": 0.00948533530973482,
+      "largestHolePixelCount": 2725,
+      "largestHoleBBox": {
+        "x": 341,
+        "y": 361,
+        "width": 143,
+        "height": 45
+      },
+      "areaFraction": 0.18479359567901235,
+      "ratio": 1.3273736669268537,
+      "degenerate": false
+    }
+  ],
+  "referenceAzimuth": 0.0,
+  "requiredAzimuths": [
+    0.0,
+    90.0,
+    180.0,
+    270.0
+  ],
+  "azimuthTolerance": 5.0,
+  "missingAzimuths": [],
+  "covered": true,
+  "collapseRatio": 0.15,
+  "degenerate": false,
+  "allowHoles": false,
+  "holed": false,
+  "unsegmentedAzimuths": [],
+  "segmentationReliable": true,
+  "passed": true,
+  "note": "deterministic; zero token; mandatory azimuth coverage catches off-axis-only defects, interior-hole flood fill catches silhouette-enclosed background that an area-only check misses"
+}

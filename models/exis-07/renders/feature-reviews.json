@@ -1,0 +1,14 @@
+[
+ {"id":"propulsion-cluster","score":0.88,"threshold":0.80,"passed":true,
+  "notes":"The strongest match. Three nozzles in the reference's arrangement - one large central, two smaller outboard inside the wingtip pods - each an octagonal recess rather than a cylinder, with five grille bars centrally and four per outboard exactly as the rear view shows. Reached only after three real repairs: the housings were closed solids, the grille quads faced forward, and the central grille sat ahead of the tail cap."},
+ {"id":"material-response","score":0.84,"threshold":0.80,"passed":true,
+  "notes":"Charcoal satin hull with the specular tracking each crease, tinted canopy with a clearcoat hard specular, cyan that stays at full brightness on faces turned away from the key, and orange vents that take shading with no emissive channel. Bloom strength tuned twice: 0.55 blew the runs into white tubes and lifted the hull to pale grey, 0.22 dropped them to hairlines, 0.34 holds."},
+ {"id":"dorsal-assembly","score":0.76,"threshold":0.78,"passed":false,
+  "notes":"Twin swept fins and four recessed orange vents are right. The canopy is the shortfall: it now reads as a distinct tinted panel after the spine was lowered through its run and the glazing lifted, but it is smaller and less prominent than the reference's, which dominates the forward spine."},
+ {"id":"faceted-hull","score":0.72,"threshold":0.80,"passed":false,
+  "notes":"The design language is right - every surface is a flat facet meeting its neighbours at a hard crease, arrowhead planform, wedge nose, chine rail the full length, and bilateral symmetry error 0.157. The faceting is COARSER than the reference: nine lofted stations give large panels where the reference subdivides the nose and forward hull into many smaller ones. Silhouette IoU 0.613 against a 0.85 threshold, with aspect and scale inside tolerance, so the gap is shape rather than framing."},
+ {"id":"emissive-routing","score":0.70,"threshold":0.80,"passed":false,
+  "notes":"Chine run, rear wing loop, fin strips and wingtip slots are present, angular, and inset into channels rather than painted on flat faces. Two shortfalls: the reference carries a large angular V on the FORWARD hull that is not modelled at all, and the nose chevron sits low enough that it only reads from underneath."},
+ {"id":"trailing-structure","score":0.70,"threshold":0.72,"passed":false,
+  "notes":"Four plates per side at the right sweep and stagger, and wingtip pods terminating each wing with an emissive slot. The plates read as flat shelves rather than the reference's stacked swept blades - each needs a tapered chord and a sharper trailing point."}
+]

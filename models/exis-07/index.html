@@ -1,0 +1,122 @@
+<meta charset="utf-8">
+<title>EXIS 07 — img2threejs reconstruction</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0e13; overflow: hidden; }
+  canvas { display: block; }
+  #hud { position: fixed; left: 12px; top: 12px; z-index: 10;
+    font: 12px/1.5 ui-monospace, Menlo, monospace; color: #8fb6cf;
+    background: rgba(8,14,22,.72); border: 1px solid #1d3448; padding: 8px 10px; }
+  #hud b { color: #d8e6f2; }
+</style>
+<div id="hud"><b>EXIS 07</b><br><span id="stat">…</span></div>
+<script>
+window.__errs = [];
+addEventListener('error', (e) => {
+  const t = e.target;
+  window.__errs.push(t?.src ? `404? ${t.src}` : (e.message || String(e.error)));
+}, true);
+addEventListener('unhandledrejection', (e) => window.__errs.push(`reject: ${e.reason}`));
+</script>
+<script type="importmap">
+{ "imports": { "three": "../../shared/vendor/three.module.js",
+               "three/addons/": "../../shared/vendor/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createExis07 } from './dist/exis07Build.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+// ?bg=key gives a desaturated backdrop the gate segmenters can separate, and hides the HUD.
+// The studio navy is saturated enough that the foreground test classifies it as subject.
+const Q = new URLSearchParams(location.search);
+const KEYBG = Q.get('bg') === 'key';
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(KEYBG ? 0x000000 : 0x0b0e13);
+if (KEYBG) document.getElementById('hud').style.display = 'none';
+
+const model = createExis07();
+scene.add(model);
+
+// Studio three-point from the spec's lightingFromPhoto. A rim IS correct here: the
+// reference is a studio product render, unlike the painted diorama where a rim would have
+// read as stylised edge lighting.
+const key = new THREE.DirectionalLight(0xffffff, 2.4);
+key.position.set(0.6, 0.85, 0.7).multiplyScalar(3);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.bias = -0.0004;
+Object.assign(key.shadow.camera, { left: -0.8, right: 0.8, top: 0.8, bottom: -0.8, near: 0.1, far: 8 });
+key.shadow.camera.updateProjectionMatrix();
+const fill = new THREE.DirectionalLight(0xafc6e0, 0.75);
+fill.position.set(-0.8, 0.2, 0.4).multiplyScalar(3);
+const rim = new THREE.DirectionalLight(0x9fd8ff, 1.1);
+rim.position.set(-0.3, 0.4, -1.0).multiplyScalar(3);
+scene.add(key, fill, rim, new THREE.AmbientLight(0xc8d6e8, 0.28));
+
+// Reference camera from the spec: ~28 deg lens, azimuth 38, elevation 22.
+const camera = new THREE.PerspectiveCamera(28, innerWidth / innerHeight, 0.05, 40);
+const box = new THREE.Box3().setFromObject(model);
+const centre = box.getCenter(new THREE.Vector3());
+const radius = box.getSize(new THREE.Vector3()).length() * 0.5;
+// Solved against the reference three-quarter crop by sweeping azimuth, elevation and
+// distance and reading diagnose_render's silhouette metrics: az 38 / el 30 / 1.6r gives
+// aspect delta 0.003 and scale delta 0.063, both inside threshold. The spec's initial
+// estimate of el 22 was 8 degrees shallow.
+const EL = THREE.MathUtils.degToRad(30);
+// 1.6r is the SOLVED review distance, framed to match the reference crop. It is far too
+// tight for a general view, so only gate/review captures use it.
+let dist = radius * (KEYBG ? 1.6 : 2.6);
+function place(azDeg) {
+  const a = THREE.MathUtils.degToRad(azDeg);
+  camera.position.set(
+    centre.x + dist * Math.cos(EL) * Math.sin(a),
+    centre.y + dist * Math.sin(EL),
+    centre.z + dist * Math.cos(EL) * Math.cos(a));
+  camera.lookAt(centre);
+}
+place(38);
+
+// Bloom: the reference shows a visible halo around every emissive run. Without it the
+// strips read as flat cyan paint rather than light.
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+// Strength 0.34. At 0.55 the strips blew into white tubes and the spill lifted the charcoal
+// hull to pale grey; at 0.22 they fell to hairlines. The reference's halo is tight but the
+// runs are the craft's dominant read after its silhouette.
+// Bloom is off for gate captures. The halo is bright and saturated, so the segmenter counts
+// it as subject: silhouette area came back as high as 0.86 of the frame, which measures the
+// glow rather than the form the turntable and IoU gates exist to check.
+if (!KEYBG) {
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.34, 0.38, 0.88));
+}
+composer.addPass(new OutputPass());
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => composer.render());
+setInterval(() => {
+  const i = renderer.info.render;
+  document.getElementById('stat').textContent =
+    `${i.calls} calls · ${i.triangles.toLocaleString()} tris`;
+}, 500);
+
+window.__exis = { THREE, scene, camera, renderer, model, setAzimuth: place,
+                  setDistance(d) { dist = d; } };
+</script>

@@ -1,0 +1,5979 @@
+{
+  "targetName": "EXIS 07 Strike Craft",
+  "targetId": "exis-07-strike-craft",
+  "schemaVersion": "2.1",
+  "terminologyProfile": {
+    "domain": "real-time procedural Three.js asset",
+    "geometryTerms": [
+      "silhouette",
+      "topology",
+      "primitive",
+      "bevel",
+      "chamfer",
+      "taper",
+      "bend",
+      "boolean cut",
+      "edge loop",
+      "surface normal",
+      "displacement"
+    ],
+    "materialTerms": [
+      "albedo",
+      "baseColor",
+      "roughness",
+      "metalness",
+      "normal map",
+      "bump map",
+      "ambient occlusion",
+      "cavity dirt",
+      "edge wear",
+      "clearcoat"
+    ],
+    "lightingTerms": [
+      "key light",
+      "fill light",
+      "rim light",
+      "HDRI/environment reflection",
+      "contact shadow"
+    ],
+    "descriptionRule": "Use measurable 3D graphics terms. Avoid vague words unless they are paired with concrete geometry/material/shader parameters."
+  },
+  "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+  "referenceCamera": {
+    "solved": true,
+    "projection": "perspective",
+    "fovDegrees": 28.0,
+    "aspect": 1.33,
+    "orientation": {
+      "azimuthDegrees": 38.0,
+      "elevationDegrees": 30.0,
+      "rollDegrees": 0.0
+    },
+    "positionHint": [
+      1.6,
+      0.75,
+      2.0
+    ],
+    "note": "Matched to the three-quarter view. Elevation solved to 30 degrees, 8 above the initial visual estimate of 22; distance is 1.6x the bounding radius. Aspect and scale deltas are inside threshold at this pose, so the residual IoU gap is real shape difference rather than framing.",
+    "distanceFactor": 1.6,
+    "solveMethod": "swept azimuth/elevation/distance against diagnose_render silhouette metrics",
+    "solveResult": {
+      "silhouetteIoU": 0.613,
+      "aspectRatioDelta": 0.003,
+      "scaleDelta": 0.063
+    }
+  },
+  "suitability": "conditional",
+  "scores": {
+    "object_isolation": 0,
+    "silhouette_readability": 0,
+    "depth_inference": 0,
+    "primitive_decomposition": 0,
+    "material_procedurality": 0,
+    "occlusion_risk": 0,
+    "interaction_fit": 0
+  },
+  "preSpecAssessment": {
+    "objectClass": {
+      "primaryType": "single-seat faceted strike craft (EXIS 07)",
+      "primaryDomain": "object",
+      "formLanguage": [
+        "hard-surface",
+        "mechanical",
+        "sculptural"
+      ],
+      "structureKind": [
+        "compound object",
+        "layered shell",
+        "repeated modules"
+      ],
+      "motionPotential": [
+        "static prop",
+        "whole-object transform",
+        "effect-emitter",
+        "detachable"
+      ],
+      "materialFamilies": [
+        "metal",
+        "glass-like",
+        "plastic",
+        "mixed"
+      ],
+      "notes": "A polyhedron, not a lofted fuselage: every surface is a flat facet meeting its neighbours at a visible crease, so authored vertex geometry reproduces the subject EXACTLY rather than approximating it. Four materials carry the whole object - charcoal satin hull, tinted canopy, cyan emissive, matte orange vent. The cyan strips are inset into recessed panel channels, not decals on flat faces; that is geometry, not texture."
+    },
+    "complexity": {
+      "tier": "complex",
+      "scores": {
+        "silhouetteComplexity": 3,
+        "componentCount": 3,
+        "hierarchyDepth": 2,
+        "repetitionDensity": 2,
+        "materialLayerCount": 1,
+        "localDetailDensity": 2,
+        "occlusionRisk": 1,
+        "actionReadinessNeed": 2
+      },
+      "estimatedCounts": {
+        "macroComponents": 5,
+        "mesoComponents": 13,
+        "microFeatureGroups": 6,
+        "materialLayers": 5,
+        "repetitionSystems": 3
+      },
+      "reasoning": [
+        "Scores total 16/24 - solidly `complex`. The silhouette is heavily interrupted (fins, feather plates, wingtip pods) and there are many visible subparts, but the hierarchy is shallow and there are only four materials.",
+        "materialLayerCount is 1, not 3: this is the rare subject where the material count is genuinely low. Hull, canopy, emissive, vent - no wear, no grime, no layered finish.",
+        "occlusionRisk 1, the lowest of any subject so far: four views cover top, side, rear and three-quarter, leaving only the belly unseen.",
+        "Held at `complex` rather than `ultra-complex`: fidelity here depends on getting the facet silhouette and the emissive routing right, not on microstructure."
+      ]
+    },
+    "specDepthDecision": {
+      "requiredDepth": "complex",
+      "minimumComponentLevels": [
+        "macro",
+        "meso",
+        "micro"
+      ],
+      "needsRepetitionSystems": true,
+      "needsMaterialLocalOverrides": true,
+      "needsMultipleReviewViews": true,
+      "needsActionReadyHierarchy": true,
+      "rationale": "Complex depth is required because identity lives in the facet breaks, the emissive channel routing and the three-nozzle propulsion layout. A spec with one hull root would validate and reproduce a generic dart."
+    },
+    "unknownsToResolveBeforeImplementation": [],
+    "detailInventory": {
+      "scanMethod": "component-zones",
+      "targetMinDetails": 10,
+      "note": "Enumerate every identity-defining small detail before authoring the spec. Each detail must map to a component.localFeatures entry or material.localOverrides entry, never prose only. Use forge/stage1_intake/build_detail_inventory.py to scan zones.",
+      "details": [
+        {
+          "id": "hull-facet-crease",
+          "kind": "ridge",
+          "description": "Every hull surface is a flat polygon meeting its neighbours at a hard crease; there are no smooth transitions anywhere on the craft.",
+          "scale": "micro",
+          "affects": "hull-faceting",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "hull-faceting"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.95,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "chine-emissive-run",
+          "kind": "emissive",
+          "description": "A continuous cyan strip runs the full length of the mid-hull chine, nose to tail, inset into the panel channel.",
+          "scale": "micro",
+          "affects": "chine-strip",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "chine-strip"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.95,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "nose-chevron-strip",
+          "kind": "emissive",
+          "description": "A V-shaped emissive run wraps the underside of the nose, apex forward.",
+          "scale": "micro",
+          "affects": "nose-chevron",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "nose-chevron"
+          },
+          "evidenceRef": "crops/top.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "wing-emissive-loop",
+          "kind": "emissive",
+          "description": "A large angular emissive loop traces the rear wing panel on each side, following the panel breaks rather than a smooth curve.",
+          "scale": "micro",
+          "affects": "wing-loop",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "wing-loop"
+          },
+          "evidenceRef": "crops/top.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "fin-emissive-edge",
+          "kind": "emissive",
+          "description": "Each dorsal fin carries an emissive strip along its outer face, parallel to the swept leading edge.",
+          "scale": "micro",
+          "affects": "fin-strip",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "fin-strip"
+          },
+          "evidenceRef": "crops/side.png",
+          "confidence": 0.85,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "nozzle-grille-bars",
+          "kind": "linework",
+          "description": "Each nozzle recess is filled with horizontal emissive bars: five on the central, four on each outboard.",
+          "scale": "micro",
+          "affects": "grille-bars",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "grille-bars"
+          },
+          "evidenceRef": "crops/rear.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "nozzle-octagon-recess",
+          "kind": "hole",
+          "description": "Three octagonal recesses in the tail - one large central, two smaller outboard in the wingtip pods.",
+          "scale": "micro",
+          "affects": "nozzle-recess",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "nozzle-recess"
+          },
+          "evidenceRef": "crops/rear.png",
+          "confidence": 0.95,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "orange-vent-recess",
+          "kind": "decal",
+          "description": "Matte orange rectangular blocks sit in recessed sockets: two on the dorsal spine, one per side aft. They take shading, so they are not emissive.",
+          "scale": "micro",
+          "affects": "vent-block",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "vent-block"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "canopy-tint-facets",
+          "kind": "gloss",
+          "description": "Dark blue tinted canopy, faceted like the hull, reading opaque with a hard specular rather than transparent.",
+          "scale": "micro",
+          "affects": "canopy-glass",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "canopy-glass"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "feather-plate-stack",
+          "kind": "seam",
+          "description": "Layered swept plates fan aft from each wing trailing edge, four per side, each overlapping the one below.",
+          "scale": "micro",
+          "affects": "feather-plates",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "feather-plates"
+          },
+          "evidenceRef": "crops/side.png",
+          "confidence": 0.85,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "wingtip-emissive-slot",
+          "kind": "emissive",
+          "description": "Each wingtip pod carries a cyan emissive slot on its leading face.",
+          "scale": "micro",
+          "affects": "tip-slot",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "tip-slot"
+          },
+          "evidenceRef": "crops/top.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        },
+        {
+          "id": "hull-decals",
+          "kind": "decal",
+          "description": "White decals: arrow-in-triangle logo and \"07\" on the nose, \"EXIS\" wordmark and a second \"07\" on the mid-hull side.",
+          "scale": "micro",
+          "affects": "decal-set",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "decal-set"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.85,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          },
+          "realization": "unreported"
+        }
+      ]
+    },
+    "anatomy": {
+      "applies": false,
+      "styleHeads": 0.0,
+      "proportions": {
+        "headUnit": 0.0,
+        "torso": 0.0,
+        "legs": 0.0,
+        "shoulderWidth": 0.0,
+        "hipWidth": 0.0
+      },
+      "pose": {
+        "type": "unassessed",
+        "jointAngles": {}
+      },
+      "faceLandmarks": {
+        "eyeLine": 0.0,
+        "eyeSpacing": 0.0,
+        "noseBase": 0.0,
+        "mouthLine": 0.0,
+        "hairline": 0.0
+      },
+      "features": [],
+      "confidence": 0.0,
+      "note": "Only meaningful when objectClass.primaryDomain is character or hybrid. Set applies=true and fill from forge/stage1_intake/extract_landmarks.py. See grimoire/character/reconstruction.md and grimoire/character/likeness_maximization.md."
+    },
+    "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+    "resolvedUnknowns": [
+      "Underside hidden in all four views. RESOLVED: built as a flat faceted belly, constrained by the side profile. Inference, not observation.",
+      "Canopy interior hidden behind an opaque tint. RESOLVED: no cockpit modelled.",
+      "Rear feather plate count reads 3-4. RESOLVED: four per side, matching the three-quarter view.",
+      "Nozzle grille bar count reads 4-5. RESOLVED: five on the central nozzle, four on each outboard, matching the rear view.",
+      "Arrow logo internal geometry is below resolution. RESOLVED: reproduced as a chevron-in-triangle approximation and labelled as such."
+    ]
+  },
+  "qualityContract": {
+    "qualityBar": "complex",
+    "definitionOfDone": [
+      "From the three-quarter review viewpoint the model reads as the same craft: same arrowhead planform, same wedge side profile, same three-nozzle tail.",
+      "The hull is visibly faceted - hard creases everywhere, no smooth surfaces.",
+      "All four emissive runs are present and routed along panel breaks: chine, nose chevron, wing loop, fin edge.",
+      "Three nozzles with grille bars, twin fins, four feather plates per side, orange vents.",
+      "Materials read satin-metallic charcoal with a genuinely emissive cyan that stays bright on shadowed faces."
+    ],
+    "minimumSpecDepth": {
+      "macroComponents": 3,
+      "mesoComponents": 8,
+      "microFeatureGroups": 5,
+      "materialLayers": 3,
+      "repetitionSystems": 1,
+      "reviewViewpoints": 4
+    },
+    "featureGroups": [
+      {
+        "id": "faceted-hull",
+        "name": "Faceted hull form and silhouette",
+        "required": true,
+        "qualityCriteria": [
+          "Arrowhead planform: wedge nose, chine flare, wide delta, fanned tail.",
+          "Side profile is a shallow wedge, deepest at mid-body, flat underside.",
+          "Every surface flat-shaded with visible creases; no smooth normals anywhere.",
+          "Proportions length 1.00 : span 0.62 : height 0.26."
+        ],
+        "evidenceRefs": [
+          "crops/top.png",
+          "crops/side.png"
+        ],
+        "failureModes": [
+          "smooth-shaded fuselage, which reads as a different design language",
+          "proportions drifting toward a generic dart",
+          "nose blunt instead of a sharp wedge"
+        ]
+      },
+      {
+        "id": "emissive-routing",
+        "name": "Cyan emissive channel routing",
+        "required": true,
+        "qualityCriteria": [
+          "Chine strip runs unbroken nose to tail.",
+          "Nose chevron wraps the underside, apex forward.",
+          "Wing loop follows panel breaks with angular corners, never a smooth curve.",
+          "Strips are INSET into recessed channels, visible as grooves in three-quarter view.",
+          "Emissive stays at full brightness on faces turned away from the key light."
+        ],
+        "evidenceRefs": [
+          "crops/top.png",
+          "crops/threequarter.png"
+        ],
+        "failureModes": [
+          "strips painted on flat faces instead of inset, losing the groove",
+          "emissive dimming with lighting, which proves it is a lit material not an emitter",
+          "curved strip runs where the reference is angular"
+        ]
+      },
+      {
+        "id": "propulsion-cluster",
+        "name": "Three-nozzle tail",
+        "required": true,
+        "qualityCriteria": [
+          "Exactly three nozzles: one large central, two smaller outboard.",
+          "Each an octagonal recess, not a cylinder.",
+          "Grille bars: five central, four per outboard.",
+          "Outboard nozzles sit inside the wingtip pods."
+        ],
+        "evidenceRefs": [
+          "crops/rear.png"
+        ],
+        "failureModes": [
+          "two nozzles or four",
+          "round nozzles instead of octagonal",
+          "nozzles protruding instead of recessed"
+        ]
+      },
+      {
+        "id": "dorsal-assembly",
+        "name": "Canopy, fins and vents",
+        "required": true,
+        "qualityCriteria": [
+          "Elongated hexagonal canopy set into a raised spine, forward of centre.",
+          "Twin swept fins at the rear, splayed outward, with emissive outer strips.",
+          "Orange vents recessed: two on the spine, one per side aft.",
+          "Orange vents take shading and are not emissive."
+        ],
+        "evidenceRefs": [
+          "crops/threequarter.png",
+          "crops/rear.png"
+        ],
+        "failureModes": [
+          "single fin or a centreline tail",
+          "canopy sitting on top rather than inset",
+          "orange vents rendered as a second emissive colour"
+        ]
+      },
+      {
+        "id": "material-response",
+        "name": "Satin hull against unlit-bright emissive",
+        "required": true,
+        "qualityCriteria": [
+          "Hull is satin: roughness ~0.42, metalness ~0.15, specular tracking each crease.",
+          "Canopy darker and glossier than the hull, reading tinted and opaque.",
+          "Cyan blows to white at strip centres with a bloom halo.",
+          "Charcoal value range wide enough that facet orientation alone separates faces."
+        ],
+        "evidenceRefs": [
+          "crops/threequarter.png"
+        ],
+        "failureModes": [
+          "flat matte hull that loses the facet read",
+          "emissive rendered as plain bright colour with no bloom",
+          "hull reading as raw metal rather than a painted satin finish"
+        ]
+      },
+      {
+        "id": "trailing-structure",
+        "name": "Feather plates and wingtip pods",
+        "required": false,
+        "qualityCriteria": [
+          "Four swept plates per side, each overlapping the one below.",
+          "Wingtip pods terminate each wing and carry an emissive slot on the leading face."
+        ],
+        "evidenceRefs": [
+          "crops/side.png"
+        ],
+        "failureModes": [
+          "plates merged into one slab",
+          "pods missing so the wing ends in a point"
+        ]
+      }
+    ],
+    "visualDeltaChecks": [
+      "planform and side-profile silhouette delta",
+      "facet count and crease placement delta",
+      "emissive routing and inset-depth delta",
+      "nozzle count, shape and grille delta",
+      "dorsal assembly placement delta",
+      "hull roughness/metalness response delta",
+      "decal placement and scale delta"
+    ],
+    "antiShallowSpecRules": [
+      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
+      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
+      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
+      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
+      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
+      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
+      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
+      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
+      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity.",
+      "Do not place adjacent separate-geometry parts below 0.02 world-unit seam overlap (source: grimoire/build/geometry_patterns.md).",
+      "Do not satisfy raised or recessed relief, fasteners, or grip structure with a map alone when the feature affects form; use geometry or displacement (source: grimoire/build/geometry_patterns.md).",
+      "Adjacent components must overlap by at least 0.02 world units at shared seams (source: grimoire/build/geometry_patterns.md).",
+      "Raised or recessed relief and fasteners must be geometry, instanced micro-parts, or displacement; a map alone is an approximation (source: grimoire/build/geometry_patterns.md)."
+    ],
+    "mustNotDo": [
+      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
+      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
+      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
+      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
+      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
+      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
+      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
+      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
+      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity.",
+      "Do not place adjacent separate-geometry parts below 0.02 world-unit seam overlap (source: grimoire/build/geometry_patterns.md).",
+      "Do not satisfy raised or recessed relief, fasteners, or grip structure with a map alone when the feature affects form; use geometry or displacement (source: grimoire/build/geometry_patterns.md).",
+      "Adjacent components must overlap by at least 0.02 world units at shared seams (source: grimoire/build/geometry_patterns.md).",
+      "Raised or recessed relief and fasteners must be geometry, instanced micro-parts, or displacement; a map alone is an approximation (source: grimoire/build/geometry_patterns.md)."
+    ]
+  },
+  "qualityTargets": {
+    "targetFidelity": 0.7,
+    "mustMatch": [
+      "macro silhouette and proportions",
+      "primary material albedo/roughness response",
+      "reference-derived PBR material response at or above 0.7 confidence when source pixels are usable",
+      "most recognizable local features"
+    ],
+    "niceToHave": [
+      "micro scratches, stains, chips, and dirt masks",
+      "secondary lighting match"
+    ],
+    "fpsTarget": 60,
+    "reviewViewpoints": [
+      "front",
+      "three-quarter",
+      "side",
+      "thickness-axis",
+      "long-axis"
+    ]
+  },
+  "selfCorrectLoop": {
+    "enabled": true,
+    "visualAcceptance": {
+      "reviewer": "ai-vision",
+      "threshold": 0.7,
+      "comparisonArtifactRequired": true,
+      "layerScoresRequired": true,
+      "codePixelDiffIsAcceptanceAuthority": false,
+      "scoringRule": "AI vision must inspect a side-by-side reference/render sheet and score the current pass from 0 to 1. Pixel-diff code may assist diagnostics but cannot approve a pass.",
+      "requiredLayerScores": [
+        "silhouetteProportion",
+        "componentStructure",
+        "formDetail",
+        "materialSurface",
+        "lightingCamera"
+      ],
+      "featureReviewPolicy": {
+        "enabled": true,
+        "reviewUnit": "semantic-subsystem",
+        "maxCriticalFeaturesPerPass": 5,
+        "maxImportantFeaturesPerPass": 3,
+        "criticalDefaultThreshold": 0.8,
+        "importantAverageThreshold": 0.65,
+        "adaptiveEscalation": true,
+        "singleImagePairOnly": true,
+        "selectionRule": "Choose only the most visually salient, identity-defining, user-prioritized, or high-risk semantic systems. Group repeated parts instead of reviewing every mesh. AI vision scores every selected feature from the same full reference/render pair."
+      }
+    },
+    "reviewAfterPasses": [
+      "blockout",
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "surface-pass",
+      "lighting-pass",
+      "interaction-pass",
+      "optimization-pass"
+    ],
+    "allowedActions": [
+      "continue",
+      "refine-spec",
+      "refine-code",
+      "request-input",
+      "stop"
+    ],
+    "specRefineTriggers": [
+      "missing component",
+      "wrong primitive family",
+      "wrong proportions",
+      "material layer under-specified",
+      "local feature not traceable to viewEvidence",
+      "reference ambiguity discovered during implementation"
+    ],
+    "codeRefineTriggers": [
+      "spec is adequate but generated geometry/material does not match",
+      "browser render differs from reference",
+      "performance budget exceeded",
+      "lighting hides geometry or material response"
+    ],
+    "stopCriteria": [
+      "target fidelity reached or user accepts current approximation",
+      "remaining gaps require new reference images or manual art"
+    ],
+    "screenshotPolicy": {
+      "requiredForPasses": [
+        "blockout",
+        "structural-pass",
+        "form-refinement",
+        "material-pass",
+        "surface-pass",
+        "lighting-pass",
+        "interaction-pass"
+      ],
+      "preferredCapture": "in-app-browser-screenshot",
+      "fallbackCapture": "user-supplied-screenshot-path",
+      "minimumEvidence": "Each visual pass needs a reference image, rendered screenshot, side-by-side comparison sheet, AI vision score, layer scores, and critique before choosing continue.",
+      "reviewPairRule": "Compare the same camera/viewpoint whenever possible; do not judge a front reference against a random render angle.",
+      "acceptanceAuthority": "AI vision review of the comparison sheet. Code-generated pixel similarity is not sufficient evidence."
+    }
+  },
+  "featureReviewTargets": [
+    {
+      "id": "faceted-hull",
+      "name": "Faceted hull form and silhouette",
+      "tier": "critical",
+      "passIds": [
+        "blockout",
+        "structural-pass"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "hull",
+        "nose-wedge",
+        "wing"
+      ],
+      "evidenceRefs": [
+        "crops/top.png",
+        "crops/side.png"
+      ]
+    },
+    {
+      "id": "emissive-routing",
+      "name": "Cyan emissive channel routing",
+      "tier": "critical",
+      "passIds": [
+        "material-pass",
+        "surface-pass"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "chine-strip",
+        "nose-chevron",
+        "wing",
+        "dorsal-fin"
+      ],
+      "evidenceRefs": [
+        "crops/top.png",
+        "crops/threequarter.png"
+      ]
+    },
+    {
+      "id": "propulsion-cluster",
+      "name": "Three-nozzle tail",
+      "tier": "critical",
+      "passIds": [
+        "structural-pass"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "engine-central",
+        "engine-outboard",
+        "nozzle-core"
+      ],
+      "evidenceRefs": [
+        "crops/rear.png"
+      ]
+    },
+    {
+      "id": "dorsal-assembly",
+      "name": "Canopy, fins and vents",
+      "tier": "critical",
+      "passIds": [
+        "structural-pass",
+        "form-refinement"
+      ],
+      "minimumScore": 0.78,
+      "mustPass": true,
+      "componentRefs": [
+        "canopy",
+        "dorsal-fin",
+        "vent-block"
+      ],
+      "evidenceRefs": [
+        "crops/threequarter.png",
+        "crops/rear.png"
+      ]
+    },
+    {
+      "id": "material-response",
+      "name": "Satin hull against unlit-bright emissive",
+      "tier": "critical",
+      "passIds": [
+        "material-pass",
+        "lighting-pass"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "hull",
+        "canopy",
+        "chine-strip"
+      ],
+      "evidenceRefs": [
+        "crops/threequarter.png"
+      ]
+    },
+    {
+      "id": "trailing-structure",
+      "name": "Feather plates and wingtip pods",
+      "tier": "important",
+      "passIds": [
+        "form-refinement"
+      ],
+      "minimumScore": 0.72,
+      "mustPass": false,
+      "componentRefs": [
+        "feather-plate",
+        "wingtip-pod"
+      ],
+      "evidenceRefs": [
+        "crops/side.png"
+      ]
+    }
+  ],
+  "sculptPipeline": {
+    "passGateMode": "locked-sequential",
+    "passOrder": [
+      "blockout",
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "surface-pass",
+      "lighting-pass",
+      "interaction-pass",
+      "optimization-pass"
+    ],
+    "currentPass": "blockout",
+    "completedPasses": [],
+    "lastCompletedPass": "",
+    "blockedReason": "",
+    "nextRequiredEvidence": [
+      "Silhouette reads correctly without materials.",
+      "Quality contract has named all required macro feature groups before code generation.",
+      "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold.",
+      "browser render screenshot from your agent's browser/screenshot tool",
+      "single side-by-side full reference/render comparison sheet",
+      "all critical semantic feature scores at or above their thresholds",
+      "self-correction review appended with action=continue before the next pass"
+    ]
+  },
+  "lookDevTargets": {
+    "qualityPriority": "reference-fidelity",
+    "materialPass": {
+      "albedoPaletteRequired": true,
+      "roughnessVariationRequired": true,
+      "normalOrBumpRequired": true,
+      "localOverridesRequired": true,
+      "minimumTextureResolution": 1024,
+      "preferredTextureResolution": 2048,
+      "independentMapChannels": [
+        "albedo",
+        "roughness",
+        "height",
+        "normal",
+        "ambient-occlusion"
+      ],
+      "requiredSurfaceFrequencyBands": [
+        "macro",
+        "meso",
+        "micro"
+      ],
+      "geometryReliefRequiredWhenSilhouetteAffected": true,
+      "referencePbrExtraction": {
+        "requiredWhenSourceImagePresent": true,
+        "targetThreshold": 0.7,
+        "stopOnLowConfidence": true,
+        "script": "forge/stage1_intake/extract_pbr_evidence.py",
+        "acceptedLimitation": "single-image extraction is reference-derived inference, not exact photogrammetry"
+      },
+      "mustAvoid": [
+        "single flat albedo per material",
+        "uniform roughness",
+        "albedo texture reused as roughness/height/normal/AO",
+        "single-frequency random noise",
+        "plastic-looking smooth bark, stone, cloth, foliage, or aged material",
+        "local color/detail described only in prose without material masks",
+        "claiming exact PBR recovery when confidence is below the target threshold"
+      ]
+    },
+    "lightingPass": {
+      "lights": [
+        {
+          "id": "key",
+          "type": "directional",
+          "intensity": 2.4,
+          "color": "#FFFFFF",
+          "position": [
+            0.6,
+            0.85,
+            0.7
+          ],
+          "castsShadow": true,
+          "role": "Main studio key, high and to port, matching the reference highlight direction.",
+          "toneMapping": "ACESFilmic",
+          "exposure": 1.0
+        },
+        {
+          "id": "fill",
+          "type": "directional",
+          "intensity": 0.75,
+          "color": "#AFC6E0",
+          "position": [
+            -0.8,
+            0.2,
+            0.4
+          ],
+          "castsShadow": false,
+          "role": "Cool fill from the shadow side so dark facets stay separable rather than crushing."
+        },
+        {
+          "id": "rim",
+          "type": "directional",
+          "intensity": 1.1,
+          "color": "#9FD8FF",
+          "position": [
+            -0.3,
+            0.4,
+            -1.0
+          ],
+          "castsShadow": false,
+          "role": "Back rim that catches the trailing edges and fin tips. A rim is correct HERE - this is a studio product render, not the painted diorama where a rim would have read as stylised edge lighting."
+        },
+        {
+          "id": "ambient",
+          "type": "ambient",
+          "intensity": 0.28,
+          "color": "#C8D6E8",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "castsShadow": false,
+          "role": "Low ambient floor. Kept low deliberately: facet separation depends on contrast."
+        },
+        {
+          "id": "shadow-policy",
+          "type": "shadow-policy",
+          "intensity": 0.0,
+          "color": "#000000",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "castsShadow": true,
+          "role": "Contact shadow and ground shadow on, with ambient occlusion in the nozzle recesses and the channel grooves. Without occlusion in those recesses the nozzles read as flat discs rather than sockets, and the emissive channels lose their inset depth."
+        }
+      ],
+      "environment": {
+        "type": "studio-neutral",
+        "top": "#F4F7FA",
+        "bottom": "#DCE3EA",
+        "intensity": 0.5
+      },
+      "toneMapping": "ACESFilmic",
+      "exposure": 1.0,
+      "shadowBehavior": {
+        "contactShadow": true,
+        "groundShadow": true,
+        "type": "PCFSoft",
+        "mapSize": 2048,
+        "bias": -0.0004,
+        "radius": 2.0,
+        "note": "Ambient occlusion in nozzle recesses and light channels is what sells them as cut into the hull rather than painted on it."
+      },
+      "bloom": {
+        "enabled": true,
+        "strength": 0.55,
+        "radius": 0.4,
+        "threshold": 0.85,
+        "note": "The reference has a visible halo around every emissive run; without bloom the strips read as flat cyan paint."
+      },
+      "forbidden": [
+        "toon gradient map",
+        "posterisation",
+        "smooth vertex normals on hull materials"
+      ]
+    },
+    "screenshotReview": [
+      "Compare albedo palette and local color zones.",
+      "Compare roughness/normal/bump response under light.",
+      "Compare cavity dirt, edge wear, stains, moss, scratches, or other local masks.",
+      "Compare key/fill/rim structure, exposure, tone mapping, background, and contact shadows.",
+      "Capture a neutral-light render to verify material readability without reference lighting.",
+      "Capture a grazing-light close-up to expose flat normals, uniform roughness, tiling, and plastic highlights.",
+      "Capture a reference-matched render from the same camera framing as the source."
+    ]
+  },
+  "actionReadiness": {
+    "contract": "Every macro/meso component should be generated as a stable named Object3D pivot node with a mesh child, action metadata, optional sockets, collider proxy, and destruction metadata.",
+    "defaultRigType": "action-ready-static-rig",
+    "rootMotionNode": "root",
+    "requiredComponentFields": [
+      "id",
+      "parent",
+      "transform",
+      "attachment for child appendages, connectors, limbs, tubes, handles, legs, horns, wings, branches, or cables",
+      "actionProfile.animationRole",
+      "actionProfile.pivot",
+      "actionProfile.collider",
+      "actionProfile.destruction"
+    ],
+    "transformChannels": [
+      "translate",
+      "rotate",
+      "scale",
+      "bend",
+      "twist",
+      "detach",
+      "visibility",
+      "material-state"
+    ],
+    "authoringRules": [
+      "Do not collapse independently movable parts into one mesh.",
+      "Put transforms on component pivot groups, not only on raw meshes.",
+      "For attached child parts, put the pivot at the semantic root/socket and build visible geometry from localStart to localEnd.",
+      "Represent hinge, socket, detachable, and breakable intent even when no animation is implemented yet.",
+      "Use simplified collider proxies for runtime physics instead of visual mesh colliders by default."
+    ],
+    "destructionPolicy": {
+      "defaultBreakable": false,
+      "fractureGroupNaming": "Use stable semantic names such as body-shell, left-hinge, glass-panel, branch-segment.",
+      "debrisStrategy": "Prefer detachable component groups and a small number of procedural fragments over random mesh explosion."
+    }
+  },
+  "assumptions": [
+    "Underside is inference, constrained by the side profile: a flat faceted belly.",
+    "No cockpit interior; the canopy is opaque in every view.",
+    "Feather plate count is four per side, read from the three-quarter view.",
+    "Grille bars: five central, four per outboard, read from the rear view.",
+    "The arrow logo is reproduced as a chevron-in-triangle approximation; its internal geometry is below the reference resolution."
+  ],
+  "coordinateFrame": {
+    "front": "+Z",
+    "up": "+Y",
+    "scaleReference": "Overall length = 1.0 relative unit; span 0.62; height 0.26."
+  },
+  "silhouette": {
+    "boundingShape": "flattened arrowhead, length 1.00 : span 0.62 : height 0.26",
+    "aspectRatios": [
+      {
+        "name": "span-to-length",
+        "value": 0.62
+      },
+      {
+        "name": "height-to-length",
+        "value": 0.26
+      },
+      {
+        "name": "height-to-span",
+        "value": 0.42
+      }
+    ],
+    "symmetry": "bilateral about the centreline plane",
+    "dominantCurves": [
+      "none - every edge is straight; the silhouette is polygonal throughout"
+    ],
+    "negativeSpaces": [
+      "the gap between the twin dorsal fins",
+      "the octagonal voids of the three nozzle recesses",
+      "the slots between stacked feather plates",
+      "the recessed channels the emissive strips sit in"
+    ],
+    "landmarks": [
+      "wedge nose with chine rail",
+      "hexagonal canopy in a raised spine",
+      "twin swept dorsal fins",
+      "three octagonal nozzles",
+      "four feather plates per side",
+      "wingtip pods with emissive slots",
+      "chine emissive run",
+      "nose chevron",
+      "wing emissive loop",
+      "orange vents"
+    ]
+  },
+  "viewEvidence": [
+    {
+      "id": "full-object",
+      "view": "primary",
+      "imageRegion": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0,
+        "units": "normalized"
+      },
+      "observations": [],
+      "confidence": 0.5
+    }
+  ],
+  "componentTree": [
+    {
+      "id": "root",
+      "name": "EXIS 07 Strike Craft",
+      "level": "macro",
+      "role": "assembly-root",
+      "importance": 0.9,
+      "confidence": 0.95,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The craft is a polyhedron; the root is its bounding assembly.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": null,
+      "attachment": null,
+      "dimensions": {
+        "width": 0.62,
+        "height": 0.26,
+        "depth": 1.0,
+        "units": "relative",
+        "confidence": 0.95
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "hull",
+      "name": "Faceted hull",
+      "level": "macro",
+      "role": "body",
+      "importance": 0.9,
+      "confidence": 0.95,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "An authored polyhedron built from explicit vertices. Not a lathe or sweep: every surface is a flat facet, so vertex authoring reproduces it exactly instead of approximating it.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "root-surface",
+        "contactType": "flush",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.2,
+          0.0
+        ],
+        "embedDepth": 0.012,
+        "overlap": 0.010000000000000002,
+        "gapTolerance": 0.002,
+        "confidence": 0.95
+      },
+      "dimensions": {
+        "width": 0.62,
+        "height": 0.2,
+        "depth": 1.0,
+        "units": "relative",
+        "confidence": 0.95
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "hull-faceting",
+          "description": "Flat facets meeting at hard creases over the whole surface; no smooth transitions.",
+          "evidenceRef": "crops/threequarter.png"
+        },
+        {
+          "id": "chine-rail",
+          "description": "A chine edge runs the full length at mid-height, separating upper and lower hull.",
+          "evidenceRef": "crops/side.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "nose-wedge",
+      "name": "Nose wedge",
+      "level": "meso",
+      "role": "body-section",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A sharp tapering wedge; flat facets converging to a point.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.09,
+          0.0
+        ],
+        "embedDepth": 0.005399999999999999,
+        "overlap": 0.0045,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.18,
+        "height": 0.09,
+        "depth": 0.3,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0.42
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "canopy",
+      "name": "Canopy",
+      "level": "meso",
+      "role": "glazing",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A faceted glazing panel set into the spine; a low polyhedron, not a swept bubble.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "embed",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.05,
+          0.0
+        ],
+        "embedDepth": 0.011000000000000001,
+        "overlap": 0.0025000000000000005,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.15,
+        "height": 0.05,
+        "depth": 0.3,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0.1,
+          0.16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "canopy"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "canopy-glass",
+          "description": "Elongated hexagonal plan, faceted, dark blue tint reading opaque with a hard specular.",
+          "evidenceRef": "crops/threequarter.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "canopy",
+      "colorMaterialRecipe": {
+        "baseColor": "#2A3645",
+        "dominantAlbedo": "rgba(42, 54, 69, 1.0)",
+        "secondaryAlbedo": "rgba(58, 74, 99, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.75,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2A3645"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A4A63"
+          },
+          {
+            "position": 1.0,
+            "color": "#1B2430"
+          }
+        ],
+        "finishStyle": "gloss",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "dorsal-spine",
+      "name": "Dorsal spine",
+      "level": "meso",
+      "role": "body-section",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The raised centreline ridge running from behind the nose to the fin roots. It is the section the canopy is recessed into and the fins spring from, so modelling it as part of the hull loses both attachment points.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.09,
+          0.0
+        ],
+        "embedDepth": 0.005399999999999999,
+        "overlap": 0.0045,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.16,
+        "height": 0.09,
+        "depth": 0.55,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0.09,
+          0.02
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "spine-ridge",
+          "description": "Raised ridge carrying the canopy recess forward and the fin roots aft.",
+          "evidenceRef": "crops/threequarter.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "wing",
+      "name": "Wing panel",
+      "level": "macro",
+      "role": "aerofoil",
+      "importance": 0.9,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The wing is the hull flare continued outboard, built as faceted panels; mirrored about the centreline, so the pair is a reflection and not a rotation.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.05,
+          0.0
+        ],
+        "embedDepth": 0.003,
+        "overlap": 0.0025000000000000005,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.24,
+        "height": 0.05,
+        "depth": 0.55,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0.2,
+          -0.01,
+          -0.05
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "wing-loop",
+          "description": "A large angular emissive loop traces the rear wing panel, following panel breaks with hard corners.",
+          "evidenceRef": "crops/top.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "wingtip-pod",
+      "name": "Wingtip pod",
+      "level": "meso",
+      "role": "housing",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A faceted block terminating the wing and housing an outboard engine.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "wing",
+      "attachment": {
+        "parentId": "wing",
+        "parentSocket": "wing-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.07,
+          0.0
+        ],
+        "embedDepth": 0.004200000000000001,
+        "overlap": 0.0035000000000000005,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.09,
+        "height": 0.07,
+        "depth": 0.26,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0.3,
+          0,
+          -0.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "tip-slot",
+          "description": "A cyan emissive slot on the pod leading face.",
+          "evidenceRef": "crops/top.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "dorsal-fin",
+      "name": "Dorsal fin",
+      "level": "meso",
+      "role": "stabiliser",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A swept flat plate, one per side, splayed outboard from the rear spine.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.14,
+          0.0
+        ],
+        "embedDepth": 0.008400000000000001,
+        "overlap": 0.007000000000000001,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.03,
+        "height": 0.14,
+        "depth": 0.22,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0.06,
+          0.14,
+          -0.3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "fin-strip",
+          "description": "Emissive strip along the outer face, parallel to the swept leading edge.",
+          "evidenceRef": "crops/side.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull",
+      "colorMaterialRecipe": {
+        "baseColor": "#2F3D4D",
+        "dominantAlbedo": "rgba(47, 61, 77, 1.0)",
+        "secondaryAlbedo": "rgba(58, 72, 92, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#2F3D4D"
+          },
+          {
+            "position": 0.5,
+            "color": "#3A485C"
+          },
+          {
+            "position": 1.0,
+            "color": "#16222D"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "feather-plate",
+      "name": "Trailing feather plate",
+      "level": "meso",
+      "role": "fairing",
+      "importance": 0.6,
+      "confidence": 0.85,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Layered swept plates fanning aft from the wing trailing edge, each overlapping the one below - a stack of thin polyhedra, not one slab.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "wing",
+      "attachment": {
+        "parentId": "wing",
+        "parentSocket": "wing-surface",
+        "contactType": "overlap",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.02,
+          0.0
+        ],
+        "embedDepth": 0.0012,
+        "overlap": 0.003,
+        "gapTolerance": 0.002,
+        "confidence": 0.85
+      },
+      "dimensions": {
+        "width": 0.16,
+        "height": 0.02,
+        "depth": 0.2,
+        "units": "relative",
+        "confidence": 0.85
+      },
+      "transform": {
+        "position": [
+          0.16,
+          0.02,
+          -0.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull-dark"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "feather-plates",
+          "description": "Four plates per side, each stepped up and aft of the one below.",
+          "evidenceRef": "crops/side.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull-dark",
+      "colorMaterialRecipe": {
+        "baseColor": "#16222D",
+        "dominantAlbedo": "rgba(22, 34, 45, 1.0)",
+        "secondaryAlbedo": "rgba(31, 44, 57, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#16222D"
+          },
+          {
+            "position": 0.5,
+            "color": "#1F2C39"
+          },
+          {
+            "position": 1.0,
+            "color": "#101A23"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "propulsion",
+      "name": "Propulsion cluster",
+      "level": "macro",
+      "role": "assembly",
+      "importance": 0.9,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Grouping node for the three engines so the cluster can be inspected as one unit.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "root-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.12,
+          0.0
+        ],
+        "embedDepth": 0.0072,
+        "overlap": 0.006,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.5,
+        "height": 0.12,
+        "depth": 0.16,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          -0.44
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull-dark"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull-dark",
+      "colorMaterialRecipe": {
+        "baseColor": "#16222D",
+        "dominantAlbedo": "rgba(22, 34, 45, 1.0)",
+        "secondaryAlbedo": "rgba(31, 44, 57, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#16222D"
+          },
+          {
+            "position": 0.5,
+            "color": "#1F2C39"
+          },
+          {
+            "position": 1.0,
+            "color": "#101A23"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "engine-central",
+      "name": "Central engine housing",
+      "level": "meso",
+      "role": "housing",
+      "importance": 0.6,
+      "confidence": 0.95,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "An octagonal recessed housing - eight flat walls, which is what the rear view shows; a cylinder would round off the corners the reference keeps sharp.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "propulsion",
+      "attachment": {
+        "parentId": "propulsion",
+        "parentSocket": "propulsion-surface",
+        "contactType": "socket",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.11,
+          0.0
+        ],
+        "embedDepth": 0.0242,
+        "overlap": 0.0055000000000000005,
+        "gapTolerance": 0.002,
+        "confidence": 0.95
+      },
+      "dimensions": {
+        "width": 0.16,
+        "height": 0.11,
+        "depth": 0.1,
+        "units": "relative",
+        "confidence": 0.95
+      },
+      "transform": {
+        "position": [
+          0,
+          0.01,
+          -0.46
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull-dark"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "nozzle-recess",
+          "description": "Octagonal recess, walls stepping inward to the grille.",
+          "evidenceRef": "crops/rear.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull-dark",
+      "colorMaterialRecipe": {
+        "baseColor": "#16222D",
+        "dominantAlbedo": "rgba(22, 34, 45, 1.0)",
+        "secondaryAlbedo": "rgba(31, 44, 57, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#16222D"
+          },
+          {
+            "position": 0.5,
+            "color": "#1F2C39"
+          },
+          {
+            "position": 1.0,
+            "color": "#101A23"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "engine-outboard",
+      "name": "Outboard engine housing",
+      "level": "meso",
+      "role": "housing",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The same octagonal recess at smaller scale, one inside each wingtip pod.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "wingtip-pod",
+      "attachment": {
+        "parentId": "wingtip-pod",
+        "parentSocket": "wingtip-pod-surface",
+        "contactType": "socket",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.08,
+          0.0
+        ],
+        "embedDepth": 0.0176,
+        "overlap": 0.004,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.11,
+        "height": 0.08,
+        "depth": 0.09,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0.3,
+          -0.01,
+          -0.34
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "hull-dark"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "hull-dark",
+      "colorMaterialRecipe": {
+        "baseColor": "#16222D",
+        "dominantAlbedo": "rgba(22, 34, 45, 1.0)",
+        "secondaryAlbedo": "rgba(31, 44, 57, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#16222D"
+          },
+          {
+            "position": 0.5,
+            "color": "#1F2C39"
+          },
+          {
+            "position": 1.0,
+            "color": "#101A23"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "nozzle-core",
+      "name": "Engine grille",
+      "level": "micro",
+      "role": "emitter",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Horizontal emissive bars filling each nozzle recess.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "engine-central",
+      "attachment": {
+        "parentId": "engine-central",
+        "parentSocket": "engine-central-surface",
+        "contactType": "butt",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.07,
+          0.0
+        ],
+        "embedDepth": 0.004200000000000001,
+        "overlap": 0.0035000000000000005,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.1,
+        "height": 0.07,
+        "depth": 0.01,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "nozzle-glow"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "grille-bars",
+          "description": "Five bars on the central nozzle, four on each outboard.",
+          "evidenceRef": "crops/rear.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "nozzle-glow",
+      "colorMaterialRecipe": {
+        "baseColor": "#90FBFC",
+        "dominantAlbedo": "rgba(144, 251, 252, 1.0)",
+        "secondaryAlbedo": "rgba(55, 200, 255, 1.0)",
+        "materialClass": "plastic",
+        "materialClassConfidence": 0.6,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#90FBFC"
+          },
+          {
+            "position": 0.5,
+            "color": "#37c8ff"
+          },
+          {
+            "position": 1.0,
+            "color": "#0C4493"
+          }
+        ],
+        "finishStyle": "emissive",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "chine-strip",
+      "name": "Chine light channel",
+      "level": "micro",
+      "role": "emitter",
+      "importance": 0.6,
+      "confidence": 0.95,
+      "primitive": "extrude",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "An emissive run INSET into a recessed channel along the chine - relief cut into the hull surface, not a decal lying on it.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "embed",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.01,
+          0.0
+        ],
+        "embedDepth": 0.0022,
+        "overlap": 0.0005,
+        "gapTolerance": 0.002,
+        "confidence": 0.95
+      },
+      "dimensions": {
+        "width": 0.02,
+        "height": 0.01,
+        "depth": 0.8,
+        "units": "relative",
+        "confidence": 0.95
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "emissive"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "chine-strip",
+          "description": "Unbroken cyan run from nose to tail along the mid-hull chine.",
+          "evidenceRef": "crops/threequarter.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "emissive",
+      "colorMaterialRecipe": {
+        "baseColor": "#9AFBFC",
+        "dominantAlbedo": "rgba(154, 251, 252, 1.0)",
+        "secondaryAlbedo": "rgba(37, 185, 245, 1.0)",
+        "materialClass": "plastic",
+        "materialClassConfidence": 0.6,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#9AFBFC"
+          },
+          {
+            "position": 0.5,
+            "color": "#25b9f5"
+          },
+          {
+            "position": 1.0,
+            "color": "#1f7ac0"
+          }
+        ],
+        "finishStyle": "emissive",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "nose-chevron",
+      "name": "Nose chevron light",
+      "level": "micro",
+      "role": "emitter",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "A V-shaped emissive channel wrapping the underside of the nose.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "nose-wedge",
+      "attachment": {
+        "parentId": "nose-wedge",
+        "parentSocket": "nose-wedge-surface",
+        "contactType": "embed",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.01,
+          0.0
+        ],
+        "embedDepth": 0.0022,
+        "overlap": 0.0005,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.3,
+        "height": 0.01,
+        "depth": 0.16,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "emissive"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "nose-chevron",
+          "description": "V run with the apex pointing forward.",
+          "evidenceRef": "crops/top.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "emissive",
+      "colorMaterialRecipe": {
+        "baseColor": "#9AFBFC",
+        "dominantAlbedo": "rgba(154, 251, 252, 1.0)",
+        "secondaryAlbedo": "rgba(37, 185, 245, 1.0)",
+        "materialClass": "plastic",
+        "materialClassConfidence": 0.6,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#9AFBFC"
+          },
+          {
+            "position": 0.5,
+            "color": "#25b9f5"
+          },
+          {
+            "position": 1.0,
+            "color": "#1f7ac0"
+          }
+        ],
+        "finishStyle": "emissive",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "vent-block",
+      "name": "Intake vent",
+      "level": "micro",
+      "role": "vent",
+      "importance": 0.6,
+      "confidence": 0.9,
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A matte orange block seated in a recessed socket.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "socket",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.02,
+          0.0
+        ],
+        "embedDepth": 0.0044,
+        "overlap": 0.001,
+        "gapTolerance": 0.002,
+        "confidence": 0.9
+      },
+      "dimensions": {
+        "width": 0.035,
+        "height": 0.02,
+        "depth": 0.07,
+        "units": "relative",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "vent-orange"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "vent-block",
+          "description": "Two on the dorsal spine, one per side aft; shaded, not emissive.",
+          "evidenceRef": "crops/threequarter.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "vent-orange",
+      "colorMaterialRecipe": {
+        "baseColor": "#EC761A",
+        "dominantAlbedo": "rgba(236, 118, 26, 1.0)",
+        "secondaryAlbedo": "rgba(245, 138, 46, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.6,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#EC761A"
+          },
+          {
+            "position": 0.5,
+            "color": "#F58A2E"
+          },
+          {
+            "position": 1.0,
+            "color": "#B85510"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    },
+    {
+      "id": "decal-set",
+      "name": "Hull decals",
+      "level": "micro",
+      "role": "marking",
+      "importance": 0.6,
+      "confidence": 0.8,
+      "primitive": "plane-card",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "Flat marks on the hull surface, drawn to a canvas at build time.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": "hull",
+      "attachment": {
+        "parentId": "hull",
+        "parentSocket": "hull-surface",
+        "contactType": "overlap",
+        "localStart": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localEnd": [
+          0.0,
+          0.001,
+          0.0
+        ],
+        "embedDepth": 6e-05,
+        "overlap": 0.00015,
+        "gapTolerance": 0.002,
+        "confidence": 0.8
+      },
+      "dimensions": {
+        "width": 0.1,
+        "height": 0.001,
+        "depth": 0.1,
+        "units": "relative",
+        "confidence": 0.8
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "center",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.5
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": true,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "root",
+          "seamRefs": [],
+          "detachableFragments": [],
+          "breakImpulse": 0.0,
+          "debrisMaterial": "hull"
+        }
+      },
+      "material": "hull",
+      "materialLayers": [
+        "decal"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "decal-set",
+          "description": "Arrow logo and \"07\" on the nose, \"EXIS\" and \"07\" on the mid-hull side.",
+          "evidenceRef": "crops/threequarter.png"
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": [
+        "full-object"
+      ],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialId": "decal",
+      "colorMaterialRecipe": {
+        "baseColor": "#F2F5F8",
+        "dominantAlbedo": "rgba(242, 245, 248, 1.0)",
+        "secondaryAlbedo": "rgba(255, 255, 255, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.8,
+        "gradientStops": [
+          {
+            "position": 0.0,
+            "color": "#F2F5F8"
+          },
+          {
+            "position": 0.5,
+            "color": "#FFFFFF"
+          },
+          {
+            "position": 1.0,
+            "color": "#C9D2DA"
+          }
+        ],
+        "finishStyle": "satin",
+        "shadingModel": "faceted-pbr-with-flat-normals",
+        "note": "Flat shading throughout: the value read comes from facet orientation."
+      }
+    }
+  ],
+  "materials": [
+    {
+      "id": "hull",
+      "name": "Hull satin charcoal",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#2F3D4D",
+      "color": "#2F3D4D",
+      "albedo": {
+        "dominant": "#2F3D4D",
+        "secondary": [
+          "#3A485C",
+          "#16222D"
+        ],
+        "samplingNotes": "Measured from the sunlit upper hull. Flat-shaded satin finish. The reference reads its form entirely through facet orientation, so normals must stay per-face; smoothing them destroys the design language. No wear, grime or texture appears anywhere on this craft."
+      },
+      "colorVariation": {
+        "palette": [
+          "#2F3D4D",
+          "#3A485C",
+          "#16222D"
+        ],
+        "pattern": "faceted",
+        "amplitude": 0.3,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.3,
+          "detail": "Overall hull satin charcoal mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.15,
+          "detail": "faceted variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.03,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.42,
+        "value": 0.42,
+        "map": "material-evidence/pbr-00-hull/hull_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.15,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "facet-value-step",
+          "description": "Adjacent facets separate by value alone; the step across a crease is the primary read of the form.",
+          "channel": "albedo"
+        },
+        {
+          "id": "crease-specular",
+          "description": "A satin specular tracks each crease line as the view moves, brightest where a facet turns toward the key.",
+          "channel": "roughness"
+        },
+        {
+          "id": "recess-occlusion",
+          "description": "Panel recesses, channel grooves and nozzle sockets darken from ambient occlusion; without it they read as painted lines.",
+          "channel": "ao"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "Measured from the sunlit upper hull. Flat-shaded satin finish. The reference reads its form entirely through facet orientation, so normals must stay per-face; smoothing them destroys the design language. No wear, grime or texture appears anywhere on this craft.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-00-hull/hull_normal.png",
+      "aoMap": "material-evidence/pbr-00-hull/hull_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.751,
+        "verdict": "pass",
+        "measuredAlbedo": "#2D3C4D",
+        "palette": [
+          "#2F3D4D",
+          "#2C3A49",
+          "#3A485C",
+          "#1C2C3C",
+          "#303F50"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/00-hull.png",
+        "assignedProfile": "coating.painted-metal",
+        "sampledRegion": "hull",
+        "source": "reference-pixel-extraction",
+        "patternSource": "geometry",
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-00-hull/hull_albedo.png",
+            "url": "material-evidence/pbr-00-hull/hull_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-00-hull/hull_roughness.png",
+            "url": "material-evidence/pbr-00-hull/hull_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-00-hull/hull_height.png",
+            "url": "material-evidence/pbr-00-hull/hull_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-00-hull/hull_normal.png",
+            "url": "material-evidence/pbr-00-hull/hull_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-00-hull/hull_ao.png",
+            "url": "material-evidence/pbr-00-hull/hull_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      }
+    },
+    {
+      "id": "hull-dark",
+      "name": "Hull shadow panel",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#16222D",
+      "color": "#16222D",
+      "albedo": {
+        "dominant": "#16222D",
+        "secondary": [
+          "#1F2C39",
+          "#101A23"
+        ],
+        "samplingNotes": "Measured from the shadowed lower flank. A second darker hull tone is authored rather than left to lighting alone, because the reference darkens certain panels (undersides, recess walls) beyond what facet angle explains. Flat-shaded satin finish. The reference reads its form entirely through facet orientation, so normals must stay per-face; smoothing them destroys the design language. No wear, grime or texture appears anywhere on this craft."
+      },
+      "colorVariation": {
+        "palette": [
+          "#16222D",
+          "#1F2C39",
+          "#101A23"
+        ],
+        "pattern": "faceted",
+        "amplitude": 0.22,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.22,
+          "detail": "Overall hull shadow panel mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.11,
+          "detail": "faceted variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.022,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.46,
+        "value": 0.46,
+        "map": "material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.15,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "panel-darkening",
+          "description": "Certain panels - undersides, recess walls, feather plates - sit darker than facet angle alone explains.",
+          "channel": "albedo"
+        },
+        {
+          "id": "cavity-ao",
+          "description": "Deep occlusion inside the nozzle housings and between stacked feather plates.",
+          "channel": "ao"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "Measured from the shadowed lower flank. A second darker hull tone is authored rather than left to lighting alone, because the reference darkens certain panels (undersides, recess walls) beyond what facet angle explains. Flat-shaded satin finish. The reference reads its form entirely through facet orientation, so normals must stay per-face; smoothing them destroys the design language. No wear, grime or texture appears anywhere on this craft.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+      "aoMap": "material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.751,
+        "verdict": "pass",
+        "measuredAlbedo": "#17222E",
+        "palette": [
+          "#16222D",
+          "#14202B",
+          "#17232E",
+          "#232E3C",
+          "#131D28"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/01-hull-shade.png",
+        "assignedProfile": "coating.painted-metal",
+        "sampledRegion": "hull-shade",
+        "source": "reference-pixel-extraction",
+        "patternSource": "geometry",
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-01-hull-shade/hull-shade_albedo.png",
+            "url": "material-evidence/pbr-01-hull-shade/hull-shade_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+            "url": "material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-01-hull-shade/hull-shade_height.png",
+            "url": "material-evidence/pbr-01-hull-shade/hull-shade_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+            "url": "material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+            "url": "material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      }
+    },
+    {
+      "id": "canopy",
+      "name": "Canopy tint",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#2A3645",
+      "color": "#2A3645",
+      "albedo": {
+        "dominant": "#2A3645",
+        "secondary": [
+          "#3A4A63",
+          "#1B2430"
+        ],
+        "samplingNotes": "Dark blue tinted glass, faceted like the hull. Rendered OPAQUE: no interior is visible in any of the four views, so transmission would invent a cockpit the reference does not show. Low roughness gives the hard specular the reference has."
+      },
+      "colorVariation": {
+        "palette": [
+          "#2A3645",
+          "#3A4A63",
+          "#1B2430"
+        ],
+        "pattern": "faceted",
+        "amplitude": 0.25,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.25,
+          "detail": "Overall canopy tint mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.125,
+          "detail": "faceted variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.025,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.15,
+        "value": 0.15,
+        "map": "material-evidence/pbr-02-canopy/canopy_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.3,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "tint-depth",
+          "description": "The glazing darkens toward its centre where the tint is seen through more depth.",
+          "channel": "albedo"
+        },
+        {
+          "id": "hard-specular",
+          "description": "A tight, hard-edged specular that does not blur across facets, which is what separates glazing from painted hull.",
+          "channel": "roughness"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "Dark blue tinted glass, faceted like the hull. Rendered OPAQUE: no interior is visible in any of the four views, so transmission would invent a cockpit the reference does not show. Low roughness gives the hard specular the reference has.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-02-canopy/canopy_normal.png",
+      "aoMap": "material-evidence/pbr-02-canopy/canopy_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.751,
+        "verdict": "pass",
+        "measuredAlbedo": "#1C305C",
+        "palette": [
+          "#1F3361",
+          "#1F325F",
+          "#12254D",
+          "#203462",
+          "#203360"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/02-canopy.png",
+        "assignedProfile": "glass.frosted",
+        "sampledRegion": "canopy",
+        "source": "reference-pixel-extraction",
+        "patternSource": "geometry",
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-02-canopy/canopy_albedo.png",
+            "url": "material-evidence/pbr-02-canopy/canopy_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-02-canopy/canopy_roughness.png",
+            "url": "material-evidence/pbr-02-canopy/canopy_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-02-canopy/canopy_height.png",
+            "url": "material-evidence/pbr-02-canopy/canopy_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-02-canopy/canopy_normal.png",
+            "url": "material-evidence/pbr-02-canopy/canopy_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-02-canopy/canopy_ao.png",
+            "url": "material-evidence/pbr-02-canopy/canopy_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      },
+      "clearcoat": {
+        "base": 0.65
+      },
+      "clearcoatRoughness": {
+        "base": 0.06
+      }
+    },
+    {
+      "id": "emissive",
+      "name": "Cyan channel light",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#25b9f5",
+      "color": "#25b9f5",
+      "albedo": {
+        "dominant": "#25b9f5",
+        "secondary": [
+          "#25b9f5",
+          "#1f7ac0"
+        ],
+        "samplingNotes": "Emissive, not lit: it reads at full brightness on faces turned away from the key, so it must emit rather than reflect. Blows to near-white at the strip core, measured #9AFBFC, falling to #1f7ac0 at the channel edge."
+      },
+      "colorVariation": {
+        "palette": [
+          "#9AFBFC",
+          "#25b9f5",
+          "#1f7ac0"
+        ],
+        "pattern": "gradient",
+        "amplitude": 0.5,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.5,
+          "detail": "Overall cyan channel light mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.25,
+          "detail": "gradient variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.05,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.3,
+        "value": 0.3,
+        "map": "material-evidence/pbr-03-emissive/emissive_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.0,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "core-to-edge",
+          "description": "Each run blows to near-white at its core and falls to #1f7ac0 at the channel edge - a gradient across the strip width, not a flat fill.",
+          "channel": "emissive"
+        },
+        {
+          "id": "channel-shadow",
+          "description": "The channel walls either side of a strip stay dark, which is what makes the light read as inset.",
+          "channel": "ao"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "Emissive, not lit: it reads at full brightness on faces turned away from the key, so it must emit rather than reflect. Blows to near-white at the strip core, measured #9AFBFC, falling to #1f7ac0 at the channel edge.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-03-emissive/emissive_normal.png",
+      "aoMap": "material-evidence/pbr-03-emissive/emissive_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.829,
+        "verdict": "pass",
+        "measuredAlbedo": "#569DBB",
+        "palette": [
+          "#25416D",
+          "#9AFBFC",
+          "#AAFCFC",
+          "#4FE1FB",
+          "#0555B4"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/03-emissive.png",
+        "assignedProfile": "plastic.glossy",
+        "sampledRegion": "emissive",
+        "source": "reference-pixel-extraction",
+        "patternSource": "geometry",
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-03-emissive/emissive_albedo.png",
+            "url": "material-evidence/pbr-03-emissive/emissive_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-03-emissive/emissive_roughness.png",
+            "url": "material-evidence/pbr-03-emissive/emissive_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-03-emissive/emissive_height.png",
+            "url": "material-evidence/pbr-03-emissive/emissive_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-03-emissive/emissive_normal.png",
+            "url": "material-evidence/pbr-03-emissive/emissive_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-03-emissive/emissive_ao.png",
+            "url": "material-evidence/pbr-03-emissive/emissive_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      },
+      "emissive": "#37c8ff",
+      "emissiveIntensity": 2.6
+    },
+    {
+      "id": "nozzle-glow",
+      "name": "Engine core glow",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#8ef6ff",
+      "color": "#8ef6ff",
+      "albedo": {
+        "dominant": "#8ef6ff",
+        "secondary": [
+          "#37c8ff",
+          "#0C4493"
+        ],
+        "samplingNotes": "The grille bars inside each nozzle recess. Brighter than the hull strips - it is the hottest thing on the craft - and banded horizontally."
+      },
+      "colorVariation": {
+        "palette": [
+          "#90FBFC",
+          "#37c8ff",
+          "#0C4493"
+        ],
+        "pattern": "banded",
+        "amplitude": 0.55,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.55,
+          "detail": "Overall engine core glow mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.275,
+          "detail": "banded variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.055,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.25,
+        "value": 0.25,
+        "map": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.0,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "bar-banding",
+          "description": "Discrete horizontal bars with dark gaps between them, not a continuous glowing plate.",
+          "channel": "emissive"
+        },
+        {
+          "id": "recess-falloff",
+          "description": "The glow dims toward the recess walls where the housing occludes it.",
+          "channel": "ao"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "The grille bars inside each nozzle recess. Brighter than the hull strips - it is the hottest thing on the craft - and banded horizontally.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+      "aoMap": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.829,
+        "verdict": "pass",
+        "measuredAlbedo": "#57A8CC",
+        "palette": [
+          "#90FBFC",
+          "#0C4493",
+          "#4F6992",
+          "#158DE6",
+          "#5EE5FC"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/06-nozzle-glow.png",
+        "assignedProfile": "plastic.glossy",
+        "sampledRegion": "nozzle-glow",
+        "source": "reference-pixel-extraction",
+        "patternSource": "geometry",
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_albedo.png",
+            "url": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+            "url": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_height.png",
+            "url": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+            "url": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+            "url": "material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      },
+      "emissive": "#7fe9ff",
+      "emissiveIntensity": 3.4
+    },
+    {
+      "id": "vent-orange",
+      "name": "Intake vent",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#EC761A",
+      "color": "#EC761A",
+      "albedo": {
+        "dominant": "#EC761A",
+        "secondary": [
+          "#F58A2E",
+          "#B85510"
+        ],
+        "samplingNotes": "Matte orange. NOT emissive: it takes shading like the hull in every view, which is the only thing separating it from a second accent light."
+      },
+      "colorVariation": {
+        "palette": [
+          "#EC761A",
+          "#F58A2E",
+          "#B85510"
+        ],
+        "pattern": "flat",
+        "amplitude": 0.15,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.15,
+          "detail": "Overall intake vent mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.075,
+          "detail": "flat variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.015,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.6,
+        "value": 0.6,
+        "map": "material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.2,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "shaded-not-emissive",
+          "description": "Takes the full lighting solution like the hull. This is the one override that exists to record a NEGATIVE: the vent must never gain an emissive channel.",
+          "channel": "albedo"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "Matte orange. NOT emissive: it takes shading like the hull in every view, which is the only thing separating it from a second accent light.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+      "aoMap": "material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.758,
+        "verdict": "pass",
+        "measuredAlbedo": "#DD6C16",
+        "palette": [
+          "#EC761A",
+          "#E97115",
+          "#EE7B1E",
+          "#5C2104",
+          "#A95213"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/04-vent-orange.png",
+        "assignedProfile": "coating.painted-metal",
+        "sampledRegion": "vent-orange",
+        "source": "reference-pixel-extraction",
+        "patternSource": "geometry",
+        "estimatedFidelity": 0.758,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-04-vent-orange/vent-orange_albedo.png",
+            "url": "material-evidence/pbr-04-vent-orange/vent-orange_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+            "url": "material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-04-vent-orange/vent-orange_height.png",
+            "url": "material-evidence/pbr-04-vent-orange/vent-orange_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+            "url": "material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+            "url": "material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      }
+    },
+    {
+      "id": "decal",
+      "name": "Hull decals",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial / faceted PBR",
+      "baseColor": "#F2F5F8",
+      "color": "#F2F5F8",
+      "albedo": {
+        "dominant": "#F2F5F8",
+        "secondary": [
+          "#FFFFFF",
+          "#C9D2DA"
+        ],
+        "samplingNotes": "White marks drawn to a canvas at build time: arrow-in-triangle logo, \"07\" on nose and mid-hull, \"EXIS\" wordmark. Generated rather than cropped - see projection-route.md."
+      },
+      "colorVariation": {
+        "palette": [
+          "#F2F5F8",
+          "#FFFFFF",
+          "#C9D2DA"
+        ],
+        "pattern": "glyph",
+        "amplitude": 0.1,
+        "heightCorrelation": 0.2
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2.0,
+          2.0
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 0.5,
+          "amplitude": 0.1,
+          "detail": "Overall hull decals mass and the value step between facets."
+        },
+        {
+          "id": "meso",
+          "frequency": 3.5,
+          "amplitude": 0.05,
+          "detail": "glyph variation across the panel."
+        },
+        {
+          "id": "micro",
+          "frequency": 20.0,
+          "amplitude": 0.01,
+          "detail": "Deliberately near-flat: the reference has no visible microstructure, so inventing grain here would contradict the source."
+        }
+      ],
+      "roughness": {
+        "base": 0.55,
+        "value": 0.55,
+        "map": "material-evidence/pbr-05-decal/decal_roughness.png",
+        "source": "reference-pixel-extraction",
+        "note": "Extracted map carries variation; the scalar is the authored mean."
+      },
+      "metalness": 0.05,
+      "normal": {
+        "pattern": "derived-from-independent-height-field",
+        "strength": 0.35,
+        "scale": 24.0,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.25,
+        "contactShadowBias": 0.35,
+        "notes": "Darken creases, seams, intersections, and recessed local features."
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "glyph-edges",
+          "description": "Hard-edged white glyphs following the hull surface, slightly off-white (#F2F5F8 measured) rather than pure white.",
+          "channel": "albedo"
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      ],
+      "notes": "White marks drawn to a canvas at build time: arrow-in-triangle logo, \"07\" on nose and mid-hull, \"EXIS\" wordmark. Generated rather than cropped - see projection-route.md.",
+      "transmission": {
+        "base": 0.0,
+        "variation": 0.0
+      },
+      "opacity": {
+        "base": 1.0
+      },
+      "ior": {
+        "base": 1.5,
+        "variation": 0.0
+      },
+      "normalMap": "material-evidence/pbr-05-decal/decal_normal.png",
+      "aoMap": "material-evidence/pbr-05-decal/decal_ao.png",
+      "referencePbr": {
+        "usable": true,
+        "confidence": 0.716,
+        "verdict": "pass",
+        "measuredAlbedo": "#F9F9F9",
+        "palette": [
+          "#FEFDFE",
+          "#FAFAFA",
+          "#FFFFFF",
+          "#F1F1F1",
+          "#A8AAAB"
+        ],
+        "cropPath": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/05-decal.png",
+        "assignedProfile": "plastic.matte",
+        "sampledRegion": "decal",
+        "source": "reference-pixel-extraction",
+        "patternSource": "generated-canvas",
+        "estimatedFidelity": 0.716,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "material-evidence/pbr-05-decal/decal_albedo.png",
+            "url": "material-evidence/pbr-05-decal/decal_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "material-evidence/pbr-05-decal/decal_roughness.png",
+            "url": "material-evidence/pbr-05-decal/decal_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "material-evidence/pbr-05-decal/decal_height.png",
+            "url": "material-evidence/pbr-05-decal/decal_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "material-evidence/pbr-05-decal/decal_normal.png",
+            "url": "material-evidence/pbr-05-decal/decal_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "material-evidence/pbr-05-decal/decal_ao.png",
+            "url": "material-evidence/pbr-05-decal/decal_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        }
+      }
+    }
+  ],
+  "repetitionSystems": [
+    {
+      "id": "feather-stack",
+      "name": "Trailing feather plates",
+      "componentRef": "feather-plate",
+      "buildsGeometry": true,
+      "realization": "instanced-geometry",
+      "count": 8,
+      "distribution": "Four per side, mirrored. Each plate is stepped aft and up from the one below, with decreasing chord, so the stack fans rather than stacking square.",
+      "seed": 20260901,
+      "jitter": 0.0,
+      "instances": {
+        "mode": "array",
+        "anchorSurface": "wing",
+        "alignToNormal": false
+      },
+      "evidenceRefs": [
+        "crops/side.png"
+      ]
+    },
+    {
+      "id": "grille-bars",
+      "name": "Nozzle grille bars",
+      "componentRef": "nozzle-core",
+      "buildsGeometry": true,
+      "realization": "instanced-geometry",
+      "count": 13,
+      "distribution": "Five bars in the central nozzle, four in each outboard, evenly spaced horizontally and inset behind the recess lip.",
+      "seed": 20260902,
+      "jitter": 0.0,
+      "instances": {
+        "mode": "array",
+        "anchorSurface": "engine-central"
+      },
+      "evidenceRefs": [
+        "crops/rear.png"
+      ]
+    },
+    {
+      "id": "vent-array",
+      "name": "Orange intake vents",
+      "componentRef": "vent-block",
+      "buildsGeometry": true,
+      "realization": "instanced-geometry",
+      "count": 4,
+      "distribution": "Two on the dorsal spine (fore and mid) and one per side aft, all recessed into sockets rather than sitting proud.",
+      "seed": 20260903,
+      "jitter": 0.0,
+      "instances": {
+        "mode": "array",
+        "anchorSurface": "hull"
+      },
+      "evidenceRefs": [
+        "crops/threequarter.png"
+      ]
+    }
+  ],
+  "buildPasses": [
+    {
+      "id": "blockout",
+      "goal": "Match macro silhouette and proportions.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Silhouette reads correctly without materials.",
+        "Quality contract has named all required macro feature groups before code generation.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "structural-pass",
+      "goal": "Build the component hierarchy implied by the pre-spec complexity assessment.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Macro, meso, and repeated structures meet qualityContract.minimumSpecDepth.",
+        "Parent-child relations, joints, seams, sockets, and contact points are explicit.",
+        "Every attached child appendage/connector has parentSocket, localStart/localEnd, contactType, embedDepth or overlap, and gapTolerance.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "form-refinement",
+      "goal": "Refine shape, deformation, bevels, tapers, curves, asymmetry, and visible local geometry.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Important visible forms are represented in component geometryDescriptor, deformations, localFeatures, or repetitionSystems.",
+        "Endpoint-based child parts are rooted at their attachment sockets and do not visibly float away from parents.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "material-pass",
+      "goal": "Match material color, roughness, bump, and local variation.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Reference-derived albedo palette records dominant, secondary, and accent colors per visible material.",
+        "Each important material defines roughness variation and at least one normal/bump/displacement response.",
+        "Local material overrides, dirt/wear/stains/moss/chips/scratches or equivalent masks are tied to evidenceRefs.",
+        "Thin, transparent, reflective, wet, or fibrous materials document alpha/transmission/clearcoat/metalness/fiber response when relevant.",
+        "Generated preview uses procedural albedo/roughness/bump texture or vertex color variation instead of one flat color.",
+        "Generated preview uses independent PBR maps at 1024px or higher for the quality-first tier.",
+        "If source pixels are available, referencePbr extraction passed at confidence >= 0.7 or the pass is stopped/requesting better references.",
+        "Macro, meso, and micro surface frequency bands are visible at the intended review distance without obvious tiling.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "surface-pass",
+      "goal": "Add procedural surface locality such as normal/bump/displacement, AO, dirt, stains, chips, grain, moss, scratches, and wear.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Every required material feature group has local overrides or surfaceDetail tied to evidenceRefs.",
+        "A grazing-angle close-up proves that normal/height detail breaks highlights naturally and does not read as smooth plastic.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "lighting-pass",
+      "goal": "Make material and form readable under neutral turntable lighting plus optional reference lighting.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "lightingFromPhoto identifies key light direction/color/intensity, fill light, rim or environment light, and ambient color.",
+        "Exposure, tone mapping, background color/gradient, shadow softness, and contact shadow behavior are specified.",
+        "Lighting does not hide geometry/material gaps and screenshots can be compared fairly to the reference.",
+        "Neutral, grazing, and reference-matched lighting checks distinguish material errors from lighting errors.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ],
+      "lights": [
+        {
+          "id": "key",
+          "type": "directional",
+          "intensity": 2.4,
+          "color": "#FFFFFF",
+          "position": [
+            0.6,
+            0.85,
+            0.7
+          ],
+          "castsShadow": true,
+          "role": "Main studio key, high and to port, matching the reference highlight direction.",
+          "toneMapping": "ACESFilmic",
+          "exposure": 1.0
+        },
+        {
+          "id": "fill",
+          "type": "directional",
+          "intensity": 0.75,
+          "color": "#AFC6E0",
+          "position": [
+            -0.8,
+            0.2,
+            0.4
+          ],
+          "castsShadow": false,
+          "role": "Cool fill from the shadow side so dark facets stay separable rather than crushing."
+        },
+        {
+          "id": "rim",
+          "type": "directional",
+          "intensity": 1.1,
+          "color": "#9FD8FF",
+          "position": [
+            -0.3,
+            0.4,
+            -1.0
+          ],
+          "castsShadow": false,
+          "role": "Back rim that catches the trailing edges and fin tips. A rim is correct HERE - this is a studio product render, not the painted diorama where a rim would have read as stylised edge lighting."
+        },
+        {
+          "id": "ambient",
+          "type": "ambient",
+          "intensity": 0.28,
+          "color": "#C8D6E8",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "castsShadow": false,
+          "role": "Low ambient floor. Kept low deliberately: facet separation depends on contrast."
+        },
+        {
+          "id": "shadow-policy",
+          "type": "shadow-policy",
+          "intensity": 0.0,
+          "color": "#000000",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "castsShadow": true,
+          "role": "Contact shadow and ground shadow on, with ambient occlusion in the nozzle recesses and the channel grooves. Without occlusion in those recesses the nozzles read as flat discs rather than sockets, and the emissive channels lose their inset depth."
+        }
+      ],
+      "environment": {
+        "type": "studio-neutral",
+        "top": "#F4F7FA",
+        "bottom": "#DCE3EA",
+        "intensity": 0.5
+      },
+      "shadowBehavior": {
+        "contactShadow": true,
+        "groundShadow": true,
+        "type": "PCFSoft",
+        "mapSize": 2048
+      }
+    },
+    {
+      "id": "interaction-pass",
+      "goal": "Make the model ready for future animation, transformation, physics, or destruction.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Macro and movable meso components have stable pivot nodes.",
+        "Sockets, collider proxies, and destruction metadata are present for future runtime actions.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "optimization-pass",
+      "goal": "Protect runtime performance after visual fidelity is accepted.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Triangle count, draw calls, instancing, LOD strategy, and FPS target are documented or verified.",
+        "Repeated detail is instanced or simplified where possible without breaking silhouette/material believability."
+      ]
+    }
+  ],
+  "visualEvidence": [
+    {
+      "timestamp": "2026-08-29T21:29:02.987270+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.74,
+      "aiVisionScore": 0.74,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouette": 0.72,
+        "faceting": 0.72,
+        "emissive": 0.7,
+        "propulsion": 0.88,
+        "dorsal": 0.76,
+        "materials": 0.84
+      },
+      "featureReviews": [
+        {
+          "id": "propulsion-cluster",
+          "score": 0.88,
+          "threshold": 0.8,
+          "passed": true,
+          "notes": "The strongest match. Three nozzles in the reference's arrangement - one large central, two smaller outboard inside the wingtip pods - each an octagonal recess rather than a cylinder, with five grille bars centrally and four per outboard exactly as the rear view shows. Reached only after three real repairs: the housings were closed solids, the grille quads faced forward, and the central grille sat ahead of the tail cap."
+        },
+        {
+          "id": "material-response",
+          "score": 0.84,
+          "threshold": 0.8,
+          "passed": true,
+          "notes": "Charcoal satin hull with the specular tracking each crease, tinted canopy with a clearcoat hard specular, cyan that stays at full brightness on faces turned away from the key, and orange vents that take shading with no emissive channel. Bloom strength tuned twice: 0.55 blew the runs into white tubes and lifted the hull to pale grey, 0.22 dropped them to hairlines, 0.34 holds."
+        },
+        {
+          "id": "dorsal-assembly",
+          "score": 0.76,
+          "threshold": 0.78,
+          "passed": false,
+          "notes": "Twin swept fins and four recessed orange vents are right. The canopy is the shortfall: it now reads as a distinct tinted panel after the spine was lowered through its run and the glazing lifted, but it is smaller and less prominent than the reference's, which dominates the forward spine."
+        },
+        {
+          "id": "faceted-hull",
+          "score": 0.72,
+          "threshold": 0.8,
+          "passed": false,
+          "notes": "The design language is right - every surface is a flat facet meeting its neighbours at a hard crease, arrowhead planform, wedge nose, chine rail the full length, and bilateral symmetry error 0.157. The faceting is COARSER than the reference: nine lofted stations give large panels where the reference subdivides the nose and forward hull into many smaller ones. Silhouette IoU 0.613 against a 0.85 threshold, with aspect and scale inside tolerance, so the gap is shape rather than framing."
+        },
+        {
+          "id": "emissive-routing",
+          "score": 0.7,
+          "threshold": 0.8,
+          "passed": false,
+          "notes": "Chine run, rear wing loop, fin strips and wingtip slots are present, angular, and inset into channels rather than painted on flat faces. Two shortfalls: the reference carries a large angular V on the FORWARD hull that is not modelled at all, and the nose chevron sits low enough that it only reads from underneath."
+        },
+        {
+          "id": "trailing-structure",
+          "score": 0.7,
+          "threshold": 0.72,
+          "passed": false,
+          "notes": "Four plates per side at the right sweep and stagger, and wingtip pods terminating each wing with an emissive slot. The plates read as flat shelves rather than the reference's stacked swept blades - each needs a tapered chord and a sharper trailing point."
+        }
+      ],
+      "referenceScreenshot": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+      "renderScreenshot": "/Users/carlos/code/wipeout/models/exis-07/renders/review.png",
+      "comparisonImage": "/Users/carlos/code/wipeout/models/exis-07/renders/comparison.png",
+      "cameraView": "",
+      "notes": "",
+      "aiVisionNotes": ""
+    }
+  ],
+  "reviewHistory": [
+    {
+      "timestamp": "2026-08-29T21:29:02.987270+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.74,
+      "aiVisionScore": 0.74,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouette": 0.72,
+        "faceting": 0.72,
+        "emissive": 0.7,
+        "propulsion": 0.88,
+        "dorsal": 0.76,
+        "materials": 0.84
+      },
+      "featureReviews": [
+        {
+          "id": "propulsion-cluster",
+          "score": 0.88,
+          "threshold": 0.8,
+          "passed": true,
+          "notes": "The strongest match. Three nozzles in the reference's arrangement - one large central, two smaller outboard inside the wingtip pods - each an octagonal recess rather than a cylinder, with five grille bars centrally and four per outboard exactly as the rear view shows. Reached only after three real repairs: the housings were closed solids, the grille quads faced forward, and the central grille sat ahead of the tail cap."
+        },
+        {
+          "id": "material-response",
+          "score": 0.84,
+          "threshold": 0.8,
+          "passed": true,
+          "notes": "Charcoal satin hull with the specular tracking each crease, tinted canopy with a clearcoat hard specular, cyan that stays at full brightness on faces turned away from the key, and orange vents that take shading with no emissive channel. Bloom strength tuned twice: 0.55 blew the runs into white tubes and lifted the hull to pale grey, 0.22 dropped them to hairlines, 0.34 holds."
+        },
+        {
+          "id": "dorsal-assembly",
+          "score": 0.76,
+          "threshold": 0.78,
+          "passed": false,
+          "notes": "Twin swept fins and four recessed orange vents are right. The canopy is the shortfall: it now reads as a distinct tinted panel after the spine was lowered through its run and the glazing lifted, but it is smaller and less prominent than the reference's, which dominates the forward spine."
+        },
+        {
+          "id": "faceted-hull",
+          "score": 0.72,
+          "threshold": 0.8,
+          "passed": false,
+          "notes": "The design language is right - every surface is a flat facet meeting its neighbours at a hard crease, arrowhead planform, wedge nose, chine rail the full length. Symmetry is exact by construction - both halves come from one mirrored half-station set - and is NOT evidenced by diagnose_render's bilateralSymmetryError here: measured on a three-quarter view that metric reads 0.449 because the projection itself is not symmetric, so it tests the camera rather than the model. The faceting is COARSER than the reference: nine lofted stations give large panels where the reference subdivides the nose and forward hull into many smaller ones. Silhouette IoU 0.613 against a 0.85 threshold, with aspect and scale inside tolerance, so the gap is shape rather than framing."
+        },
+        {
+          "id": "emissive-routing",
+          "score": 0.7,
+          "threshold": 0.8,
+          "passed": false,
+          "notes": "Chine run, rear wing loop, fin strips and wingtip slots are present, angular, and inset into channels rather than painted on flat faces. Two shortfalls: the reference carries a large angular V on the FORWARD hull that is not modelled at all, and the nose chevron sits low enough that it only reads from underneath."
+        },
+        {
+          "id": "trailing-structure",
+          "score": 0.7,
+          "threshold": 0.72,
+          "passed": false,
+          "notes": "Four plates per side at the right sweep and stagger, and wingtip pods terminating each wing with an emissive slot. The plates read as flat shelves rather than the reference's stacked swept blades - each needs a tapered chord and a sharper trailing point."
+        }
+      ],
+      "action": "refine-code",
+      "summary": "Faceted hull authored as nine lofted cross-section stations with per-face normals, plus spine, canopy, twin fins, wingtip pods, four feather plates per side, recessed orange vents, the cyan channel network, generated canvas decals and the three-nozzle tail. Turntable gate passes first time (0 holes, 4/4 azimuths, reliable segmentation); part coverage passes with 0 errors. Reference camera solved by sweep to az 38 / el 30 / 1.6r, giving aspect delta 0.003 and scale delta 0.063 - both inside threshold - so silhouette IoU 0.613 is real shape difference. Two of five critical features pass.",
+      "matched": [],
+      "mismatches": [],
+      "specFixes": [],
+      "codeFixes": [],
+      "evidence": [],
+      "visualEvidence": {
+        "referenceScreenshot": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+        "renderScreenshot": "/Users/carlos/code/wipeout/models/exis-07/renders/review.png",
+        "comparisonImage": "/Users/carlos/code/wipeout/models/exis-07/renders/comparison.png",
+        "cameraView": "",
+        "notes": "",
+        "aiVisionNotes": ""
+      },
+      "corrections": [
+        "An earlier draft of the faceted-hull note cited bilateralSymmetryError 0.157 as evidence of symmetry. That figure came from a different capture and the metric is meaningless on a three-quarter view (it reads 0.449 here). Corrected in place."
+      ]
+    }
+  ],
+  "lodPlan": [
+    {
+      "tier": "near",
+      "distance": 0,
+      "strategy": "full component tree and material layers"
+    },
+    {
+      "tier": "far",
+      "distance": 30,
+      "strategy": "merge static components and reduce local feature geometry"
+    }
+  ],
+  "performanceBudget": {
+    "qualityPriority": "quality",
+    "targetTriangles": 60000,
+    "maxDrawCalls": 30,
+    "textureSize": 2048,
+    "fpsTarget": 60,
+    "optimizationPolicy": "authored low-poly; instance the feather plates and grille bars"
+  },
+  "lightingFromPhoto": [
+    {
+      "id": "key",
+      "type": "directional",
+      "intensity": 2.4,
+      "color": "#FFFFFF",
+      "position": [
+        0.6,
+        0.85,
+        0.7
+      ],
+      "castsShadow": true,
+      "role": "Main studio key, high and to port, matching the reference highlight direction.",
+      "toneMapping": "ACESFilmic",
+      "exposure": 1.0
+    },
+    {
+      "id": "fill",
+      "type": "directional",
+      "intensity": 0.75,
+      "color": "#AFC6E0",
+      "position": [
+        -0.8,
+        0.2,
+        0.4
+      ],
+      "castsShadow": false,
+      "role": "Cool fill from the shadow side so dark facets stay separable rather than crushing."
+    },
+    {
+      "id": "rim",
+      "type": "directional",
+      "intensity": 1.1,
+      "color": "#9FD8FF",
+      "position": [
+        -0.3,
+        0.4,
+        -1.0
+      ],
+      "castsShadow": false,
+      "role": "Back rim that catches the trailing edges and fin tips. A rim is correct HERE - this is a studio product render, not the painted diorama where a rim would have read as stylised edge lighting."
+    },
+    {
+      "id": "ambient",
+      "type": "ambient",
+      "intensity": 0.28,
+      "color": "#C8D6E8",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "castsShadow": false,
+      "role": "Low ambient floor. Kept low deliberately: facet separation depends on contrast."
+    },
+    {
+      "id": "shadow-policy",
+      "type": "shadow-policy",
+      "intensity": 0.0,
+      "color": "#000000",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "castsShadow": true,
+      "role": "Contact shadow and ground shadow on, with ambient occlusion in the nozzle recesses and the channel grooves. Without occlusion in those recesses the nozzles read as flat discs rather than sockets, and the emissive channels lose their inset depth."
+    }
+  ],
+  "proceduralStrategy": [
+    "Block out macro silhouette first.",
+    "Add component hierarchy and joints.",
+    "Create stable pivot groups, sockets, collider proxies, and destruction metadata before visual polish.",
+    "Refine forms with bevels, tapers, bends, and procedural noise.",
+    "Run reference PBR extraction for important source-image materials and stop when confidence is below the target threshold.",
+    "Add material variation before adding expensive micro-geometry."
+  ],
+  "animationAnchors": [
+    "root pivot node supports whole-object translation, rotation, scale, and visibility changes",
+    "component pivot groups support later local transforms without rebuilding geometry"
+  ],
+  "destructionAnchors": [
+    "actionProfile.destruction.fractureGroup marks detachable or breakable component sets",
+    "component seams and sockets define plausible break points instead of random explosions"
+  ],
+  "risks": [
+    {
+      "id": "smooth-shading",
+      "description": "Computed vertex normals would smooth the facets and destroy the entire design language.",
+      "severity": "high",
+      "mitigation": "flatShading on every hull material; faceted-hull review target is mustPass."
+    },
+    {
+      "id": "emissive-as-lit",
+      "description": "Rendering the cyan as a bright lit colour instead of an emitter makes it dim on shadowed faces, which the reference never does.",
+      "severity": "high",
+      "mitigation": "emissive channel with intensity 2.6-3.4, checked on a face turned away from the key light."
+    },
+    {
+      "id": "orange-as-emissive",
+      "description": "The orange vents are matte and shaded; treating them as a second accent light is the easy mistake.",
+      "severity": "medium",
+      "mitigation": "vent-orange carries no emissive channel at all."
+    },
+    {
+      "id": "nozzle-count",
+      "description": "Three nozzles, not two or four - only the rear view shows this.",
+      "severity": "medium",
+      "mitigation": "propulsion-cluster review target."
+    }
+  ],
+  "localSpecSearch": {
+    "collection": "core_3d",
+    "query": "EXIS 07 Strike Craft hard surface faceted low poly emissive material bloom roughness metalness dielectric bilateral symmetry mirror decal canvas texture",
+    "index": {
+      "status": "hit",
+      "reason": "current",
+      "fingerprint": "6857e5ab528b42ac12f4f411f862610a0bffce8e47aee3610a7603c318072fe8"
+    },
+    "matches": [
+      {
+        "record_id": "core.pbr-color-space-srgb-vs-linearnocolorspace",
+        "file_path": "docs/raw/img2threejs-skill-dataset.json",
+        "heading": null,
+        "key_path": "categories.material_pbr[11]",
+        "score": 11.17375085305,
+        "snippets": [
+          "... v\u00e0 c\u00e1c b\u1ea3n \u0111\u1ed3 d\u1eef li\u1ec7u to\u00e1n h\u1ecdc (ph\u1ea3i gi\u1eef tuy\u1ebfn t\u00ednh/kh\u00f4ng hi\u1ec7u ch\u1ec9nh). Recognition cues: Base color/albedo and emissive textures are the only ones that should look like natural photographic color; Normal, roughness, metalness, and ..."
+        ],
+        "source_refs": [
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[11]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation"
+          }
+        ]
+      },
+      {
+        "record_id": "core.pbr-roughness",
+        "file_path": "grimoire/glossary/3d_vocabulary.md",
+        "heading": "Material And PBR",
+        "key_path": null,
+        "score": 9.594960902048,
+        "snippets": [
+          "Roughness is microfacet scatter: high roughness reads matte and low roughness reads glossy. Recognition cues: low roughness reads as a sharp, mirror-like, tight specular highlight; high roughness reads as a blurry, wide, dim highlight and matte ..."
+        ],
+        "source_refs": [
+          {
+            "path": "grimoire/glossary/3d_vocabulary.md",
+            "heading": "Material And PBR",
+            "key_path": null
+          },
+          {
+            "path": "grimoire/intake/image_analysis.md",
+            "heading": "Layer 5 \u2014 Materials & surface (PBR)",
+            "key_path": null
+          },
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[1]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "grimoire/glossary/3d_vocabulary.md"
+          },
+          {
+            "kind": "notebooklm-research",
+            "ref": "notebooklm:4b03c2f9-8393-411f-b5b4-039ab9532843",
+            "note": "Validated generic schema vocabulary; numeric claims remain backed by local source_refs."
+          },
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation \u2014 merged recognition cues + Three.js target instead of duplicating this entity."
+          }
+        ]
+      },
+      {
+        "record_id": "core.pbr-orm-channel-packing",
+        "file_path": "docs/raw/img2threejs-skill-dataset.json",
+        "heading": null,
+        "key_path": "categories.material_pbr[10]",
+        "score": 9.409405394887,
+        "snippets": [
+          "Convention of packing AO, Roughness, and Metalness grayscale maps into the R, G, B channels of a single texture to cut texture-fetch and VRAM cost. Quy \u01b0\u1edbc \u0111\u00f3ng g\u00f3i ba b\u1ea3n \u0111\u1ed3 grayscale AO, Roughness, Metalness v\u00e0o c\u00e1c k\u00eanh R, G, B c\u1ee7a m\u1ed9t ..."
+        ],
+        "source_refs": [
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[10]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation"
+          }
+        ]
+      }
+    ]
+  },
+  "tier1Results": [
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.6145,
+        "aspectRatioDelta": 0.0026,
+        "scaleDelta": 0.0628,
+        "bilateralSymmetryError": 0.4492,
+        "colorDelta": {
+          "checked": 17,
+          "maxDeltaE": 75.95,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.52
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.46
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.46
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.46
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.46
+            },
+            {
+              "componentId": null,
+              "deltaE": 38.49
+            },
+            {
+              "componentId": null,
+              "deltaE": 36.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 36.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 75.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 24.46
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.614 is below threshold 0.85",
+        "blockout requires --map-stripped-render evidence"
+      ],
+      "maskWarnings": [],
+      "renderHash": "4d9e5172da0f0b17",
+      "passId": "blockout"
+    }
+  ]
+}

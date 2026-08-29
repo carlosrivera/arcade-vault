@@ -1,0 +1,251 @@
+{
+ "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+ "zonesDir": "/Users/carlos/code/wipeout/models/exis-07/detail-inventory",
+ "detailInventory": {
+  "scanMethod": "grid-3x3",
+  "targetMinDetails": 10,
+  "details": [
+   {
+    "id": "hull-facet-crease",
+    "kind": "ridge",
+    "description": "Every hull surface is a flat polygon meeting its neighbours at a hard crease; there are no smooth transitions anywhere on the craft.",
+    "scale": "micro",
+    "affects": "hull-faceting",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "hull-faceting"
+    },
+    "evidenceRef": "crops/threequarter.png",
+    "confidence": 0.95,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "chine-emissive-run",
+    "kind": "emissive",
+    "description": "A continuous cyan strip runs the full length of the mid-hull chine, nose to tail, inset into the panel channel.",
+    "scale": "micro",
+    "affects": "chine-strip",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "chine-strip"
+    },
+    "evidenceRef": "crops/threequarter.png",
+    "confidence": 0.95,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "nose-chevron-strip",
+    "kind": "emissive",
+    "description": "A V-shaped emissive run wraps the underside of the nose, apex forward.",
+    "scale": "micro",
+    "affects": "nose-chevron",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "nose-chevron"
+    },
+    "evidenceRef": "crops/top.png",
+    "confidence": 0.9,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "wing-emissive-loop",
+    "kind": "emissive",
+    "description": "A large angular emissive loop traces the rear wing panel on each side, following the panel breaks rather than a smooth curve.",
+    "scale": "micro",
+    "affects": "wing-loop",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "wing-loop"
+    },
+    "evidenceRef": "crops/top.png",
+    "confidence": 0.9,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "fin-emissive-edge",
+    "kind": "emissive",
+    "description": "Each dorsal fin carries an emissive strip along its outer face, parallel to the swept leading edge.",
+    "scale": "micro",
+    "affects": "fin-strip",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "fin-strip"
+    },
+    "evidenceRef": "crops/side.png",
+    "confidence": 0.85,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "nozzle-grille-bars",
+    "kind": "linework",
+    "description": "Each nozzle recess is filled with horizontal emissive bars: five on the central, four on each outboard.",
+    "scale": "micro",
+    "affects": "grille-bars",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "grille-bars"
+    },
+    "evidenceRef": "crops/rear.png",
+    "confidence": 0.9,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "nozzle-octagon-recess",
+    "kind": "hole",
+    "description": "Three octagonal recesses in the tail - one large central, two smaller outboard in the wingtip pods.",
+    "scale": "micro",
+    "affects": "nozzle-recess",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "nozzle-recess"
+    },
+    "evidenceRef": "crops/rear.png",
+    "confidence": 0.95,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "orange-vent-recess",
+    "kind": "decal",
+    "description": "Matte orange rectangular blocks sit in recessed sockets: two on the dorsal spine, one per side aft. They take shading, so they are not emissive.",
+    "scale": "micro",
+    "affects": "vent-block",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "vent-block"
+    },
+    "evidenceRef": "crops/threequarter.png",
+    "confidence": 0.9,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "canopy-tint-facets",
+    "kind": "gloss",
+    "description": "Dark blue tinted canopy, faceted like the hull, reading opaque with a hard specular rather than transparent.",
+    "scale": "micro",
+    "affects": "canopy-glass",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "canopy-glass"
+    },
+    "evidenceRef": "crops/threequarter.png",
+    "confidence": 0.9,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "feather-plate-stack",
+    "kind": "seam",
+    "description": "Layered swept plates fan aft from each wing trailing edge, four per side, each overlapping the one below.",
+    "scale": "micro",
+    "affects": "feather-plates",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "feather-plates"
+    },
+    "evidenceRef": "crops/side.png",
+    "confidence": 0.85,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "wingtip-emissive-slot",
+    "kind": "emissive",
+    "description": "Each wingtip pod carries a cyan emissive slot on its leading face.",
+    "scale": "micro",
+    "affects": "tip-slot",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "tip-slot"
+    },
+    "evidenceRef": "crops/top.png",
+    "confidence": 0.9,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   },
+   {
+    "id": "hull-decals",
+    "kind": "decal",
+    "description": "White decals: arrow-in-triangle logo and \"07\" on the nose, \"EXIS\" wordmark and a second \"07\" on the mid-hull side.",
+    "scale": "micro",
+    "affects": "decal-set",
+    "mapsTo": {
+     "type": "local-feature",
+     "ref": "decal-set"
+    },
+    "evidenceRef": "crops/threequarter.png",
+    "confidence": 0.85,
+    "region": {
+     "x": 0.0,
+     "y": 0.0,
+     "width": 1.0,
+     "height": 1.0,
+     "units": "normalized"
+    }
+   }
+  ]
+ },
+ "authoringInstruction": "Open each zone crop under zonesDir and replace every detail stub's kind, description, scale, affects, mapsTo, and confidence with what is actually observed. Add more detail entries per zone if a single zone contains multiple distinct marks; do not leave stubs unfilled or unlinked (mapsTo must reference a real component.localFeatures or material.localOverrides entry)."
+}

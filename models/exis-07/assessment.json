@@ -1,0 +1,613 @@
+{
+  "targetName": "EXIS 07 Strike Craft",
+  "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+  "preSpecAssessment": {
+    "objectClass": {
+      "primaryType": "single-seat faceted strike craft (EXIS 07)",
+      "primaryDomain": "object",
+      "formLanguage": [
+        "hard-surface",
+        "mechanical",
+        "sculptural"
+      ],
+      "structureKind": [
+        "compound object",
+        "layered shell",
+        "repeated modules"
+      ],
+      "motionPotential": [
+        "static prop",
+        "whole-object transform",
+        "effect-emitter",
+        "detachable"
+      ],
+      "materialFamilies": [
+        "metal",
+        "glass-like",
+        "plastic",
+        "mixed"
+      ],
+      "notes": "A polyhedron, not a lofted fuselage: every surface is a flat facet meeting its neighbours at a visible crease, so authored vertex geometry reproduces the subject EXACTLY rather than approximating it. Four materials carry the whole object - charcoal satin hull, tinted canopy, cyan emissive, matte orange vent. The cyan strips are inset into recessed panel channels, not decals on flat faces; that is geometry, not texture."
+    },
+    "complexity": {
+      "tier": "complex",
+      "scores": {
+        "silhouetteComplexity": 3,
+        "componentCount": 3,
+        "hierarchyDepth": 2,
+        "repetitionDensity": 2,
+        "materialLayerCount": 1,
+        "localDetailDensity": 2,
+        "occlusionRisk": 1,
+        "actionReadinessNeed": 2
+      },
+      "estimatedCounts": {
+        "macroComponents": 5,
+        "mesoComponents": 13,
+        "microFeatureGroups": 6,
+        "materialLayers": 5,
+        "repetitionSystems": 3
+      },
+      "reasoning": [
+        "Scores total 16/24 - solidly `complex`. The silhouette is heavily interrupted (fins, feather plates, wingtip pods) and there are many visible subparts, but the hierarchy is shallow and there are only four materials.",
+        "materialLayerCount is 1, not 3: this is the rare subject where the material count is genuinely low. Hull, canopy, emissive, vent - no wear, no grime, no layered finish.",
+        "occlusionRisk 1, the lowest of any subject so far: four views cover top, side, rear and three-quarter, leaving only the belly unseen.",
+        "Held at `complex` rather than `ultra-complex`: fidelity here depends on getting the facet silhouette and the emissive routing right, not on microstructure."
+      ]
+    },
+    "specDepthDecision": {
+      "requiredDepth": "complex",
+      "minimumComponentLevels": [
+        "macro",
+        "meso",
+        "micro"
+      ],
+      "needsRepetitionSystems": true,
+      "needsMaterialLocalOverrides": true,
+      "needsMultipleReviewViews": true,
+      "needsActionReadyHierarchy": true,
+      "rationale": "Complex depth is required because identity lives in the facet breaks, the emissive channel routing and the three-nozzle propulsion layout. A spec with one hull root would validate and reproduce a generic dart."
+    },
+    "unknownsToResolveBeforeImplementation": [],
+    "detailInventory": {
+      "scanMethod": "component-zones",
+      "targetMinDetails": 10,
+      "note": "Enumerate every identity-defining small detail before authoring the spec. Each detail must map to a component.localFeatures entry or material.localOverrides entry, never prose only. Use forge/stage1_intake/build_detail_inventory.py to scan zones.",
+      "details": [
+        {
+          "id": "hull-facet-crease",
+          "kind": "ridge",
+          "description": "Every hull surface is a flat polygon meeting its neighbours at a hard crease; there are no smooth transitions anywhere on the craft.",
+          "scale": "micro",
+          "affects": "hull-faceting",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "hull-faceting"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.95,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "chine-emissive-run",
+          "kind": "emissive",
+          "description": "A continuous cyan strip runs the full length of the mid-hull chine, nose to tail, inset into the panel channel.",
+          "scale": "micro",
+          "affects": "chine-strip",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "chine-strip"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.95,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "nose-chevron-strip",
+          "kind": "emissive",
+          "description": "A V-shaped emissive run wraps the underside of the nose, apex forward.",
+          "scale": "micro",
+          "affects": "nose-chevron",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "nose-chevron"
+          },
+          "evidenceRef": "crops/top.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "wing-emissive-loop",
+          "kind": "emissive",
+          "description": "A large angular emissive loop traces the rear wing panel on each side, following the panel breaks rather than a smooth curve.",
+          "scale": "micro",
+          "affects": "wing-loop",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "wing-loop"
+          },
+          "evidenceRef": "crops/top.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "fin-emissive-edge",
+          "kind": "emissive",
+          "description": "Each dorsal fin carries an emissive strip along its outer face, parallel to the swept leading edge.",
+          "scale": "micro",
+          "affects": "fin-strip",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "fin-strip"
+          },
+          "evidenceRef": "crops/side.png",
+          "confidence": 0.85,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "nozzle-grille-bars",
+          "kind": "linework",
+          "description": "Each nozzle recess is filled with horizontal emissive bars: five on the central, four on each outboard.",
+          "scale": "micro",
+          "affects": "grille-bars",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "grille-bars"
+          },
+          "evidenceRef": "crops/rear.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "nozzle-octagon-recess",
+          "kind": "hole",
+          "description": "Three octagonal recesses in the tail - one large central, two smaller outboard in the wingtip pods.",
+          "scale": "micro",
+          "affects": "nozzle-recess",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "nozzle-recess"
+          },
+          "evidenceRef": "crops/rear.png",
+          "confidence": 0.95,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "orange-vent-recess",
+          "kind": "decal",
+          "description": "Matte orange rectangular blocks sit in recessed sockets: two on the dorsal spine, one per side aft. They take shading, so they are not emissive.",
+          "scale": "micro",
+          "affects": "vent-block",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "vent-block"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "canopy-tint-facets",
+          "kind": "gloss",
+          "description": "Dark blue tinted canopy, faceted like the hull, reading opaque with a hard specular rather than transparent.",
+          "scale": "micro",
+          "affects": "canopy-glass",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "canopy-glass"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "feather-plate-stack",
+          "kind": "seam",
+          "description": "Layered swept plates fan aft from each wing trailing edge, four per side, each overlapping the one below.",
+          "scale": "micro",
+          "affects": "feather-plates",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "feather-plates"
+          },
+          "evidenceRef": "crops/side.png",
+          "confidence": 0.85,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "wingtip-emissive-slot",
+          "kind": "emissive",
+          "description": "Each wingtip pod carries a cyan emissive slot on its leading face.",
+          "scale": "micro",
+          "affects": "tip-slot",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "tip-slot"
+          },
+          "evidenceRef": "crops/top.png",
+          "confidence": 0.9,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        },
+        {
+          "id": "hull-decals",
+          "kind": "decal",
+          "description": "White decals: arrow-in-triangle logo and \"07\" on the nose, \"EXIS\" wordmark and a second \"07\" on the mid-hull side.",
+          "scale": "micro",
+          "affects": "decal-set",
+          "mapsTo": {
+            "type": "local-feature",
+            "ref": "decal-set"
+          },
+          "evidenceRef": "crops/threequarter.png",
+          "confidence": 0.85,
+          "region": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0,
+            "units": "normalized"
+          }
+        }
+      ]
+    },
+    "anatomy": {
+      "applies": false,
+      "styleHeads": 0.0,
+      "proportions": {
+        "headUnit": 0.0,
+        "torso": 0.0,
+        "legs": 0.0,
+        "shoulderWidth": 0.0,
+        "hipWidth": 0.0
+      },
+      "pose": {
+        "type": "unassessed",
+        "jointAngles": {}
+      },
+      "faceLandmarks": {
+        "eyeLine": 0.0,
+        "eyeSpacing": 0.0,
+        "noseBase": 0.0,
+        "mouthLine": 0.0,
+        "hairline": 0.0
+      },
+      "features": [],
+      "confidence": 0.0,
+      "note": "Only meaningful when objectClass.primaryDomain is character or hybrid. Set applies=true and fill from forge/stage1_intake/extract_landmarks.py. See grimoire/character/reconstruction.md and grimoire/character/likeness_maximization.md."
+    },
+    "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/crops/threequarter.png",
+    "resolvedUnknowns": [
+      "Underside hidden in all four views. RESOLVED: built as a flat faceted belly, constrained by the side profile. Inference, not observation.",
+      "Canopy interior hidden behind an opaque tint. RESOLVED: no cockpit modelled.",
+      "Rear feather plate count reads 3-4. RESOLVED: four per side, matching the three-quarter view.",
+      "Nozzle grille bar count reads 4-5. RESOLVED: five on the central nozzle, four on each outboard, matching the rear view.",
+      "Arrow logo internal geometry is below resolution. RESOLVED: reproduced as a chevron-in-triangle approximation and labelled as such."
+    ]
+  },
+  "qualityContract": {
+    "qualityBar": "complex",
+    "definitionOfDone": [
+      "From the three-quarter review viewpoint the model reads as the same craft: same arrowhead planform, same wedge side profile, same three-nozzle tail.",
+      "The hull is visibly faceted - hard creases everywhere, no smooth surfaces.",
+      "All four emissive runs are present and routed along panel breaks: chine, nose chevron, wing loop, fin edge.",
+      "Three nozzles with grille bars, twin fins, four feather plates per side, orange vents.",
+      "Materials read satin-metallic charcoal with a genuinely emissive cyan that stays bright on shadowed faces."
+    ],
+    "minimumSpecDepth": {
+      "macroComponents": 3,
+      "mesoComponents": 8,
+      "microFeatureGroups": 5,
+      "materialLayers": 3,
+      "repetitionSystems": 1,
+      "reviewViewpoints": 4
+    },
+    "featureGroups": [
+      {
+        "id": "faceted-hull",
+        "name": "Faceted hull form and silhouette",
+        "required": true,
+        "qualityCriteria": [
+          "Arrowhead planform: wedge nose, chine flare, wide delta, fanned tail.",
+          "Side profile is a shallow wedge, deepest at mid-body, flat underside.",
+          "Every surface flat-shaded with visible creases; no smooth normals anywhere.",
+          "Proportions length 1.00 : span 0.62 : height 0.26."
+        ],
+        "evidenceRefs": [
+          "crops/top.png",
+          "crops/side.png"
+        ],
+        "failureModes": [
+          "smooth-shaded fuselage, which reads as a different design language",
+          "proportions drifting toward a generic dart",
+          "nose blunt instead of a sharp wedge"
+        ]
+      },
+      {
+        "id": "emissive-routing",
+        "name": "Cyan emissive channel routing",
+        "required": true,
+        "qualityCriteria": [
+          "Chine strip runs unbroken nose to tail.",
+          "Nose chevron wraps the underside, apex forward.",
+          "Wing loop follows panel breaks with angular corners, never a smooth curve.",
+          "Strips are INSET into recessed channels, visible as grooves in three-quarter view.",
+          "Emissive stays at full brightness on faces turned away from the key light."
+        ],
+        "evidenceRefs": [
+          "crops/top.png",
+          "crops/threequarter.png"
+        ],
+        "failureModes": [
+          "strips painted on flat faces instead of inset, losing the groove",
+          "emissive dimming with lighting, which proves it is a lit material not an emitter",
+          "curved strip runs where the reference is angular"
+        ]
+      },
+      {
+        "id": "propulsion-cluster",
+        "name": "Three-nozzle tail",
+        "required": true,
+        "qualityCriteria": [
+          "Exactly three nozzles: one large central, two smaller outboard.",
+          "Each an octagonal recess, not a cylinder.",
+          "Grille bars: five central, four per outboard.",
+          "Outboard nozzles sit inside the wingtip pods."
+        ],
+        "evidenceRefs": [
+          "crops/rear.png"
+        ],
+        "failureModes": [
+          "two nozzles or four",
+          "round nozzles instead of octagonal",
+          "nozzles protruding instead of recessed"
+        ]
+      },
+      {
+        "id": "dorsal-assembly",
+        "name": "Canopy, fins and vents",
+        "required": true,
+        "qualityCriteria": [
+          "Elongated hexagonal canopy set into a raised spine, forward of centre.",
+          "Twin swept fins at the rear, splayed outward, with emissive outer strips.",
+          "Orange vents recessed: two on the spine, one per side aft.",
+          "Orange vents take shading and are not emissive."
+        ],
+        "evidenceRefs": [
+          "crops/threequarter.png",
+          "crops/rear.png"
+        ],
+        "failureModes": [
+          "single fin or a centreline tail",
+          "canopy sitting on top rather than inset",
+          "orange vents rendered as a second emissive colour"
+        ]
+      },
+      {
+        "id": "material-response",
+        "name": "Satin hull against unlit-bright emissive",
+        "required": true,
+        "qualityCriteria": [
+          "Hull is satin: roughness ~0.42, metalness ~0.15, specular tracking each crease.",
+          "Canopy darker and glossier than the hull, reading tinted and opaque.",
+          "Cyan blows to white at strip centres with a bloom halo.",
+          "Charcoal value range wide enough that facet orientation alone separates faces."
+        ],
+        "evidenceRefs": [
+          "crops/threequarter.png"
+        ],
+        "failureModes": [
+          "flat matte hull that loses the facet read",
+          "emissive rendered as plain bright colour with no bloom",
+          "hull reading as raw metal rather than a painted satin finish"
+        ]
+      },
+      {
+        "id": "trailing-structure",
+        "name": "Feather plates and wingtip pods",
+        "required": false,
+        "qualityCriteria": [
+          "Four swept plates per side, each overlapping the one below.",
+          "Wingtip pods terminate each wing and carry an emissive slot on the leading face."
+        ],
+        "evidenceRefs": [
+          "crops/side.png"
+        ],
+        "failureModes": [
+          "plates merged into one slab",
+          "pods missing so the wing ends in a point"
+        ]
+      }
+    ],
+    "visualDeltaChecks": [
+      "planform and side-profile silhouette delta",
+      "facet count and crease placement delta",
+      "emissive routing and inset-depth delta",
+      "nozzle count, shape and grille delta",
+      "dorsal assembly placement delta",
+      "hull roughness/metalness response delta",
+      "decal placement and scale delta"
+    ],
+    "antiShallowSpecRules": [
+      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
+      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
+      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
+      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
+      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
+      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
+      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
+      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
+      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity.",
+      "Do not place adjacent separate-geometry parts below 0.02 world-unit seam overlap (source: grimoire/build/geometry_patterns.md).",
+      "Do not satisfy raised or recessed relief, fasteners, or grip structure with a map alone when the feature affects form; use geometry or displacement (source: grimoire/build/geometry_patterns.md)."
+    ]
+  },
+  "authoringInstruction": "Fill observed object class, complexity reasoning, featureGroups, visualDeltaChecks, and unknowns before generating or implementing ObjectSculptSpec.",
+  "localSpecSearch": {
+    "collection": "core_3d",
+    "query": "EXIS 07 Strike Craft hard surface faceted low poly emissive material bloom roughness metalness dielectric bilateral symmetry mirror decal canvas texture",
+    "index": {
+      "status": "hit",
+      "reason": "current",
+      "fingerprint": "6857e5ab528b42ac12f4f411f862610a0bffce8e47aee3610a7603c318072fe8"
+    },
+    "matches": [
+      {
+        "record_id": "core.pbr-color-space-srgb-vs-linearnocolorspace",
+        "file_path": "docs/raw/img2threejs-skill-dataset.json",
+        "heading": null,
+        "key_path": "categories.material_pbr[11]",
+        "score": 11.17375085305,
+        "snippets": [
+          "... v\u00e0 c\u00e1c b\u1ea3n \u0111\u1ed3 d\u1eef li\u1ec7u to\u00e1n h\u1ecdc (ph\u1ea3i gi\u1eef tuy\u1ebfn t\u00ednh/kh\u00f4ng hi\u1ec7u ch\u1ec9nh). Recognition cues: Base color/albedo and emissive textures are the only ones that should look like natural photographic color; Normal, roughness, metalness, and ..."
+        ],
+        "source_refs": [
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[11]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation"
+          }
+        ]
+      },
+      {
+        "record_id": "core.pbr-roughness",
+        "file_path": "grimoire/glossary/3d_vocabulary.md",
+        "heading": "Material And PBR",
+        "key_path": null,
+        "score": 9.594960902048,
+        "snippets": [
+          "Roughness is microfacet scatter: high roughness reads matte and low roughness reads glossy. Recognition cues: low roughness reads as a sharp, mirror-like, tight specular highlight; high roughness reads as a blurry, wide, dim highlight and matte ..."
+        ],
+        "source_refs": [
+          {
+            "path": "grimoire/glossary/3d_vocabulary.md",
+            "heading": "Material And PBR",
+            "key_path": null
+          },
+          {
+            "path": "grimoire/intake/image_analysis.md",
+            "heading": "Layer 5 \u2014 Materials & surface (PBR)",
+            "key_path": null
+          },
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[1]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "grimoire/glossary/3d_vocabulary.md"
+          },
+          {
+            "kind": "notebooklm-research",
+            "ref": "notebooklm:4b03c2f9-8393-411f-b5b4-039ab9532843",
+            "note": "Validated generic schema vocabulary; numeric claims remain backed by local source_refs."
+          },
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation \u2014 merged recognition cues + Three.js target instead of duplicating this entity."
+          }
+        ]
+      },
+      {
+        "record_id": "core.pbr-orm-channel-packing",
+        "file_path": "docs/raw/img2threejs-skill-dataset.json",
+        "heading": null,
+        "key_path": "categories.material_pbr[10]",
+        "score": 9.409405394887,
+        "snippets": [
+          "Convention of packing AO, Roughness, and Metalness grayscale maps into the R, G, B channels of a single texture to cut texture-fetch and VRAM cost. Quy \u01b0\u1edbc \u0111\u00f3ng g\u00f3i ba b\u1ea3n \u0111\u1ed3 grayscale AO, Roughness, Metalness v\u00e0o c\u00e1c k\u00eanh R, G, B c\u1ee7a m\u1ed9t ..."
+        ],
+        "source_refs": [
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[10]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation"
+          }
+        ]
+      }
+    ]
+  }
+}

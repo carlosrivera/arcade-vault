@@ -1,0 +1,3551 @@
+{
+  "schemaVersion": 1,
+  "kind": "img2threejs.material-analysis",
+  "referenceId": "exis07-sheet",
+  "manifest": "/Users/carlos/code/wipeout/models/exis-07/material-regions.json",
+  "registry": "/Users/carlos/.claude/skills/img2threejs/docs/materials/material-reference.json",
+  "targetThreshold": 0.7,
+  "notObservedMaterials": [],
+  "unresolvedNotObservedMaterials": [],
+  "regions": [
+    {
+      "componentId": "hull",
+      "regionId": "hull",
+      "materialSpecId": "hull",
+      "hypothesis": {
+        "componentId": "hull",
+        "regionId": "hull",
+        "materialId": null,
+        "family": "coating",
+        "subtype": "paint-over-metal",
+        "finish": "gloss-or-satin",
+        "aliases": [],
+        "confidence": 0.751,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "coating.painted-metal",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.751,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/00-hull.png",
+            "bbox": {
+              "x": 1299,
+              "y": 690,
+              "width": 46,
+              "height": 46
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.0013
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.751,
+            "estimatedFidelity": 0.751,
+            "targetThreshold": 0.7,
+            "materialId": "hull",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/00-hull.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull",
+            "palette": [
+              "#2F3D4D",
+              "#2C3A49",
+              "#3A485C",
+              "#1C2C3C",
+              "#303F50"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_albedo.png",
+                "url": "hull_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_roughness.png",
+                "url": "hull_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_height.png",
+                "url": "hull_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_normal.png",
+                "url": "hull_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_ao.png",
+                "url": "hull_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 46,
+              "sourceHeight": 46,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 46,
+                "height": 46
+              },
+              "mask": {
+                "backgroundColor": "#1E2D3E",
+                "backgroundNoise": 49.122,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.112,
+                "heightP90Gradient": 0.04589,
+                "roughnessBase": 0.694,
+                "roughnessVariation": 0.061,
+                "normalStrength": 0.21,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#2F3D4D",
+                "#2C3A49",
+                "#3A485C",
+                "#1C2C3C",
+                "#303F50"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+              "low value range weakens height/roughness inference"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#1C2C3D",
+              "#2F3D4D",
+              "#2D3B4B",
+              "#324050",
+              "#2D3F57"
+            ],
+            "paletteHueRisk": [
+              {
+                "stop": "#1C2C3D",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  61,
+                  44,
+                  28
+                ]
+              },
+              {
+                "stop": "#2F3D4D",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  77,
+                  61,
+                  47
+                ]
+              },
+              {
+                "stop": "#2D3B4B",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  75,
+                  59,
+                  45
+                ]
+              },
+              {
+                "stop": "#324050",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  80,
+                  64,
+                  50
+                ]
+              },
+              {
+                "stop": "#2D3F57",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  87,
+                  63,
+                  45
+                ]
+              }
+            ],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 57.5,
+              "meanSaturation": 0.412,
+              "gradientStrength": 0.11,
+              "mottle": 0.003,
+              "streakRatio": 0.62,
+              "hueSpread": 0.001,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "coating.painted-metal",
+        "family": "coating",
+        "subtype": "paint-over-metal",
+        "finish": "gloss-or-satin",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.45,
+          "clearcoat": 0.75,
+          "clearcoatRoughness": 0.12,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "clearcoatMap",
+          "clearcoatRoughnessMap",
+          "metalnessMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing",
+          "environment-reflection",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "gltf.2",
+          "khronos.gltf-pbr",
+          "adobe.pbr-guide-1",
+          "adobe.pbr-guide-2"
+        ],
+        "visualCues": [
+          "diffuse paint colour under a separate glossy coat",
+          "chips may expose metallic substrate"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/00-hull.png",
+        "bbox": {
+          "x": 1299,
+          "y": 690,
+          "width": 46,
+          "height": 46
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.0013
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#1C2C3D",
+          "#2F3D4D",
+          "#2D3B4B",
+          "#324050",
+          "#2D3F57"
+        ],
+        "paletteHueRisk": [
+          {
+            "stop": "#1C2C3D",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              61,
+              44,
+              28
+            ]
+          },
+          {
+            "stop": "#2F3D4D",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              77,
+              61,
+              47
+            ]
+          },
+          {
+            "stop": "#2D3B4B",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              75,
+              59,
+              45
+            ]
+          },
+          {
+            "stop": "#324050",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              80,
+              64,
+              50
+            ]
+          },
+          {
+            "stop": "#2D3F57",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              87,
+              63,
+              45
+            ]
+          }
+        ],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 57.5,
+          "meanSaturation": 0.412,
+          "gradientStrength": 0.11,
+          "mottle": 0.003,
+          "streakRatio": 0.62,
+          "hueSpread": 0.001,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "materialId": "hull",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/00-hull.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull",
+        "palette": [
+          "#2F3D4D",
+          "#2C3A49",
+          "#3A485C",
+          "#1C2C3C",
+          "#303F50"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_albedo.png",
+            "url": "hull_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_roughness.png",
+            "url": "hull_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_height.png",
+            "url": "hull_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_normal.png",
+            "url": "hull_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_ao.png",
+            "url": "hull_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 46,
+          "sourceHeight": 46,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 46,
+            "height": 46
+          },
+          "mask": {
+            "backgroundColor": "#1E2D3E",
+            "backgroundNoise": 49.122,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.112,
+            "heightP90Gradient": 0.04589,
+            "roughnessBase": 0.694,
+            "roughnessVariation": 0.061,
+            "normalStrength": 0.21,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#2F3D4D",
+            "#2C3A49",
+            "#3A485C",
+            "#1C2C3C",
+            "#303F50"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/00-hull.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_albedo.png",
+            "url": "hull_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_roughness.png",
+            "url": "hull_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_height.png",
+            "url": "hull_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_normal.png",
+            "url": "hull_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_ao.png",
+            "url": "hull_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 46,
+          "sourceHeight": 46,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 46,
+            "height": 46
+          },
+          "mask": {
+            "backgroundColor": "#1E2D3E",
+            "backgroundNoise": 49.122,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.112,
+            "heightP90Gradient": 0.04589,
+            "roughnessBase": 0.694,
+            "roughnessVariation": 0.061,
+            "normalStrength": 0.21,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#2F3D4D",
+            "#2C3A49",
+            "#3A485C",
+            "#1C2C3C",
+            "#303F50"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_albedo.png",
+          "url": "hull_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_roughness.png",
+          "url": "hull_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_height.png",
+          "url": "hull_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_normal.png",
+          "url": "hull_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-00-hull/hull_ao.png",
+          "url": "hull_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "hull",
+      "regionId": "hull-shade",
+      "materialSpecId": "hull-shade",
+      "hypothesis": {
+        "componentId": "hull",
+        "regionId": "hull-shade",
+        "materialId": null,
+        "family": "coating",
+        "subtype": "paint-over-metal",
+        "finish": "gloss-or-satin",
+        "aliases": [],
+        "confidence": 0.751,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "coating.painted-metal",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.751,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/01-hull-shade.png",
+            "bbox": {
+              "x": 1056,
+              "y": 819,
+              "width": 34,
+              "height": 34
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.0007
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.751,
+            "estimatedFidelity": 0.751,
+            "targetThreshold": 0.7,
+            "materialId": "hull-shade",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/01-hull-shade.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade",
+            "palette": [
+              "#16222D",
+              "#14202B",
+              "#17232E",
+              "#232E3C",
+              "#131D28"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_albedo.png",
+                "url": "hull-shade_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+                "url": "hull-shade_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_height.png",
+                "url": "hull-shade_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+                "url": "hull-shade_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+                "url": "hull-shade_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 34,
+              "sourceHeight": 34,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 34,
+                "height": 34
+              },
+              "mask": {
+                "backgroundColor": "#18232F",
+                "backgroundNoise": 21.471,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.08,
+                "heightP90Gradient": 0.03145,
+                "roughnessBase": 0.693,
+                "roughnessVariation": 0.05,
+                "normalStrength": 0.193,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#16222D",
+                "#14202B",
+                "#17232E",
+                "#232E3C",
+                "#131D28"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+              "low value range weakens height/roughness inference"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#1E2936",
+              "#18232F",
+              "#14202B",
+              "#16222D",
+              "#19242F"
+            ],
+            "paletteHueRisk": [
+              {
+                "stop": "#1E2936",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  54,
+                  41,
+                  30
+                ]
+              },
+              {
+                "stop": "#18232F",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  47,
+                  35,
+                  24
+                ]
+              },
+              {
+                "stop": "#14202B",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  43,
+                  32,
+                  20
+                ]
+              },
+              {
+                "stop": "#16222D",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  45,
+                  34,
+                  22
+                ]
+              },
+              {
+                "stop": "#19242F",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  47,
+                  36,
+                  25
+                ]
+              }
+            ],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 32.8,
+              "meanSaturation": 0.502,
+              "gradientStrength": 0.041,
+              "mottle": 0.002,
+              "streakRatio": 0.65,
+              "hueSpread": 0.001,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "coating.painted-metal",
+        "family": "coating",
+        "subtype": "paint-over-metal",
+        "finish": "gloss-or-satin",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.45,
+          "clearcoat": 0.75,
+          "clearcoatRoughness": 0.12,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "clearcoatMap",
+          "clearcoatRoughnessMap",
+          "metalnessMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing",
+          "environment-reflection",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "gltf.2",
+          "khronos.gltf-pbr",
+          "adobe.pbr-guide-1",
+          "adobe.pbr-guide-2"
+        ],
+        "visualCues": [
+          "diffuse paint colour under a separate glossy coat",
+          "chips may expose metallic substrate"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/01-hull-shade.png",
+        "bbox": {
+          "x": 1056,
+          "y": 819,
+          "width": 34,
+          "height": 34
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.0007
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#1E2936",
+          "#18232F",
+          "#14202B",
+          "#16222D",
+          "#19242F"
+        ],
+        "paletteHueRisk": [
+          {
+            "stop": "#1E2936",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              54,
+              41,
+              30
+            ]
+          },
+          {
+            "stop": "#18232F",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              47,
+              35,
+              24
+            ]
+          },
+          {
+            "stop": "#14202B",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              43,
+              32,
+              20
+            ]
+          },
+          {
+            "stop": "#16222D",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              45,
+              34,
+              22
+            ]
+          },
+          {
+            "stop": "#19242F",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              47,
+              36,
+              25
+            ]
+          }
+        ],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 32.8,
+          "meanSaturation": 0.502,
+          "gradientStrength": 0.041,
+          "mottle": 0.002,
+          "streakRatio": 0.65,
+          "hueSpread": 0.001,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "materialId": "hull-shade",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/01-hull-shade.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade",
+        "palette": [
+          "#16222D",
+          "#14202B",
+          "#17232E",
+          "#232E3C",
+          "#131D28"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_albedo.png",
+            "url": "hull-shade_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+            "url": "hull-shade_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_height.png",
+            "url": "hull-shade_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+            "url": "hull-shade_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+            "url": "hull-shade_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 34,
+          "sourceHeight": 34,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 34,
+            "height": 34
+          },
+          "mask": {
+            "backgroundColor": "#18232F",
+            "backgroundNoise": 21.471,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.03145,
+            "roughnessBase": 0.693,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.193,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#16222D",
+            "#14202B",
+            "#17232E",
+            "#232E3C",
+            "#131D28"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/01-hull-shade.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_albedo.png",
+            "url": "hull-shade_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+            "url": "hull-shade_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_height.png",
+            "url": "hull-shade_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+            "url": "hull-shade_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+            "url": "hull-shade_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 34,
+          "sourceHeight": 34,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 34,
+            "height": 34
+          },
+          "mask": {
+            "backgroundColor": "#18232F",
+            "backgroundNoise": 21.471,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.03145,
+            "roughnessBase": 0.693,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.193,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#16222D",
+            "#14202B",
+            "#17232E",
+            "#232E3C",
+            "#131D28"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_albedo.png",
+          "url": "hull-shade_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_roughness.png",
+          "url": "hull-shade_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_height.png",
+          "url": "hull-shade_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_normal.png",
+          "url": "hull-shade_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-01-hull-shade/hull-shade_ao.png",
+          "url": "hull-shade_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "canopy",
+      "regionId": "canopy",
+      "materialSpecId": "canopy",
+      "hypothesis": {
+        "componentId": "canopy",
+        "regionId": "canopy",
+        "materialId": null,
+        "family": "glass",
+        "subtype": "frosted",
+        "finish": "rough-transmissive",
+        "aliases": [],
+        "confidence": 0.751,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "glass.frosted",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.751,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/02-canopy.png",
+            "bbox": {
+              "x": 953,
+              "y": 629,
+              "width": 40,
+              "height": 40
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.001
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.751,
+            "estimatedFidelity": 0.751,
+            "targetThreshold": 0.7,
+            "materialId": "canopy",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/02-canopy.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy",
+            "palette": [
+              "#1F3361",
+              "#1F325F",
+              "#12254D",
+              "#203462",
+              "#203360"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_albedo.png",
+                "url": "canopy_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_roughness.png",
+                "url": "canopy_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_height.png",
+                "url": "canopy_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_normal.png",
+                "url": "canopy_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_ao.png",
+                "url": "canopy_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 40,
+              "sourceHeight": 40,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 40,
+                "height": 40
+              },
+              "mask": {
+                "backgroundColor": "#1E325F",
+                "backgroundNoise": 24.779,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.08,
+                "heightP90Gradient": 0.01991,
+                "roughnessBase": 0.692,
+                "roughnessVariation": 0.05,
+                "normalStrength": 0.18,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#1F3361",
+                "#1F325F",
+                "#12254D",
+                "#203462",
+                "#203360"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+              "low value range weakens height/roughness inference"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#192C56",
+              "#1C2F5A",
+              "#1F325F",
+              "#1F3260",
+              "#162C59"
+            ],
+            "paletteHueRisk": [
+              {
+                "stop": "#192C56",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  86,
+                  44,
+                  25
+                ]
+              },
+              {
+                "stop": "#1C2F5A",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  90,
+                  47,
+                  28
+                ]
+              },
+              {
+                "stop": "#1F325F",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  95,
+                  50,
+                  31
+                ]
+              },
+              {
+                "stop": "#1F3260",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  96,
+                  50,
+                  31
+                ]
+              },
+              {
+                "stop": "#162C59",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  89,
+                  44,
+                  22
+                ]
+              }
+            ],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 47.4,
+              "meanSaturation": 0.692,
+              "gradientStrength": 0.027,
+              "mottle": 0.002,
+              "streakRatio": 0.95,
+              "hueSpread": 0.0,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "glass.frosted",
+        "family": "glass",
+        "subtype": "frosted",
+        "finish": "rough-transmissive",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.52,
+          "transmission": 0.85,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "roughnessMap",
+          "normalMap",
+          "thicknessMap"
+        ],
+        "optionalMaps": [
+          "transmissionMap",
+          "map"
+        ],
+        "validationViews": [
+          "neutral-studio",
+          "grazing",
+          "backlight-transmission",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "three.pmrem",
+          "khronos.transmission",
+          "khronos.volume",
+          "google.filament-pbr"
+        ],
+        "visualCues": [
+          "blurred transmitted background",
+          "broad interface highlight",
+          "fine etched normal structure"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/02-canopy.png",
+        "bbox": {
+          "x": 953,
+          "y": 629,
+          "width": 40,
+          "height": 40
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.001
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#192C56",
+          "#1C2F5A",
+          "#1F325F",
+          "#1F3260",
+          "#162C59"
+        ],
+        "paletteHueRisk": [
+          {
+            "stop": "#192C56",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              86,
+              44,
+              25
+            ]
+          },
+          {
+            "stop": "#1C2F5A",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              90,
+              47,
+              28
+            ]
+          },
+          {
+            "stop": "#1F325F",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              95,
+              50,
+              31
+            ]
+          },
+          {
+            "stop": "#1F3260",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              96,
+              50,
+              31
+            ]
+          },
+          {
+            "stop": "#162C59",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              89,
+              44,
+              22
+            ]
+          }
+        ],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 47.4,
+          "meanSaturation": 0.692,
+          "gradientStrength": 0.027,
+          "mottle": 0.002,
+          "streakRatio": 0.95,
+          "hueSpread": 0.0,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "materialId": "canopy",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/02-canopy.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy",
+        "palette": [
+          "#1F3361",
+          "#1F325F",
+          "#12254D",
+          "#203462",
+          "#203360"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_albedo.png",
+            "url": "canopy_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_roughness.png",
+            "url": "canopy_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_height.png",
+            "url": "canopy_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_normal.png",
+            "url": "canopy_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_ao.png",
+            "url": "canopy_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 40,
+          "sourceHeight": 40,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 40,
+            "height": 40
+          },
+          "mask": {
+            "backgroundColor": "#1E325F",
+            "backgroundNoise": 24.779,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.01991,
+            "roughnessBase": 0.692,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.18,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#1F3361",
+            "#1F325F",
+            "#12254D",
+            "#203462",
+            "#203360"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/02-canopy.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_albedo.png",
+            "url": "canopy_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_roughness.png",
+            "url": "canopy_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_height.png",
+            "url": "canopy_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_normal.png",
+            "url": "canopy_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_ao.png",
+            "url": "canopy_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 40,
+          "sourceHeight": 40,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 40,
+            "height": 40
+          },
+          "mask": {
+            "backgroundColor": "#1E325F",
+            "backgroundNoise": 24.779,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.01991,
+            "roughnessBase": 0.692,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.18,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#1F3361",
+            "#1F325F",
+            "#12254D",
+            "#203462",
+            "#203360"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_albedo.png",
+          "url": "canopy_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_roughness.png",
+          "url": "canopy_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_height.png",
+          "url": "canopy_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_normal.png",
+          "url": "canopy_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-02-canopy/canopy_ao.png",
+          "url": "canopy_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "chine-strip",
+      "regionId": "emissive",
+      "materialSpecId": "emissive",
+      "hypothesis": {
+        "componentId": "chine-strip",
+        "regionId": "emissive",
+        "materialId": null,
+        "family": "plastic",
+        "subtype": "generic-polymer",
+        "finish": "glossy",
+        "aliases": [],
+        "confidence": 0.829,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "plastic.glossy",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.829,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/03-emissive.png",
+            "bbox": {
+              "x": 303,
+              "y": 390,
+              "width": 20,
+              "height": 20
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.0003
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.829,
+            "estimatedFidelity": 0.829,
+            "targetThreshold": 0.7,
+            "materialId": "emissive",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/03-emissive.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive",
+            "palette": [
+              "#25416D",
+              "#9AFBFC",
+              "#AAFCFC",
+              "#4FE1FB",
+              "#0555B4"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_albedo.png",
+                "url": "emissive_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_roughness.png",
+                "url": "emissive_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_height.png",
+                "url": "emissive_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_normal.png",
+                "url": "emissive_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_ao.png",
+                "url": "emissive_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 20,
+              "sourceHeight": 20,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 20,
+                "height": 20
+              },
+              "mask": {
+                "backgroundColor": "#2D4667",
+                "backgroundNoise": 58.898,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.7869,
+                "heightP90Gradient": 0.03636,
+                "roughnessBase": 0.684,
+                "roughnessVariation": 0.05,
+                "normalStrength": 0.199,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#25416D",
+                "#9AFBFC",
+                "#AAFCFC",
+                "#4FE1FB",
+                "#0555B4"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#31465F",
+              "#2F4F76",
+              "#A8FCFC",
+              "#96F6F8",
+              "#042965"
+            ],
+            "paletteHueRisk": [
+              {
+                "stop": "#31465F",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  95,
+                  70,
+                  49
+                ]
+              },
+              {
+                "stop": "#2F4F76",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  118,
+                  79,
+                  47
+                ]
+              },
+              {
+                "stop": "#042965",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  101,
+                  41,
+                  4
+                ]
+              }
+            ],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 139.9,
+              "meanSaturation": 0.573,
+              "gradientStrength": 0.775,
+              "mottle": 0.001,
+              "streakRatio": 0.03,
+              "hueSpread": 0.04,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "plastic.glossy",
+        "family": "plastic",
+        "subtype": "generic-polymer",
+        "finish": "glossy",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.28,
+          "clearcoat": 0.2,
+          "clearcoatRoughness": 0.18,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "clearcoatMap"
+        ],
+        "validationViews": [
+          "neutral-studio",
+          "grazing",
+          "environment-reflection",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "three.mesh-standard",
+          "adobe.pbr-guide-1",
+          "google.filament-pbr",
+          "mit.material-recognition"
+        ],
+        "visualCues": [
+          "untinted or light-coloured specular over coloured diffuse body",
+          "smooth molded surface"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "directional surface frequency",
+        "strong image-space gradient; verify it is material pattern, not lighting",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/03-emissive.png",
+        "bbox": {
+          "x": 303,
+          "y": 390,
+          "width": 20,
+          "height": 20
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.0003
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#31465F",
+          "#2F4F76",
+          "#A8FCFC",
+          "#96F6F8",
+          "#042965"
+        ],
+        "paletteHueRisk": [
+          {
+            "stop": "#31465F",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              95,
+              70,
+              49
+            ]
+          },
+          {
+            "stop": "#2F4F76",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              118,
+              79,
+              47
+            ]
+          },
+          {
+            "stop": "#042965",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              101,
+              41,
+              4
+            ]
+          }
+        ],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 139.9,
+          "meanSaturation": 0.573,
+          "gradientStrength": 0.775,
+          "mottle": 0.001,
+          "streakRatio": 0.03,
+          "hueSpread": 0.04,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.829,
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "materialId": "emissive",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/03-emissive.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive",
+        "palette": [
+          "#25416D",
+          "#9AFBFC",
+          "#AAFCFC",
+          "#4FE1FB",
+          "#0555B4"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_albedo.png",
+            "url": "emissive_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_roughness.png",
+            "url": "emissive_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_height.png",
+            "url": "emissive_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_normal.png",
+            "url": "emissive_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_ao.png",
+            "url": "emissive_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 20,
+          "sourceHeight": 20,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 20,
+            "height": 20
+          },
+          "mask": {
+            "backgroundColor": "#2D4667",
+            "backgroundNoise": 58.898,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.7869,
+            "heightP90Gradient": 0.03636,
+            "roughnessBase": 0.684,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.199,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#25416D",
+            "#9AFBFC",
+            "#AAFCFC",
+            "#4FE1FB",
+            "#0555B4"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/03-emissive.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.829,
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_albedo.png",
+            "url": "emissive_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_roughness.png",
+            "url": "emissive_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_height.png",
+            "url": "emissive_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_normal.png",
+            "url": "emissive_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_ao.png",
+            "url": "emissive_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 20,
+          "sourceHeight": 20,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 20,
+            "height": 20
+          },
+          "mask": {
+            "backgroundColor": "#2D4667",
+            "backgroundNoise": 58.898,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.7869,
+            "heightP90Gradient": 0.03636,
+            "roughnessBase": 0.684,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.199,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#25416D",
+            "#9AFBFC",
+            "#AAFCFC",
+            "#4FE1FB",
+            "#0555B4"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_albedo.png",
+          "url": "emissive_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_roughness.png",
+          "url": "emissive_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_height.png",
+          "url": "emissive_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_normal.png",
+          "url": "emissive_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-03-emissive/emissive_ao.png",
+          "url": "emissive_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "vent-block",
+      "regionId": "vent-orange",
+      "materialSpecId": "vent-orange",
+      "hypothesis": {
+        "componentId": "vent-block",
+        "regionId": "vent-orange",
+        "materialId": null,
+        "family": "coating",
+        "subtype": "paint-over-metal",
+        "finish": "gloss-or-satin",
+        "aliases": [],
+        "confidence": 0.758,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "coating.painted-metal",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.758,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/04-vent-orange.png",
+            "bbox": {
+              "x": 1197,
+              "y": 618,
+              "width": 18,
+              "height": 18
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.0002
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.758,
+            "estimatedFidelity": 0.758,
+            "targetThreshold": 0.7,
+            "materialId": "vent-orange",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/04-vent-orange.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange",
+            "palette": [
+              "#EC761A",
+              "#E97115",
+              "#EE7B1E",
+              "#5C2104",
+              "#A95213"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_albedo.png",
+                "url": "vent-orange_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+                "url": "vent-orange_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_height.png",
+                "url": "vent-orange_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+                "url": "vent-orange_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+                "url": "vent-orange_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 18,
+              "sourceHeight": 18,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 18,
+                "height": 18
+              },
+              "mask": {
+                "backgroundColor": "#EC781C",
+                "backgroundNoise": 155.103,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.3525,
+                "heightP90Gradient": 0.01447,
+                "roughnessBase": 0.683,
+                "roughnessVariation": 0.05,
+                "normalStrength": 0.173,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#EC761A",
+                "#E97115",
+                "#EE7B1E",
+                "#5C2104",
+                "#A95213"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#BC6017",
+              "#EA7116",
+              "#EA7418",
+              "#DE6C15",
+              "#B65610"
+            ],
+            "paletteHueRisk": [],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 132.8,
+              "meanSaturation": 0.901,
+              "gradientStrength": 0.133,
+              "mottle": 0.004,
+              "streakRatio": 0.77,
+              "hueSpread": 0.015,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "coating.painted-metal",
+        "family": "coating",
+        "subtype": "paint-over-metal",
+        "finish": "gloss-or-satin",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.45,
+          "clearcoat": 0.75,
+          "clearcoatRoughness": 0.12,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "clearcoatMap",
+          "clearcoatRoughnessMap",
+          "metalnessMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing",
+          "environment-reflection",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "gltf.2",
+          "khronos.gltf-pbr",
+          "adobe.pbr-guide-1",
+          "adobe.pbr-guide-2"
+        ],
+        "visualCues": [
+          "diffuse paint colour under a separate glossy coat",
+          "chips may expose metallic substrate"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/04-vent-orange.png",
+        "bbox": {
+          "x": 1197,
+          "y": 618,
+          "width": 18,
+          "height": 18
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.0002
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#BC6017",
+          "#EA7116",
+          "#EA7418",
+          "#DE6C15",
+          "#B65610"
+        ],
+        "paletteHueRisk": [],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 132.8,
+          "meanSaturation": 0.901,
+          "gradientStrength": 0.133,
+          "mottle": 0.004,
+          "streakRatio": 0.77,
+          "hueSpread": 0.015,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.758,
+        "estimatedFidelity": 0.758,
+        "targetThreshold": 0.7,
+        "materialId": "vent-orange",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/04-vent-orange.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange",
+        "palette": [
+          "#EC761A",
+          "#E97115",
+          "#EE7B1E",
+          "#5C2104",
+          "#A95213"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_albedo.png",
+            "url": "vent-orange_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+            "url": "vent-orange_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_height.png",
+            "url": "vent-orange_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+            "url": "vent-orange_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+            "url": "vent-orange_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 18,
+          "sourceHeight": 18,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 18,
+            "height": 18
+          },
+          "mask": {
+            "backgroundColor": "#EC781C",
+            "backgroundNoise": 155.103,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.3525,
+            "heightP90Gradient": 0.01447,
+            "roughnessBase": 0.683,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.173,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#EC761A",
+            "#E97115",
+            "#EE7B1E",
+            "#5C2104",
+            "#A95213"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/04-vent-orange.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.758,
+        "estimatedFidelity": 0.758,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_albedo.png",
+            "url": "vent-orange_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+            "url": "vent-orange_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_height.png",
+            "url": "vent-orange_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+            "url": "vent-orange_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+            "url": "vent-orange_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 18,
+          "sourceHeight": 18,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 18,
+            "height": 18
+          },
+          "mask": {
+            "backgroundColor": "#EC781C",
+            "backgroundNoise": 155.103,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.3525,
+            "heightP90Gradient": 0.01447,
+            "roughnessBase": 0.683,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.173,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#EC761A",
+            "#E97115",
+            "#EE7B1E",
+            "#5C2104",
+            "#A95213"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_albedo.png",
+          "url": "vent-orange_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_roughness.png",
+          "url": "vent-orange_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_height.png",
+          "url": "vent-orange_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_normal.png",
+          "url": "vent-orange_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-04-vent-orange/vent-orange_ao.png",
+          "url": "vent-orange_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "decal-set",
+      "regionId": "decal",
+      "materialSpecId": "decal",
+      "hypothesis": {
+        "componentId": "decal-set",
+        "regionId": "decal",
+        "materialId": null,
+        "family": "plastic",
+        "subtype": "generic-polymer",
+        "finish": "matte",
+        "aliases": [],
+        "confidence": 0.716,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "plastic.matte",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.716,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/05-decal.png",
+            "bbox": {
+              "x": 357,
+              "y": 600,
+              "width": 16,
+              "height": 16
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.0002
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.716,
+            "estimatedFidelity": 0.716,
+            "targetThreshold": 0.7,
+            "materialId": "decal",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/05-decal.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal",
+            "palette": [
+              "#FEFDFE",
+              "#FAFAFA",
+              "#FFFFFF",
+              "#F1F1F1",
+              "#A8AAAB"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_albedo.png",
+                "url": "decal_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_roughness.png",
+                "url": "decal_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_height.png",
+                "url": "decal_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_normal.png",
+                "url": "decal_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_ao.png",
+                "url": "decal_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 16,
+              "sourceHeight": 16,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 16,
+                "height": 16
+              },
+              "mask": {
+                "backgroundColor": "#FCFCFC",
+                "backgroundNoise": 14.457,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.08,
+                "heightP90Gradient": 0.01919,
+                "roughnessBase": 0.689,
+                "roughnessVariation": 0.05,
+                "normalStrength": 0.179,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#FEFDFE",
+                "#FAFAFA",
+                "#FFFFFF",
+                "#F1F1F1",
+                "#A8AAAB"
+              ]
+            },
+            "warnings": [
+              "foreground mask is tiny; material extraction is likely unreliable",
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+              "low value range weakens height/roughness inference"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "brushed-steel",
+            "recipe": {
+              "metalness": 1.0,
+              "roughness": 0.35,
+              "clearcoat": 0.0,
+              "clearcoatRoughness": 0.0,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 1.0,
+              "procedural": "brushed"
+            },
+            "palette": [
+              "#F5F5F6",
+              "#FDFDFD",
+              "#FDFDFD",
+              "#F9F9F9",
+              "#DEDEDE"
+            ],
+            "paletteHueRisk": [],
+            "gradientAxis": "horizontal",
+            "stats": {
+              "meanLum": 249.7,
+              "meanSaturation": 0.002,
+              "gradientStrength": 0.123,
+              "mottle": 0.003,
+              "streakRatio": 2.11,
+              "hueSpread": 0.0,
+              "specularFraction": 0.965
+            }
+          }
+        },
+        "profileId": "plastic.matte",
+        "family": "plastic",
+        "subtype": "generic-polymer",
+        "finish": "matte",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.68,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "aoMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing"
+        ],
+        "sourceRefs": [
+          "three.mesh-standard",
+          "adobe.pbr-guide-1",
+          "google.filament-pbr",
+          "mit.material-recognition"
+        ],
+        "visualCues": [
+          "coloured diffuse body",
+          "broad neutral highlight",
+          "mold seams or fine stipple"
+        ]
+      },
+      "observations": [
+        "near-neutral colour response",
+        "directional surface frequency",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/05-decal.png",
+        "bbox": {
+          "x": 357,
+          "y": 600,
+          "width": 16,
+          "height": 16
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.0002
+      },
+      "textureAnalysis": {
+        "finishClass": "brushed-steel",
+        "recipe": {
+          "metalness": 1.0,
+          "roughness": 0.35,
+          "clearcoat": 0.0,
+          "clearcoatRoughness": 0.0,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 1.0,
+          "procedural": "brushed"
+        },
+        "palette": [
+          "#F5F5F6",
+          "#FDFDFD",
+          "#FDFDFD",
+          "#F9F9F9",
+          "#DEDEDE"
+        ],
+        "paletteHueRisk": [],
+        "gradientAxis": "horizontal",
+        "stats": {
+          "meanLum": 249.7,
+          "meanSaturation": 0.002,
+          "gradientStrength": 0.123,
+          "mottle": 0.003,
+          "streakRatio": 2.11,
+          "hueSpread": 0.0,
+          "specularFraction": 0.965
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.716,
+        "estimatedFidelity": 0.716,
+        "targetThreshold": 0.7,
+        "materialId": "decal",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/05-decal.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal",
+        "palette": [
+          "#FEFDFE",
+          "#FAFAFA",
+          "#FFFFFF",
+          "#F1F1F1",
+          "#A8AAAB"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_albedo.png",
+            "url": "decal_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_roughness.png",
+            "url": "decal_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_height.png",
+            "url": "decal_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_normal.png",
+            "url": "decal_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_ao.png",
+            "url": "decal_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 16,
+          "sourceHeight": 16,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 16,
+            "height": 16
+          },
+          "mask": {
+            "backgroundColor": "#FCFCFC",
+            "backgroundNoise": 14.457,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.01919,
+            "roughnessBase": 0.689,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.179,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#FEFDFE",
+            "#FAFAFA",
+            "#FFFFFF",
+            "#F1F1F1",
+            "#A8AAAB"
+          ]
+        },
+        "warnings": [
+          "foreground mask is tiny; material extraction is likely unreliable",
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/05-decal.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.716,
+        "estimatedFidelity": 0.716,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_albedo.png",
+            "url": "decal_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_roughness.png",
+            "url": "decal_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_height.png",
+            "url": "decal_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_normal.png",
+            "url": "decal_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_ao.png",
+            "url": "decal_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 16,
+          "sourceHeight": 16,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 16,
+            "height": 16
+          },
+          "mask": {
+            "backgroundColor": "#FCFCFC",
+            "backgroundNoise": 14.457,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.01919,
+            "roughnessBase": 0.689,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.179,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#FEFDFE",
+            "#FAFAFA",
+            "#FFFFFF",
+            "#F1F1F1",
+            "#A8AAAB"
+          ]
+        },
+        "warnings": [
+          "foreground mask is tiny; material extraction is likely unreliable",
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_albedo.png",
+          "url": "decal_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_roughness.png",
+          "url": "decal_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_height.png",
+          "url": "decal_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_normal.png",
+          "url": "decal_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-05-decal/decal_ao.png",
+          "url": "decal_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "nozzle-core",
+      "regionId": "nozzle-glow",
+      "materialSpecId": "nozzle-glow",
+      "hypothesis": {
+        "componentId": "nozzle-core",
+        "regionId": "nozzle-glow",
+        "materialId": null,
+        "family": "plastic",
+        "subtype": "generic-polymer",
+        "finish": "glossy",
+        "aliases": [],
+        "confidence": 0.829,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "plastic.glossy",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.829,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/06-nozzle-glow.png",
+            "bbox": {
+              "x": 1266,
+              "y": 567,
+              "width": 22,
+              "height": 22
+            },
+            "sourceWidth": 1448,
+            "sourceHeight": 1086,
+            "loaderWarnings": [],
+            "coverage": 0.0003
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.829,
+            "estimatedFidelity": 0.829,
+            "targetThreshold": 0.7,
+            "materialId": "nozzle-glow",
+            "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/06-nozzle-glow.png",
+            "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow",
+            "palette": [
+              "#90FBFC",
+              "#0C4493",
+              "#4F6992",
+              "#158DE6",
+              "#5EE5FC"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_albedo.png",
+                "url": "nozzle-glow_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+                "url": "nozzle-glow_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_height.png",
+                "url": "nozzle-glow_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+                "url": "nozzle-glow_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+                "url": "nozzle-glow_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 22,
+              "sourceHeight": 22,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 22,
+                "height": 22
+              },
+              "mask": {
+                "backgroundColor": "#5379DA",
+                "backgroundNoise": 146.649,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.6938,
+                "heightP90Gradient": 0.04665,
+                "roughnessBase": 0.684,
+                "roughnessVariation": 0.078,
+                "normalStrength": 0.211,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#90FBFC",
+                "#0C4493",
+                "#4F6992",
+                "#158DE6",
+                "#5EE5FC"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#4E7DA8",
+              "#66AECB",
+              "#76D6ED",
+              "#4CABD5",
+              "#0D4D89"
+            ],
+            "paletteHueRisk": [
+              {
+                "stop": "#4E7DA8",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  168,
+                  125,
+                  78
+                ]
+              },
+              {
+                "stop": "#66AECB",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  203,
+                  174,
+                  102
+                ]
+              },
+              {
+                "stop": "#4CABD5",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  213,
+                  171,
+                  76
+                ]
+              },
+              {
+                "stop": "#0D4D89",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  137,
+                  77,
+                  13
+                ]
+              }
+            ],
+            "gradientAxis": "horizontal",
+            "stats": {
+              "meanLum": 149.0,
+              "meanSaturation": 0.591,
+              "gradientStrength": 0.524,
+              "mottle": 0.021,
+              "streakRatio": 1.56,
+              "hueSpread": 0.039,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "plastic.glossy",
+        "family": "plastic",
+        "subtype": "generic-polymer",
+        "finish": "glossy",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.28,
+          "clearcoat": 0.2,
+          "clearcoatRoughness": 0.18,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "clearcoatMap"
+        ],
+        "validationViews": [
+          "neutral-studio",
+          "grazing",
+          "environment-reflection",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "three.mesh-standard",
+          "adobe.pbr-guide-1",
+          "google.filament-pbr",
+          "mit.material-recognition"
+        ],
+        "visualCues": [
+          "untinted or light-coloured specular over coloured diffuse body",
+          "smooth molded surface"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "strong image-space gradient; verify it is material pattern, not lighting",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/06-nozzle-glow.png",
+        "bbox": {
+          "x": 1266,
+          "y": 567,
+          "width": 22,
+          "height": 22
+        },
+        "sourceWidth": 1448,
+        "sourceHeight": 1086,
+        "loaderWarnings": [],
+        "coverage": 0.0003
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#4E7DA8",
+          "#66AECB",
+          "#76D6ED",
+          "#4CABD5",
+          "#0D4D89"
+        ],
+        "paletteHueRisk": [
+          {
+            "stop": "#4E7DA8",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              168,
+              125,
+              78
+            ]
+          },
+          {
+            "stop": "#66AECB",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              203,
+              174,
+              102
+            ]
+          },
+          {
+            "stop": "#4CABD5",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              213,
+              171,
+              76
+            ]
+          },
+          {
+            "stop": "#0D4D89",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              137,
+              77,
+              13
+            ]
+          }
+        ],
+        "gradientAxis": "horizontal",
+        "stats": {
+          "meanLum": 149.0,
+          "meanSaturation": 0.591,
+          "gradientStrength": 0.524,
+          "mottle": 0.021,
+          "streakRatio": 1.56,
+          "hueSpread": 0.039,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.829,
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "materialId": "nozzle-glow",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/06-nozzle-glow.png",
+        "outDir": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow",
+        "palette": [
+          "#90FBFC",
+          "#0C4493",
+          "#4F6992",
+          "#158DE6",
+          "#5EE5FC"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_albedo.png",
+            "url": "nozzle-glow_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+            "url": "nozzle-glow_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_height.png",
+            "url": "nozzle-glow_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+            "url": "nozzle-glow_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+            "url": "nozzle-glow_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 22,
+          "sourceHeight": 22,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 22,
+            "height": 22
+          },
+          "mask": {
+            "backgroundColor": "#5379DA",
+            "backgroundNoise": 146.649,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.6938,
+            "heightP90Gradient": 0.04665,
+            "roughnessBase": 0.684,
+            "roughnessVariation": 0.078,
+            "normalStrength": 0.211,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#90FBFC",
+            "#0C4493",
+            "#4F6992",
+            "#158DE6",
+            "#5EE5FC"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/06-nozzle-glow.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.829,
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_albedo.png",
+            "url": "nozzle-glow_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+            "url": "nozzle-glow_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_height.png",
+            "url": "nozzle-glow_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+            "url": "nozzle-glow_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+            "url": "nozzle-glow_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 22,
+          "sourceHeight": 22,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 22,
+            "height": 22
+          },
+          "mask": {
+            "backgroundColor": "#5379DA",
+            "backgroundNoise": 146.649,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.6938,
+            "heightP90Gradient": 0.04665,
+            "roughnessBase": 0.684,
+            "roughnessVariation": 0.078,
+            "normalStrength": 0.211,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#90FBFC",
+            "#0C4493",
+            "#4F6992",
+            "#158DE6",
+            "#5EE5FC"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_albedo.png",
+          "url": "nozzle-glow_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_roughness.png",
+          "url": "nozzle-glow_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_height.png",
+          "url": "nozzle-glow_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_normal.png",
+          "url": "nozzle-glow_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/carlos/code/wipeout/models/exis-07/material-evidence/pbr-06-nozzle-glow/nozzle-glow_ao.png",
+          "url": "nozzle-glow_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    }
+  ],
+  "status": "proceed",
+  "limitations": [
+    "PBR extraction is reference-derived inference, not inverse rendering.",
+    "A crop must be checked against the component visible footprint before accepting material scores."
+  ],
+  "artifact": "/Users/carlos/code/wipeout/models/exis-07/material-analysis.json"
+}
