@@ -49,6 +49,19 @@ export function createComposer(renderer, scene, camera, { depth = false } = {}) 
     target.depthTexture.type = THREE.UnsignedShortType;
   }
   const composer = new EffectComposer(renderer, target);
+  if (depth) {
+    // EffectComposer builds its second buffer by cloning the first, and a
+    // clone copies the depth texture BY REFERENCE. Both ping-pong targets then
+    // share one depth attachment, so a pass that samples scene depth is
+    // sampling the depth buffer of the target it is drawing into — GL calls
+    // that a feedback loop and drops the draw entirely, black-screening the
+    // frame.
+    //
+    // Keeping the depth texture on renderTarget1 alone breaks the aliasing.
+    // renderTarget2 still gets a depth renderbuffer, so depth testing works
+    // for passes that render geometry; it just cannot be read as a texture.
+    composer.renderTarget2.depthTexture = null;
+  }
   composer.addPass(new RenderPass(scene, camera));
   return composer;
 }

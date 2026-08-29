@@ -138,6 +138,7 @@ function create3DNoiseTexture() {
 export const CloudShader = {
   uniforms: {
     tDiffuse: { value: null },
+    tDepth: { value: null },
     uNoiseTex: { value: null },
     uCameraPos: { value: new THREE.Vector3() },
     uSunDir: { value: new THREE.Vector3(0.45, 0.5, -0.6).normalize() },
@@ -157,6 +158,7 @@ export const CloudShader = {
     layout(location = 0) out vec4 fragColor;
 
     uniform sampler2D tDiffuse;
+    uniform sampler2D tDepth;
     uniform sampler3D uNoiseTex;
     
     uniform vec3 uCameraPos;
@@ -168,9 +170,10 @@ export const CloudShader = {
     uniform mat4 uProjInverse;
     uniform mat4 uViewInverse;
 
-    #ifdef USE_LOGDEPTHBUF
-      uniform float logDepthBufFC;
-    #endif
+    // Declared unconditionally: this is a full-screen pass, so three never
+    // injects USE_LOGDEPTHBUF for it, but the value is needed to invert the
+    // logarithmic depth the scene was rendered with.
+    uniform float logDepthBufFC;
 
     varying vec2 vUv;
 
@@ -254,11 +257,6 @@ export const CloudShader = {
       vec3 rayDir = normalize((uViewInverse * vec4(viewDir, 0.0)).xyz);
       vec3 rayOrigin = uCameraPos;
 
-      // Rays always march the full slab. Sampling the composer's depth texture
-      // here would allow mountain occlusion of clouds, but depth-texture reads
-      // proved driver-fragile (zeroed on some stacks, which clipped every ray
-      // to nothing and silently disabled the whole system) — revisit with a
-      // dedicated depth prepass if occlusion matters.
       const float maxRayLen = 100000.0;
 
       float tStart, tEnd;
@@ -266,9 +264,31 @@ export const CloudShader = {
         fragColor = sceneColor;
         return;
       }
-
-      // Clip ray to scene geometry! This flawlessly handles mountains without depth hacks.
       tEnd = min(tEnd, maxRayLen);
+
+      // Clip the march where the scene already is, so a mountain in front of a
+      // cloud hides it instead of being painted over.
+      //
+      // The depth buffer is logarithmic here (the renderer is built with
+      // logarithmicDepthBuffer for the 400km view), so the stored value is
+      // log2(w + 1) * FC * 0.5 and has to be inverted rather than read as a
+      // linear depth.
+      //
+      // A previous attempt was abandoned because a depth texture that reads as
+      // zero on some drivers clips every ray to nothing and silently deletes
+      // the whole cloud layer. That failure is guarded rather than avoided: a
+      // non-positive or far-plane sample is treated as "no geometry here", so
+      // the worst case is the old behaviour of clouds drawing over terrain,
+      // never a blank sky.
+      float rawDepth = texture2D(tDepth, vUv).x;
+      if (rawDepth > 0.0 && rawDepth < 1.0) {
+        float w = exp2(2.0 * rawDepth / logDepthBufFC) - 1.0; // perspective w == -viewZ
+        // w is measured along the camera axis; this ray leans off it.
+        vec3 camForward = normalize(-(uViewInverse * vec4(0.0, 0.0, 1.0, 0.0)).xyz);
+        float cosA = max(dot(rayDir, camForward), 1e-4);
+        float sceneDist = w / cosA;
+        if (sceneDist > 1.0) tEnd = min(tEnd, sceneDist);
+      }
       float rayLen = tEnd - tStart;
       
       if (rayLen <= 0.0) {
@@ -297,19 +317,33 @@ export const CloudShader = {
         float density = sampleDensity(p);
 
         if (density > 0.001) {
-          vec3 lightPos = p + sunDir * 380.0;
-          float sunDensity = sampleDensity(lightPos) + sampleDensity(p + sunDir * 900.0) * 0.5;
-          float sunTrans = exp(-sunDensity * 0.65);
+          // Self-shadowing over four taps rather than two, spanning far enough
+          // to reach the top of a puff. This is what separates a lit crown
+          // from a shaded belly; too short a march and every sample sees
+          // roughly the same sun, which is why the deck read as flat white.
+          float sunDensity =
+              sampleDensity(p + sunDir * 220.0) * 1.0
+            + sampleDensity(p + sunDir * 560.0) * 0.8
+            + sampleDensity(p + sunDir * 1150.0) * 0.5
+            + sampleDensity(p + sunDir * 2200.0) * 0.25;
+          float sunTrans = exp(-sunDensity * 1.15);
           float powder = 1.0 - exp(-density * 3.5);
 
           float h = (p.y - uHBottom) / (uHTop - uHBottom);
-          vec3 ambientCol = mix(vec3(0.55, 0.68, 0.82), vec3(0.92, 0.96, 1.0), h);
 
-          vec3 sunCol = vec3(1.0, 0.96, 0.90) * (sunTrans * phase * powder * 2.4 + 0.12);
-          vec3 stepLight = sunCol + ambientCol * 0.45;
-          // Wispy edges read gray, dense cores stay bright — gives the puffs
-          // internal mottling instead of uniform white fog.
-          stepLight *= mix(0.55, 1.0, smoothstep(0.05, 0.28, density));
+          // Sky light arrives from above, so a sample deep under the deck sees
+          // far less of it. Without this the underside is lit as brightly as
+          // the top and the whole cloud flattens into fog.
+          vec3 skyCol = vec3(0.42, 0.56, 0.78);
+          vec3 groundCol = vec3(0.30, 0.33, 0.31);
+          vec3 ambientCol = mix(groundCol, skyCol, smoothstep(0.0, 0.7, h));
+          float ambientOcc = mix(0.30, 1.0, smoothstep(0.0, 0.55, h));
+
+          vec3 sunCol = vec3(1.0, 0.95, 0.86) * (sunTrans * phase * powder * 2.6);
+          vec3 stepLight = sunCol + ambientCol * ambientOcc * 0.9;
+          // Wispy edges read grey, dense cores stay bright — internal
+          // mottling instead of uniform white.
+          stepLight *= mix(0.45, 1.0, smoothstep(0.03, 0.26, density));
 
           float deltaTau = density * stepSize * 0.0016;
           float stepTrans = exp(-deltaTau);
@@ -643,8 +677,13 @@ export function buildCloudSystem(_renderer) {
     shadowMap: shadowRT.texture,
     shadowRT,
     shadowUniforms: { uCenter, uRange: { value: SHADOW_RANGE } },
-    update(renderer, camera, dt = 0) {
+    /**
+     * @param {THREE.Texture} [depthTexture] the composer's scene depth, so the
+     *   march can be clipped where terrain already occupies the pixel
+     */
+    update(renderer, camera, dt = 0, depthTexture = null) {
       uTime.value += dt;
+      if (depthTexture) cloudMat.uniforms.tDepth.value = depthTexture;
       cloudMat.uniforms.uCameraPos.value.copy(camera.position);
       cloudMat.uniforms.uProjInverse.value.copy(camera.projectionMatrixInverse);
       cloudMat.uniforms.uViewInverse.value.copy(camera.matrixWorld);

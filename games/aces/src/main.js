@@ -752,7 +752,10 @@ export function init(ctx = {}) {
     sun.target.position.copy(player.position);
     sun.target.updateMatrixWorld();
     sky.position.copy(camera.position);
-    cloudSystem.update(renderer, camera, dt);
+    // Read the depth off the buffer the pass will READ, never the one it
+    // writes — that pairing is what forms a feedback loop. When the parity is
+    // not what we expect this is simply null and the shader skips clipping.
+    cloudSystem.update(renderer, camera, dt, composer.readBuffer?.depthTexture ?? null);
 
     // HUD
     player._agl = player.altitude - terrainHeightAt(player.position.x, player.position.z);
