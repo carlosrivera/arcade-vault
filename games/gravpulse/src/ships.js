@@ -537,6 +537,7 @@ export class Ship {
   static _u = new THREE.Vector3();
   static _fwd = new THREE.Vector3();
   static _trailV = new THREE.Vector3();
+  static _pitchQ = new THREE.Quaternion();
 
   constructor(scene, track, idx, isPlayer) {
     this.track = track;
@@ -866,9 +867,11 @@ export class Ship {
 
     // Apply pitch around right vector
     if (Math.abs(this.pitchVis) > 0.001) {
-      const pitchQ = new THREE.Quaternion().setFromAxisAngle(Ship._r, this.pitchVis);
-      Ship._u.applyQuaternion(pitchQ);
-      Ship._fwd.applyQuaternion(pitchQ);
+      // Scratch quaternion like the rest of this block: allocating here runs
+      // once per ship per frame and gives the collector busywork mid-race.
+      Ship._pitchQ.setFromAxisAngle(Ship._r, this.pitchVis);
+      Ship._u.applyQuaternion(Ship._pitchQ);
+      Ship._fwd.applyQuaternion(Ship._pitchQ);
     }
 
     Ship._m.makeBasis(Ship._r, Ship._u, Ship._fwd);

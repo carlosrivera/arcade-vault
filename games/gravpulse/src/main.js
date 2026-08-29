@@ -160,20 +160,61 @@ function buildComposer(msaa) {
 }
 let composer = buildComposer(true);
 
-// weak GPU / software renderer: drop MSAA + retina scaling after sampling frame times
-const perf = { frames: 0, acc: 0, degraded: false };
-function adaptQuality(dt) {
-  if (perf.degraded || dt <= 0) return;
-  perf.frames++;
-  perf.acc += dt;
-  if (perf.frames >= 20 && perf.acc / perf.frames > 0.04) {
-    perf.degraded = true;
+// Adaptive quality for weak GPUs.
+//
+// Judged on a rolling window of recent frames, not a lifetime average: a
+// cumulative mean is diluted by every cheap menu frame already banked, so a
+// machine that only struggles once the race and its effects start could never
+// pull the average up far enough to trigger.
+//
+// Sampling also skips a warm-up. The first frames of a race include shader
+// compilation and texture upload, which are one-off costs -- judging on those
+// permanently strips effects from hardware that would have run them fine.
+const WARMUP_FRAMES = 45; // ~0.75s at 60fps: long enough to compile shaders
+const WINDOW_FRAMES = 45;
+const SLOW_FRAME = 0.028; // ~36fps sustained before shedding the next tier
+const perf = { warmup: 0, window: [], acc: 0, tier: 0 };
+
+/** Shed one tier of load. Cheapest-to-lose effects go first. */
+function degrade() {
+  perf.tier++;
+  if (perf.tier === 1) {
+    // Screen-space blurs are full-resolution passes and the easiest big win.
     bokehPass.enabled = false;
     zoomPass.enabled = false;
-    dirLight.castShadow = false; // shadow re-render is the first thing to go
+    renderer.setPixelRatio(Math.min(renderer.getPixelRatio(), 1.25));
+    composer = buildComposer(false); // also drops 4x MSAA
+  } else {
+    // Still slow: the shadow map costs a whole extra scene render.
+    dirLight.castShadow = false;
     renderer.setPixelRatio(1);
     composer = buildComposer(false);
   }
+  composer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function adaptQuality(dt) {
+  // Menu frames are far cheaper than racing ones; sampling them only hides
+  // the load we actually care about.
+  if (perf.tier >= 2 || dt <= 0 || state === S.MENU) return;
+  if (perf.warmup < WARMUP_FRAMES) {
+    perf.warmup++;
+    return;
+  }
+  perf.window.push(dt);
+  perf.acc += dt;
+  if (perf.window.length < WINDOW_FRAMES) return;
+  if (perf.acc / perf.window.length > SLOW_FRAME) {
+    degrade();
+    // Re-warm and start a fresh window. The rebuild itself costs a frame or
+    // two, and the samples that triggered this tier must not also trigger the
+    // next one -- otherwise a single slow patch cascades straight to minimum.
+    perf.warmup = 0;
+    perf.window.length = 0;
+    perf.acc = 0;
+    return;
+  }
+  perf.acc -= perf.window.shift();
 }
 
 handleResize(renderer, camera, () => composer);
