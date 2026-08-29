@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { damp } from '#engine/math.js';
+import { clamp, damp } from '#engine/math.js';
 import { fitToShipSpace, loadModel } from './models.js';
 import { WALL_LAT } from './track.js';
 
@@ -802,8 +802,18 @@ export class Ship {
     const cornerFactor = 1 / (1 + curvAhead * 32);
     let target = this.baseSpeed * cornerFactor;
 
-    if (playerCovered - this.covered > 150) target *= 1.07;
-    else if (this.covered - playerCovered > 150) target *= 0.94;
+    // Catch-up, proportional rather than stepped. The old form switched on a
+    // hard 150-unit threshold, so a racer hovering near it flipped between
+    // +7% and nothing every few seconds — visible as a lurch, and it did
+    // nothing at all for a rival 149 units back. Ramping over a window keeps
+    // the pack together smoothly, and the cap is low enough that a player who
+    // is genuinely faster still pulls away.
+    const gap = playerCovered - this.covered; // >0 when this racer is behind
+    const RAMP = 400; // units over which the correction reaches full strength
+    const MAX_CATCHUP = 0.1; // +10% flat out
+    const MAX_HOLDBACK = 0.08; // -8% when well ahead
+    const bias = clamp(gap / RAMP, -1, 1);
+    target *= 1 + (bias > 0 ? bias * MAX_CATCHUP : bias * MAX_HOLDBACK);
 
     this.throttle = this.speed < target ? 1 : 0.15;
     this.brake = 0;

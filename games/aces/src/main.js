@@ -25,6 +25,7 @@ import {
 } from './combat.js';
 import { FlightModel } from './flight.js';
 import { Hud } from './hud.js';
+import { Installations } from './installations.js';
 import { applyJetTemplate, loadF22Model, makeJetRig } from './jet.js';
 import { buildSky, Terrain, terrainHeightAt } from './terrain.js';
 
@@ -238,6 +239,12 @@ export function init(ctx = {}) {
 
   const sky = buildSky(scene);
   const terrain = new Terrain(scene, cloudSystem);
+  // Ground installations, so the terrain is somewhere to fight rather than
+  // somewhere to fly over.
+  const installations = new Installations(scene, (position, scale) => {
+    explode(scene, position, scale, combatCallbacks);
+    showMsg('SITE DESTROYED', 1.6);
+  });
 
   // Lens water: droplets fade in when the camera is inside dense cloud
   // (wetness driven by cloudDensityAt in cloudSystem.update). After heat so
@@ -718,17 +725,28 @@ export function init(ctx = {}) {
         damagePlayer(4);
         r.life = 0;
       }
+      // Cannon rounds also chew on ground installations.
+      if (r.player && r.life > 0 && installations.damageAt(r.pos, 7, 200)) {
+        r.life = 0;
+      }
     }
 
     // enemy missile bookkeeping (remove spent ones from the warning list)
     world.enemyMissiles = world.enemyMissiles.filter((m) => missiles.list.includes(m));
 
     missiles.update(dt, combatCallbacks);
+    // A missile passing close to a site kills it. Checked here rather than in
+    // combat.js so the weapon code stays unaware of what a site is.
+    for (const m of missiles.list) {
+      if (!m.friendly) continue;
+      if (installations.damageAt(m.pos, 120, 320)) m.life = 0;
+    }
     updateExplosions(dt);
 
     updateLock(dt);
     updateCamera(dt);
     terrain.update(player.position);
+    installations.update(player.position);
     // keep the sun direction constant wherever we fly (target follows player)
     sun.position.copy(player.position).addScaledVector(SUN_DIR, 10000);
     sun.target.position.copy(player.position);
@@ -887,6 +905,7 @@ export function init(ctx = {}) {
       for (const off of _unbind) off();
       _unbind.length = 0;
       keys.dispose();
+      installations.dispose();
       running = false;
       disposeComposer(composer);
       disposeScene(scene);

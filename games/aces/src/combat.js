@@ -443,11 +443,25 @@ export class Missiles {
         const relPos = tgtPos.clone().sub(m.pos);
         const relVel = tgtVel.clone().sub(m.vel);
         const _closing = relVel.length();
-        // PN: lateral acceleration command proportional to LOS rotation
+        // True proportional navigation: the command is N * Vc * omega, where
+        // Vc is closing speed. Scaling by closing speed is what makes the
+        // missile tighten as it converges — with a fixed gain it flies the
+        // same lazy arc whether the target is running away or coming head-on,
+        // which reads as a firework rather than a weapon.
         const omega = new THREE.Vector3()
           .crossVectors(relPos, relVel)
           .divideScalar(Math.max(relPos.lengthSq(), 1));
-        const aCmd = new THREE.Vector3().crossVectors(omega, relVel).multiplyScalar(-3.2);
+        // Closing speed is the component of relative velocity along the
+        // line of sight; negative when the gap is shrinking.
+        const los = relPos.clone().normalize();
+        const closingSpeed = -relVel.dot(los);
+        // Clamped low so a target that briefly out-runs the missile does not
+        // invert the command, and high so a head-on merge stays controllable.
+        const Vc = THREE.MathUtils.clamp(closingSpeed, 60, 1400);
+        const N = 3.2; // navigation constant
+        const aCmd = new THREE.Vector3()
+          .crossVectors(omega, relVel)
+          .multiplyScalar(-N * (Vc / 400));
         aCmd.y -= GRAV * 0.6; // gravity compensation
         // clamp turn
         const maxA = 320;
