@@ -183,15 +183,24 @@ export class AudioManager {
     }
   }
 
-  /** Background desert wind drone. */
+  /**
+   * Background desert wind: looped noise with everything above 280Hz filtered
+   * away, leaving a low rumble rather than hiss. Held at 4% so it reads as
+   * room tone under the digging instead of a sound you notice.
+   *
+   * Idempotent — both entry points into an expedition call it.
+   */
   startDesertAmbience() {
     this.ensureContext();
     if (!this.kernel.ctx || this.ambient) return;
+    // Gain is fixed here and muting is left to the master bus. Baking the mute
+    // state into the drone would silence it permanently, since unmuting only
+    // restores master.
     this.ambient = this.kernel.drone({
       buffer: this.noise,
       filterType: 'lowpass',
       frequency: 280,
-      gain: this.isMuted ? 0 : 0.04,
+      gain: 0.04,
     });
   }
 }

@@ -71,6 +71,9 @@ class DunesweeperApp {
 
   startFromMenu() {
     this.audio.ensureContext();
+    // Wind starts with the expedition, not on the menu. Safe to call twice --
+    // it no-ops once the drone exists.
+    this.audio.startDesertAmbience();
     this.menuEl.style.display = 'none';
     this.hudRoot.style.display = 'block';
     this.resumeBtn.style.display = 'none';
@@ -83,6 +86,7 @@ class DunesweeperApp {
 
   resumeExpedition() {
     this.audio.ensureContext();
+    this.audio.startDesertAmbience();
     this.menuEl.style.display = 'none';
     this.hudRoot.style.display = 'block';
     this.setPaused(false);

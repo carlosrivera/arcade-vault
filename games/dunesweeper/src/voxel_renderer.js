@@ -661,16 +661,25 @@ export class VoxelRenderer {
         // Buried ruin tip poking out of the sand crown, or smaller props:
         // pebbles, a dry sprout, an old bone — keeps plates from feeling empty
         const capY = CONFIG.SAND_LAYERS + bonusLayers;
+        // Props sit on the sand crown, and the tallest of them -- a buried ruin
+        // tip is over four voxels across -- would otherwise swallow the survey
+        // flag whole. Track the highest point so the flag can be planted on top
+        // of the decoration rather than inside it.
+        let decorTop = capY;
+        const addProp = (v) => {
+          terraceVoxels.push(v);
+          decorTop = Math.max(decorTop, v.y + (v.sy ?? v.scale ?? 1) / 2);
+        };
         if (hasRuinTip) {
           const stoneCol = CONFIG.PALETTES.portal.stone;
-          terraceVoxels.push({
+          addProp({
             x: 0,
             y: capY + 0.75,
             z: 0,
             color: stoneCol,
             scale: vPerCell * 0.52,
           });
-          terraceVoxels.push({
+          addProp({
             x: halfC * 0.4,
             y: capY + 0.45,
             z: -halfC * 0.35,
@@ -683,7 +692,7 @@ export class VoxelRenderer {
             // Pebble cluster
             const pebbleCol = 0x8f8676;
             for (let p = 0; p < 3; p++) {
-              terraceVoxels.push({
+              addProp({
                 x: cellJitter.range(-2, 2),
                 y: capY + 0.55,
                 z: cellJitter.range(-2, 2),
@@ -693,14 +702,14 @@ export class VoxelRenderer {
             }
           } else if (propRoll > 0.82) {
             // Dry sprout
-            terraceVoxels.push({
+            addProp({
               x: cellJitter.range(-1.5, 1.5),
               y: capY + 0.5,
               z: cellJitter.range(-1.5, 1.5),
               color: CONFIG.PALETTES.wall[2],
               scale: 0.8,
             });
-            terraceVoxels.push({
+            addProp({
               x: cellJitter.range(-1.5, 1.5),
               y: capY + 0.95,
               z: cellJitter.range(-1.5, 1.5),
@@ -709,7 +718,7 @@ export class VoxelRenderer {
             });
           } else if (propRoll > 0.76) {
             // Old bone surfacing
-            terraceVoxels.push({
+            addProp({
               x: cellJitter.range(-1.8, 1.8),
               y: capY + 0.55,
               z: cellJitter.range(-1.8, 1.8),
@@ -726,7 +735,9 @@ export class VoxelRenderer {
         const flagVox = createFlag();
         const flagMesh = buildVoxelMesh(flagVox, vSize);
         flagMesh.name = 'flagMesh';
-        flagMesh.position.set(0, (CONFIG.SAND_LAYERS + bonusLayers) * vSize, 0);
+        // Stand the flag on whatever this cell is decorated with, so a flagged
+        // cell always reads as flagged regardless of the prop it drew.
+        flagMesh.position.set(0, decorTop * vSize, 0);
         flagMesh.visible = false;
         cellGroup.add(flagMesh);
 
