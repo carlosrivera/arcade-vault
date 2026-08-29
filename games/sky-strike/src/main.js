@@ -32,9 +32,9 @@ function makeToonMat(colorHex, gradientMap) {
   });
 }
 
-function addOutline(mesh, scale = 1.1) {
+function addOutline(mesh, scale = 1.1, color = 0x0a1220) {
   const outlineMat = new THREE.MeshBasicMaterial({
-    color: 0x0a1220,
+    color,
     side: THREE.BackSide,
   });
   const outlineMesh = new THREE.Mesh(mesh.geometry, outlineMat);
@@ -281,6 +281,65 @@ function createEnvironment(scene, rng, gradientMap) {
   ];
   LAYERS.forEach(buildRidge);
 
+  // Horizon glow. Air is brightest where you look through the most of it, so
+  // a pale band sits along the skyline in every landscape painting. It also
+  // does something the haze alone cannot: it separates the furthest ridge from
+  // the sky, which otherwise meet at a hard line and kill the sense of scale.
+  {
+    const glowGeo = new THREE.PlaneGeometry(600, 26);
+    const glowMat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      fog: false,
+      uniforms: { uColor: { value: new THREE.Color(0xdff0fb) } },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform vec3 uColor;
+        varying vec2 vUv;
+        void main() {
+          // Densest at the horizon line, falling away above and below.
+          float d = abs(vUv.y - 0.42);
+          float a = smoothstep(0.5, 0.0, d) * 0.55;
+          gl_FragColor = vec4(uColor, a);
+        }`,
+    });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.set(0, -12, -58);
+    envGroup.add(glow);
+  }
+
+  // Field patchwork on the nearest slope. Farmland is not one green: it is
+  // parcels of slightly different crops, and that low-contrast variation is
+  // most of what separates cultivated country from a painted backdrop.
+  {
+    const near = LAYERS[4];
+    for (let i = 0; i < 46; i++) {
+      const x = rng.range(-250, 250);
+      const n = ridgeNoise(x / near.wavelength, near.seed) ** 1.35;
+      const y = near.baseY + n * near.height;
+      const w = rng.range(7, 22);
+      const h = rng.range(2.2, 5);
+      const field = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({
+          color: new THREE.Color(near.color)
+            .lerp(new THREE.Color(rng.chance(0.5) ? 0x6fc44a : 0x1c6b28), rng.range(0.25, 0.6)),
+          fog: false,
+          transparent: true,
+          opacity: rng.range(0.35, 0.7),
+        }),
+      );
+      // Sit just below the crest so parcels read as lying on the slope.
+      field.position.set(x, y - rng.range(1.5, 6), near.z + 0.4);
+      envGroup.add(field);
+    }
+  }
+
   // Conifers along the two nearest crests. Small dark verticals are what give
   // a hillside its scale — without something known-sized on it, a ridge could
   // be a mound or a mountain.
@@ -328,24 +387,83 @@ function createEnvironment(scene, rng, gradientMap) {
     envGroup.add(houseGroup);
   }
 
-  const clouds = [];
-  const cloudMat = makeToonMat(0xffffff, gradientMap);
+  // --- Clouds -----------------------------------------------------------
+  //
+  // Every puff used to be pure white with the same heavy outline no matter how
+  // far away it was, so the whole sky sat on one plane. Two changes give it
+  // depth: the same haze the hills use, and a shading ramp within each cloud.
+  //
+  // A cumulus is bright along its sunlit crown and turns grey-blue underneath,
+  // where the mass of the cloud shadows itself. Tinting each puff by its
+  // height inside the cluster reproduces that for almost nothing, and it is
+  // the single cue that stops a cloud reading as a heap of white spheres.
 
-  for (let c = 0; c < 16; c++) {
-    const cloudGroup = new THREE.Group();
-    const clusterCount = Math.floor(rng.range(4, 9));
-    for (let p = 0; p < clusterCount; p++) {
-      const cr = rng.range(2.5, 5.5);
-      const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(cr, 1), cloudMat);
-      puff.position.set(rng.range(-4, 4), rng.range(-2, 3), rng.range(-2, 2));
-      addOutline(puff, 1.06);
-      cloudGroup.add(puff);
+  const clouds = [];
+
+  // A small shared palette rather than a material per puff: enough steps to
+  // read as shading, few enough to keep the draw calls down.
+  const cloudPalette = (haze) => {
+    const tint = (hex, amount) =>
+      new THREE.MeshBasicMaterial({
+        color: new THREE.Color(hex).lerp(HAZE, haze * amount),
+        fog: false,
+      });
+    return {
+      crown: tint(0xffffff, 0.85), // sunlit top
+      body: tint(0xeef4fb, 0.9),
+      shade: tint(0xc3d3e6, 0.95), // self-shadowed underside
+      base: tint(0xa8bcd4, 1.0),
+    };
+  };
+
+  const CLOUD_BANDS = [
+    // Far: small, heavily hazed, no outline — an outline is a near-field cue
+    // and drawing one at distance is what flattened the sky.
+    { count: 22, z: [-46, -34], haze: 0.62, scale: [1.6, 3.2], puffs: [4, 7], outline: 0 },
+    { count: 16, z: [-32, -22], haze: 0.34, scale: [2.4, 4.6], puffs: [5, 9], outline: 0.0 },
+    // Near: full colour and a crisp edge, which now reads as proximity.
+    { count: 11, z: [-20, -11], haze: 0.0, scale: [3.2, 6.4], puffs: [6, 11], outline: 1.05 },
+  ];
+
+  for (const band of CLOUD_BANDS) {
+    const pal = cloudPalette(band.haze);
+    for (let c = 0; c < band.count; c++) {
+      const cloudGroup = new THREE.Group();
+      const clusterCount = Math.floor(rng.range(band.puffs[0], band.puffs[1]));
+      // Track the cluster's own extent so the shading ramp is relative to the
+      // cloud, not to world height — a low cloud is still bright on top.
+      const puffSpecs = [];
+      for (let p = 0; p < clusterCount; p++) {
+        puffSpecs.push({
+          r: rng.range(band.scale[0], band.scale[1]),
+          x: rng.range(-5, 5),
+          y: rng.range(-2, 3.5),
+          z: rng.range(-2, 2),
+        });
+      }
+      const lo = Math.min(...puffSpecs.map((q) => q.y));
+      const hi = Math.max(...puffSpecs.map((q) => q.y));
+
+      for (const q of puffSpecs) {
+        const t = hi > lo ? (q.y - lo) / (hi - lo) : 1;
+        const mat = t > 0.72 ? pal.crown : t > 0.45 ? pal.body : t > 0.2 ? pal.shade : pal.base;
+        const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(q.r, 1), mat);
+        puff.position.set(q.x, q.y, q.z);
+        // A soft blue-grey edge rather than the near-black used on aircraft.
+        // Ink-black on a cloud reads as a drawn outline; on white it is the
+        // difference between cel shading and a comic panel.
+        if (band.outline) addOutline(puff, band.outline, 0x7d9ab8);
+        cloudGroup.add(puff);
+      }
+
+      const zDepth = rng.range(band.z[0], band.z[1]);
+      cloudGroup.position.set(rng.range(-140, 140), rng.range(2, 34), zDepth);
+      // Parallax by depth: distant clouds drift slowly, which is the other
+      // half of the depth illusion once colour has done its part.
+      cloudGroup.userData = { speed: rng.range(0.5, 2.6) * (1 - band.haze * 0.6), zDepth };
+      envGroup.add(cloudGroup);
+      clouds.push(cloudGroup);
     }
-    const zDepth = rng.range(-25, -12);
-    cloudGroup.position.set(rng.range(-120, 120), rng.range(0, 28), zDepth);
-    cloudGroup.userData = { speed: rng.range(0.8, 2.5), zDepth };
-    envGroup.add(cloudGroup);
-    clouds.push(cloudGroup);
   }
 
   scene.add(envGroup);
