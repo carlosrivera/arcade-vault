@@ -43,3 +43,8 @@ build/
 tmp/
 .cache/
 coverage/
+
+# Terrain debug dumps (see games/aces/tools/generate_map.js)
+*.pgm
+heightmap*.png
+hillshade*.png

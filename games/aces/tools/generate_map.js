@@ -1,5 +1,14 @@
+// generate_map.js — dump heightAt() to a grayscale PGM for visual inspection.
+//
+// Debug aid for tuning the terrain field: renders a 1024x1024 window of the
+// height function so it can be eyeballed in an image viewer. Nothing in the
+// game consumes the output — see bake_radar.js for the asset that ships.
+//
+// Usage: node tools/generate_map.js [offsetX] [offsetZ] [outFile]
+// Output is written to the current directory and is gitignored.
+
 import fs from 'fs';
-import { heightAt } from './games/aces/src/terrain.js';
+import { heightAt } from '../src/terrain.js';
 
 const width = 1024;
 const height = 1024;
