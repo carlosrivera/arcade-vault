@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!shared/vendor", "!node_modules"]
+    "includes": [
+      "**",
+      "!shared/vendor",
+      "!node_modules",
+      "!models/*/src/createIsleDioramaModel.ts",
+      "!models/*/dist",
+      "!models/*/material-evidence"
+    ]
   },
   "formatter": {
     "enabled": true,

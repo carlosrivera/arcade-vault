@@ -1,0 +1,154 @@
+{
+  "model": null,
+  "specifiedComponents": 30,
+  "builtParts": 22,
+  "errors": 0,
+  "warnings": 0,
+  "result": "pass",
+  "findings": [
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "slab-water-band",
+      "detail": "no mesh of its own \u2014 folded into 'slab-base', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "slab-earth-stratum",
+      "detail": "no mesh of its own \u2014 folded into 'slab-base', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "shallow-shelf",
+      "detail": "no mesh of its own \u2014 folded into 'sea-surface', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "foam-ring",
+      "detail": "no mesh of its own \u2014 folded into 'sea-surface', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "cliff-band",
+      "detail": "no mesh of its own \u2014 folded into 'landmass', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "beach-band",
+      "detail": "no mesh of its own \u2014 folded into 'landmass', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "farmland",
+      "detail": "no mesh of its own \u2014 folded into 'landmass', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "mountain-massif",
+      "detail": "no mesh of its own \u2014 folded into 'landmass', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "ne-mesa",
+      "detail": "no mesh of its own \u2014 folded into 'landmass', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "rock-islet",
+      "detail": "no mesh of its own \u2014 folded into 'root', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "watchtower",
+      "detail": "no mesh of its own \u2014 folded into 'structures', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "conifer-unit",
+      "detail": "no mesh of its own \u2014 folded into 'landmass', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "tower-cap",
+      "detail": "no mesh of its own \u2014 folded into 'castle', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "windmill-sail",
+      "detail": "no mesh of its own \u2014 folded into 'windmill', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "bridge-arch",
+      "detail": "no mesh of its own \u2014 folded into 'arch-bridge', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "component-folded",
+      "severity": "info",
+      "subject": "cloud-puff",
+      "detail": "no mesh of its own \u2014 folded into 'cloud-layer', which is built. Correct for relief; a real gap only if this needed to be separable."
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "conifers",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "conifer-scatter",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "hamlet-clusters",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "Isle Diorama",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "terrain",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "watchtower-a",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "watchtower-b",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    },
+    {
+      "check": "part-not-specified",
+      "severity": "info",
+      "subject": "windmill-sails",
+      "detail": "built part has no matching component in the spec (fine for detail groups; a sign of spec drift for anything larger)"
+    }
+  ]
+}

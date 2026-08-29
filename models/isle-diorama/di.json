@@ -1,0 +1,354 @@
+{
+  "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+  "zonesDir": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory",
+  "detailInventory": {
+    "scanMethod": "grid-3x3",
+    "targetMinDetails": 10,
+    "details": [
+      {
+        "id": "zone-r0c0",
+        "kind": "zone-rollup",
+        "description": "Snow covers the summit and reaches down the gullies in tongues; the snowline is ",
+        "region": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "snow-gully-capping",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "snow-gully-capping"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r0c0.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r0c1",
+        "kind": "zone-rollup",
+        "description": "Snow covers the summit and reaches down the gullies in tongues; the snowline is ; Opaque white cumulus masses float at and BELOW plateau height, over the sea and ",
+        "region": {
+          "x": 0.3333,
+          "y": 0.0,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "snow-gully-capping,cloud-deck-at-island-level",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "snow-gully-capping,cloud-deck-at-island-level"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r0c1.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r0c2",
+        "kind": "zone-rollup",
+        "description": "Rear-right highland is ARID ochre sandstone, stepped into terraces with visible ; Two grey cylindrical stone watchtowers stand on the mesa top with a short ruined; Opaque white cumulus masses float at and BELOW plateau height, over the sea and ",
+        "region": {
+          "x": 0.6667,
+          "y": 0.0,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "mesa-terraced-strata,mesa-watchtowers,cloud-deck-at-island-level",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "mesa-terraced-strata,mesa-watchtowers,cloud-deck-at-island-level"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r0c2.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r1c0",
+        "kind": "zone-rollup",
+        "description": "A large upright stone annulus standing on the NW plateau, weathered grey, broken; Plateau risers are near-vertical grey-violet rock with vertical fluting and dark; A white waterfall drops the full height of the west cliff into the sea, widening",
+        "region": {
+          "x": 0.0,
+          "y": 0.3333,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "stone-ring-monument,cliff-vertical-striation,waterfall-plume",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "stone-ring-monument,cliff-vertical-striation,waterfall-plume"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r1c0.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r1c1",
+        "kind": "zone-rollup",
+        "description": "Rectilinear farm parcels in alternating green, olive and wheat-tan, with hard st; A stone bridge of repeated round arches on piers spans the central strait, deck ; A cream-walled castle on a rock islet, with several cylindrical towers capped by; Tan dirt paths wind between hamlets and along plateau tops, narrow and irregular",
+        "region": {
+          "x": 0.3333,
+          "y": 0.3333,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "field-parcel-patchwork,multi-arch-bridge,castle-conical-towers,dirt-path-network",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "field-parcel-patchwork,multi-arch-bridge,castle-conical-towers,dirt-path-network"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r1c1.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r1c2",
+        "kind": "zone-rollup",
+        "description": "A white-towered windmill with a red conical cap and four lattice sails stands am; A timber jetty on posts runs out from the east village shore into shallow water,; A pale cream sand band lies between lowland grass and the foam line wherever the",
+        "region": {
+          "x": 0.6667,
+          "y": 0.3333,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "windmill-and-village,timber-pier,beach-sand-band",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "windmill-and-village,timber-pier,beach-sand-band"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r1c2.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r2c0",
+        "kind": "zone-rollup",
+        "description": "Plateau risers are near-vertical grey-violet rock with vertical fluting and dark; Each cut face shows a bright blue water band over an ochre earth stratum; the in",
+        "region": {
+          "x": 0.0,
+          "y": 0.6667,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "cliff-vertical-striation,slab-cut-face-strata",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "cliff-vertical-striation,slab-cut-face-strata"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r2c0.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r2c1",
+        "kind": "zone-rollup",
+        "description": "White cylindrical lighthouse with a red conical cap and a dark gallery band belo; Small rock stacks stand in open water, each carrying one or two conifers and rin; A continuous white foam band hugs every land/water boundary including the rock i",
+        "region": {
+          "x": 0.3333,
+          "y": 0.6667,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "lighthouse-gallery-band,islet-with-single-conifer,shore-foam-ring",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "lighthouse-gallery-band,islet-with-single-conifer,shore-foam-ring"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r2c1.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r2c2",
+        "kind": "zone-rollup",
+        "description": "Each cut face shows a bright blue water band over an ochre earth stratum; the in; A continuous white foam band hugs every land/water boundary including the rock i",
+        "region": {
+          "x": 0.6667,
+          "y": 0.6667,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "slab-cut-face-strata,shore-foam-ring",
+        "mapsTo": {
+          "type": "detail-set",
+          "ref": "slab-cut-face-strata,shore-foam-ring"
+        },
+        "evidenceRef": "/Users/carlos/code/wipeout/models/isle-diorama/detail-inventory/zone-r2c2.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "slab-cut-face-strata",
+        "zone": "slab-side",
+        "kind": "material-boundary",
+        "description": "Each cut face shows a bright blue water band over an ochre earth stratum; the interface between them is ragged, not level. Water band is ~0.3 of thickness.",
+        "mapsTo": "material.slab-strata.localOverrides",
+        "confidence": 0.95,
+        "evidenceRef": "crops/slab-edge.png"
+      },
+      {
+        "id": "shore-foam-ring",
+        "zone": "coastline",
+        "kind": "contour",
+        "description": "A continuous white foam band hugs every land/water boundary including the rock islets, with a turquoise shallow band immediately outside it.",
+        "mapsTo": "material.sea.localOverrides",
+        "confidence": 0.95,
+        "evidenceRef": "crops/slab-edge.png"
+      },
+      {
+        "id": "field-parcel-patchwork",
+        "zone": "lowland-plateau",
+        "kind": "linework",
+        "description": "Rectilinear farm parcels in alternating green, olive and wheat-tan, with hard straight boundaries, tiled over the flat plateau tops only.",
+        "mapsTo": "component.farmland.localFeatures",
+        "confidence": 0.9,
+        "evidenceRef": "crops/center-castle.png"
+      },
+      {
+        "id": "cliff-vertical-striation",
+        "zone": "plateau-edge",
+        "kind": "relief",
+        "description": "Plateau risers are near-vertical grey-violet rock with vertical fluting and darker cavity lines; grass caps the lip with a hard edge.",
+        "mapsTo": "component.cliff-band.localFeatures",
+        "confidence": 0.9,
+        "evidenceRef": "crops/nw-waterfall.png"
+      },
+      {
+        "id": "snow-gully-capping",
+        "zone": "mountain",
+        "kind": "material-boundary",
+        "description": "Snow covers the summit and reaches down the gullies in tongues; the snowline is irregular and follows drainage, not a level contour.",
+        "mapsTo": "material.mountain-rock.localOverrides",
+        "confidence": 0.9,
+        "evidenceRef": "crops/mountain.png"
+      },
+      {
+        "id": "stone-ring-monument",
+        "zone": "nw-plateau",
+        "kind": "landmark",
+        "description": "A large upright stone annulus standing on the NW plateau, weathered grey, broken at the base, roughly one eighth of the island width in diameter.",
+        "mapsTo": "component.stone-ring",
+        "confidence": 0.75,
+        "evidenceRef": "crops/nw-waterfall.png"
+      },
+      {
+        "id": "multi-arch-bridge",
+        "zone": "central-strait",
+        "kind": "landmark",
+        "description": "A stone bridge of repeated round arches on piers spans the central strait, deck flat, abutments socketed into both banks.",
+        "mapsTo": "component.arch-bridge",
+        "confidence": 0.85,
+        "evidenceRef": "crops/nw-waterfall.png"
+      },
+      {
+        "id": "waterfall-plume",
+        "zone": "west-cliff",
+        "kind": "landmark",
+        "description": "A white waterfall drops the full height of the west cliff into the sea, widening slightly toward the base with a spray disc where it lands.",
+        "mapsTo": "component.waterfall",
+        "confidence": 0.9,
+        "evidenceRef": "crops/nw-waterfall.png"
+      },
+      {
+        "id": "windmill-and-village",
+        "zone": "east-plateau",
+        "kind": "landmark",
+        "description": "A white-towered windmill with a red conical cap and four lattice sails stands among a cluster of ~8 red-roofed houses on the east field plateau.",
+        "mapsTo": "component.windmill",
+        "confidence": 0.9,
+        "evidenceRef": "crops/east-windmill.png"
+      },
+      {
+        "id": "castle-conical-towers",
+        "zone": "central-islet",
+        "kind": "landmark",
+        "description": "A cream-walled castle on a rock islet, with several cylindrical towers capped by red-orange cones of differing heights.",
+        "mapsTo": "component.castle",
+        "confidence": 0.85,
+        "evidenceRef": "crops/center-castle.png"
+      },
+      {
+        "id": "islet-with-single-conifer",
+        "zone": "open-sea",
+        "kind": "repetition",
+        "description": "Small rock stacks stand in open water, each carrying one or two conifers and ringed by its own foam collar.",
+        "mapsTo": "repetitionSystem.rock-islets",
+        "confidence": 0.9,
+        "evidenceRef": "crops/slab-edge.png"
+      },
+      {
+        "id": "cloud-deck-at-island-level",
+        "zone": "atmosphere",
+        "kind": "landmark",
+        "description": "Opaque white cumulus masses float at and BELOW plateau height, over the sea and against the mountain flanks - inside the diorama, not a distant sky. Thin cirrus streaks cross the summit horizontally.",
+        "mapsTo": "component.cloud-layer",
+        "confidence": 0.9,
+        "evidenceRef": "crops/mountain.png"
+      },
+      {
+        "id": "dirt-path-network",
+        "zone": "lowland-plateau",
+        "kind": "linework",
+        "description": "Tan dirt paths wind between hamlets and along plateau tops, narrow and irregular, distinct from the straight field boundaries.",
+        "mapsTo": "component.farmland.localFeatures",
+        "confidence": 0.7,
+        "evidenceRef": "crops/nw-waterfall.png"
+      },
+      {
+        "id": "beach-sand-band",
+        "zone": "coastline",
+        "kind": "material-boundary",
+        "description": "A pale cream sand band lies between lowland grass and the foam line wherever the coast is low; absent wherever a cliff meets the water directly.",
+        "mapsTo": "material.terrain.localOverrides",
+        "confidence": 0.9,
+        "evidenceRef": "crops/center-castle.png"
+      },
+      {
+        "id": "mesa-terraced-strata",
+        "zone": "ne-mesa",
+        "kind": "relief",
+        "description": "Rear-right highland is ARID ochre sandstone, stepped into terraces with visible horizontal strata, green vegetation only on its lower slopes. It is a distinct biome from the green lowland, not the same rock in another colour.",
+        "mapsTo": "component.mesa.localFeatures",
+        "confidence": 0.85,
+        "evidenceRef": "crops/mesa.png"
+      },
+      {
+        "id": "mesa-watchtowers",
+        "zone": "ne-mesa",
+        "kind": "landmark",
+        "description": "Two grey cylindrical stone watchtowers stand on the mesa top with a short ruined wall run between them. Corrects an earlier reading of \"fortress\": the targeted crop shows separate towers, not a walled keep.",
+        "mapsTo": "component.watchtower",
+        "confidence": 0.8,
+        "evidenceRef": "crops/mesa.png"
+      },
+      {
+        "id": "lighthouse-gallery-band",
+        "zone": "south-islet",
+        "kind": "landmark",
+        "description": "White cylindrical lighthouse with a red conical cap and a dark gallery band below the lantern, standing on a green-capped cliff islet.",
+        "mapsTo": "component.lighthouse",
+        "confidence": 0.9,
+        "evidenceRef": "crops/lighthouse-pier.png"
+      },
+      {
+        "id": "timber-pier",
+        "zone": "east-shore",
+        "kind": "landmark",
+        "description": "A timber jetty on posts runs out from the east village shore into shallow water, decking visible as thin planks.",
+        "mapsTo": "component.pier",
+        "confidence": 0.8,
+        "evidenceRef": "crops/lighthouse-pier.png"
+      }
+    ],
+    "enumeratedCount": 18
+  },
+  "authoringInstruction": "Open each zone crop under zonesDir and replace every detail stub's kind, description, scale, affects, mapsTo, and confidence with what is actually observed. Add more detail entries per zone if a single zone contains multiple distinct marks; do not leave stubs unfilled or unlinked (mapsTo must reference a real component.localFeatures or material.localOverrides entry)."
+}

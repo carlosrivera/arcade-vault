@@ -1,0 +1,14 @@
+[
+ {"id":"slab-and-strata","score":0.86,"threshold":0.82,"passed":true,
+  "notes":"Strongest match. Rectangular cut block, square corners, blue water band over ochre earth on every visible face, and the interface is ragged along its run rather than a level stripe. Proportion of band to thickness reads correctly against the reference."},
+ {"id":"landform-grammar","score":0.68,"threshold":0.80,"passed":false,
+  "notes":"Terraced tables with rock risers are present and correct, and the coastline follows the reference. The massif is the failure: quantising a radial falloff still reads as concentric contour bands - a topographic model, not the reference's faceted pyramidal peak - and it occupies roughly 40% of frame height against the reference's 25%, sitting ON the island rather than rising behind it. Noise perturbation reduced but did not remove the ringing."},
+ {"id":"water-system","score":0.70,"threshold":0.80,"passed":false,
+  "notes":"Depth grading and shallow banding now read after brightening, and foam follows every coast including the islets. Still short of the reference, whose turquoise shallows are wider and whose open water is lighter; the foam band is one cell wide and reads thinner than the painted surf."},
+ {"id":"landmark-set","score":0.50,"threshold":0.78,"passed":false,
+  "notes":"All ten landmarks exist in geometry at their un-projected plan positions, and the stone ring and bridge are now legible. Castle, lighthouse, windmill, watchtowers, pier and waterfall are too small to read at the review viewpoint - in the reference they are focal points. This is a scale defect, not a missing-component defect."},
+ {"id":"painted-finish","score":0.74,"threshold":0.82,"passed":false,
+  "notes":"Correct in kind: matte dielectric surfaces, no toon ramp, no posterised bands, no outline pass, no rim light, and the only satin response is the sea - the cel look the user rejected is absent. Short on value: the render sits darker and lower-contrast than the reference's high-key painting, so shaded faces read grey where the reference keeps them coloured."},
+ {"id":"repetition-systems","score":0.68,"threshold":0.75,"passed":false,
+  "notes":"Clustering behaviour is right - conifers follow the biome weights, hamlets come in groups of 3-8, never singles - and farm parcels now appear as rectilinear crop blocks. Density is too high: the reference's trees are larger and sparser, so its land reads as fields with woods, while this reads as continuous forest."}
+]

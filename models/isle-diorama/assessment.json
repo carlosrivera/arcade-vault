@@ -1,0 +1,547 @@
+{
+  "targetName": "Isometric Diorama Island",
+  "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+  "preSpecAssessment": {
+    "objectClass": {
+      "primaryType": "terrain diorama slab (isometric fantasy overworld island)",
+      "primaryDomain": "object",
+      "formLanguage": [
+        "hard-surface",
+        "organic",
+        "architectural",
+        "sculptural"
+      ],
+      "structureKind": [
+        "compound object",
+        "layered shell",
+        "repeated modules",
+        "deformable surface"
+      ],
+      "motionPotential": [
+        "static prop",
+        "whole-object transform",
+        "effect-emitter"
+      ],
+      "materialFamilies": [
+        "stone",
+        "liquid-like",
+        "leaf",
+        "ceramic",
+        "mixed"
+      ],
+      "notes": "A scene presented as a bounded object: a rectangular cut block whose top face carries a complete landscape. The slab boundary is what makes it an object rather than a vista, and the blue-water-over-ochre-earth cut face is its single most identity-defining surface. No metal anywhere; every material is a matte dielectric except the satin sea. Finish is HAND-PAINTED, not PBR (see localSpecSearch core.pbr-hand-painted-vs-pbr-texture): value gradients are baked into the art. The user asked for the reference look reproduced and explicitly NOT cel shading, so the route is painted albedo carried in vertex colour plus soft real lighting - never a toon gradient ramp, and never a glossy PBR read."
+    },
+    "complexity": {
+      "tier": "complex",
+      "scores": {
+        "silhouetteComplexity": 3,
+        "componentCount": 3,
+        "hierarchyDepth": 3,
+        "repetitionDensity": 3,
+        "materialLayerCount": 3,
+        "localDetailDensity": 2,
+        "occlusionRisk": 2,
+        "actionReadinessNeed": 1
+      },
+      "estimatedCounts": {
+        "macroComponents": 5,
+        "mesoComponents": 16,
+        "microFeatureGroups": 8,
+        "materialLayers": 12,
+        "repetitionSystems": 5
+      },
+      "reasoning": [
+        "Scores total 20/24. Structurally this sits at the top of `complex`: many parts, five repetition systems, twelve material layers, three hierarchy levels.",
+        "Held at `complex` rather than `ultra-complex` deliberately: the count of parts is high but each individual part is geometrically simple (a house is a box plus a prism, a conifer is a cone). Fidelity here depends on LAYOUT and PALETTE, not on microstructure per part, which is what the ultra-complex tier exists to force.",
+        "localDetailDensity is 2, not 3: the painted source resolves cliff striation, foam lines and field boundaries, but there are no pores, scratches or fasteners to enumerate.",
+        "occlusionRisk 2: three slab faces are visible and the fourth is inferable by construction, but the mountain rear, all rear-facing cliffs, and the cloud-covered mesa fortress are hidden."
+      ]
+    },
+    "specDepthDecision": {
+      "requiredDepth": "complex",
+      "minimumComponentLevels": [
+        "macro",
+        "meso",
+        "micro"
+      ],
+      "needsRepetitionSystems": true,
+      "needsMaterialLocalOverrides": true,
+      "needsMultipleReviewViews": true,
+      "needsActionReadyHierarchy": true,
+      "rationale": "Complex depth is required because the identity is carried by repeated systems (conifer scatter, hamlet clusters, field patchwork, shore foam, rock islets) distributed over a heightfield, not by one silhouette. A spec with a single terrain root would validate and still reproduce none of it."
+    },
+    "unknownsToResolveBeforeImplementation": [
+      "Slab underside is hidden; modelled as a flat cut face. Inference, not observation.",
+      "Mountain rear and all rear-facing cliffs are hidden; generated plausibly from the same noise field as the visible front, flagged as inference.",
+      "Rear-right mesa fortress is cloud-occluded; built as a massing block, not detailed.",
+      "Stone ring monument cross-section (solid torus vs flat annulus) is uncertain; reading it as a flat-sided annulus with a break at the base.",
+      "House counts inside clusters are not countable at source resolution; positions reproduce the reference layout, counts are approximate.",
+      "Sea plane height relative to the slab top is uncertain; reads flush and is built flush.",
+      "Water is opaque in the reference, so no sea floor is visible or modelled."
+    ],
+    "detailInventory": {
+      "scanMethod": "component-zones",
+      "targetMinDetails": 10,
+      "note": "Enumerate every identity-defining small detail before authoring the spec. Each detail must map to a component.localFeatures entry or material.localOverrides entry, never prose only. Use forge/stage1_intake/build_detail_inventory.py to scan zones.",
+      "details": [
+        {
+          "id": "slab-cut-face-strata",
+          "zone": "slab-side",
+          "kind": "material-boundary",
+          "description": "Each cut face shows a bright blue water band over an ochre earth stratum; the interface between them is ragged, not level. Water band is ~0.3 of thickness.",
+          "mapsTo": "material.slab-strata.localOverrides",
+          "confidence": 0.95,
+          "evidenceRef": "crops/slab-edge.png"
+        },
+        {
+          "id": "shore-foam-ring",
+          "zone": "coastline",
+          "kind": "contour",
+          "description": "A continuous white foam band hugs every land/water boundary including the rock islets, with a turquoise shallow band immediately outside it.",
+          "mapsTo": "material.sea.localOverrides",
+          "confidence": 0.95,
+          "evidenceRef": "crops/slab-edge.png"
+        },
+        {
+          "id": "field-parcel-patchwork",
+          "zone": "lowland-plateau",
+          "kind": "linework",
+          "description": "Rectilinear farm parcels in alternating green, olive and wheat-tan, with hard straight boundaries, tiled over the flat plateau tops only.",
+          "mapsTo": "component.farmland.localFeatures",
+          "confidence": 0.9,
+          "evidenceRef": "crops/center-castle.png"
+        },
+        {
+          "id": "cliff-vertical-striation",
+          "zone": "plateau-edge",
+          "kind": "relief",
+          "description": "Plateau risers are near-vertical grey-violet rock with vertical fluting and darker cavity lines; grass caps the lip with a hard edge.",
+          "mapsTo": "component.cliff-band.localFeatures",
+          "confidence": 0.9,
+          "evidenceRef": "crops/nw-waterfall.png"
+        },
+        {
+          "id": "snow-gully-capping",
+          "zone": "mountain",
+          "kind": "material-boundary",
+          "description": "Snow covers the summit and reaches down the gullies in tongues; the snowline is irregular and follows drainage, not a level contour.",
+          "mapsTo": "material.mountain-rock.localOverrides",
+          "confidence": 0.9,
+          "evidenceRef": "crops/mountain.png"
+        },
+        {
+          "id": "stone-ring-monument",
+          "zone": "nw-plateau",
+          "kind": "landmark",
+          "description": "A large upright stone annulus standing on the NW plateau, weathered grey, broken at the base, roughly one eighth of the island width in diameter.",
+          "mapsTo": "component.stone-ring",
+          "confidence": 0.75,
+          "evidenceRef": "crops/nw-waterfall.png"
+        },
+        {
+          "id": "multi-arch-bridge",
+          "zone": "central-strait",
+          "kind": "landmark",
+          "description": "A stone bridge of repeated round arches on piers spans the central strait, deck flat, abutments socketed into both banks.",
+          "mapsTo": "component.arch-bridge",
+          "confidence": 0.85,
+          "evidenceRef": "crops/nw-waterfall.png"
+        },
+        {
+          "id": "waterfall-plume",
+          "zone": "west-cliff",
+          "kind": "landmark",
+          "description": "A white waterfall drops the full height of the west cliff into the sea, widening slightly toward the base with a spray disc where it lands.",
+          "mapsTo": "component.waterfall",
+          "confidence": 0.9,
+          "evidenceRef": "crops/nw-waterfall.png"
+        },
+        {
+          "id": "windmill-and-village",
+          "zone": "east-plateau",
+          "kind": "landmark",
+          "description": "A white-towered windmill with a red conical cap and four lattice sails stands among a cluster of ~8 red-roofed houses on the east field plateau.",
+          "mapsTo": "component.windmill",
+          "confidence": 0.9,
+          "evidenceRef": "crops/east-windmill.png"
+        },
+        {
+          "id": "castle-conical-towers",
+          "zone": "central-islet",
+          "kind": "landmark",
+          "description": "A cream-walled castle on a rock islet, with several cylindrical towers capped by red-orange cones of differing heights.",
+          "mapsTo": "component.castle",
+          "confidence": 0.85,
+          "evidenceRef": "crops/center-castle.png"
+        },
+        {
+          "id": "islet-with-single-conifer",
+          "zone": "open-sea",
+          "kind": "repetition",
+          "description": "Small rock stacks stand in open water, each carrying one or two conifers and ringed by its own foam collar.",
+          "mapsTo": "repetitionSystem.rock-islets",
+          "confidence": 0.9,
+          "evidenceRef": "crops/slab-edge.png"
+        },
+        {
+          "id": "cloud-deck-at-island-level",
+          "zone": "atmosphere",
+          "kind": "landmark",
+          "description": "Opaque white cumulus masses float at and BELOW plateau height, over the sea and against the mountain flanks - inside the diorama, not a distant sky. Thin cirrus streaks cross the summit horizontally.",
+          "mapsTo": "component.cloud-layer",
+          "confidence": 0.9,
+          "evidenceRef": "crops/mountain.png"
+        },
+        {
+          "id": "dirt-path-network",
+          "zone": "lowland-plateau",
+          "kind": "linework",
+          "description": "Tan dirt paths wind between hamlets and along plateau tops, narrow and irregular, distinct from the straight field boundaries.",
+          "mapsTo": "component.farmland.localFeatures",
+          "confidence": 0.7,
+          "evidenceRef": "crops/nw-waterfall.png"
+        },
+        {
+          "id": "beach-sand-band",
+          "zone": "coastline",
+          "kind": "material-boundary",
+          "description": "A pale cream sand band lies between lowland grass and the foam line wherever the coast is low; absent wherever a cliff meets the water directly.",
+          "mapsTo": "material.terrain.localOverrides",
+          "confidence": 0.9,
+          "evidenceRef": "crops/center-castle.png"
+        },
+        {
+          "id": "mesa-terraced-strata",
+          "zone": "ne-mesa",
+          "kind": "relief",
+          "description": "Rear-right highland is ARID ochre sandstone, stepped into terraces with visible horizontal strata, green vegetation only on its lower slopes. It is a distinct biome from the green lowland, not the same rock in another colour.",
+          "mapsTo": "component.mesa.localFeatures",
+          "confidence": 0.85,
+          "evidenceRef": "crops/mesa.png"
+        },
+        {
+          "id": "mesa-watchtowers",
+          "zone": "ne-mesa",
+          "kind": "landmark",
+          "description": "Two grey cylindrical stone watchtowers stand on the mesa top with a short ruined wall run between them. Corrects an earlier reading of \"fortress\": the targeted crop shows separate towers, not a walled keep.",
+          "mapsTo": "component.watchtower",
+          "confidence": 0.8,
+          "evidenceRef": "crops/mesa.png"
+        },
+        {
+          "id": "lighthouse-gallery-band",
+          "zone": "south-islet",
+          "kind": "landmark",
+          "description": "White cylindrical lighthouse with a red conical cap and a dark gallery band below the lantern, standing on a green-capped cliff islet.",
+          "mapsTo": "component.lighthouse",
+          "confidence": 0.9,
+          "evidenceRef": "crops/lighthouse-pier.png"
+        },
+        {
+          "id": "timber-pier",
+          "zone": "east-shore",
+          "kind": "landmark",
+          "description": "A timber jetty on posts runs out from the east village shore into shallow water, decking visible as thin planks.",
+          "mapsTo": "component.pier",
+          "confidence": 0.8,
+          "evidenceRef": "crops/lighthouse-pier.png"
+        }
+      ]
+    },
+    "anatomy": {
+      "applies": false,
+      "styleHeads": 0.0,
+      "proportions": {
+        "headUnit": 0.0,
+        "torso": 0.0,
+        "legs": 0.0,
+        "shoulderWidth": 0.0,
+        "hipWidth": 0.0
+      },
+      "pose": {
+        "type": "unassessed",
+        "jointAngles": {}
+      },
+      "faceLandmarks": {
+        "eyeLine": 0.0,
+        "eyeSpacing": 0.0,
+        "noseBase": 0.0,
+        "mouthLine": 0.0,
+        "hairline": 0.0
+      },
+      "features": [],
+      "confidence": 0.0,
+      "note": "Only meaningful when objectClass.primaryDomain is character or hybrid. Set applies=true and fill from forge/stage1_intake/extract_landmarks.py. See grimoire/character/reconstruction.md and grimoire/character/likeness_maximization.md."
+    },
+    "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png"
+  },
+  "qualityContract": {
+    "qualityBar": "complex",
+    "definitionOfDone": [
+      "Rendered from the reference viewpoint (isometric, ~30 deg elevation, plan rotated 45 deg so a corner faces the viewer), the model reads as the same island: same slab proportion, same landmass layout, same landmark positions, same palette.",
+      "The slab cut face shows the blue-over-ochre strata with a ragged interface.",
+      "Terrain reads as stacked plateaus with cliff risers, not as smooth hills.",
+      "All ten identity landmarks are present and in the right quadrant.",
+      "Surfaces read hand-painted and matte under soft light - NOT cel-shaded (no quantised toon bands, no ink outline) and NOT glossy PBR."
+    ],
+    "minimumSpecDepth": {
+      "macroComponents": 3,
+      "mesoComponents": 8,
+      "microFeatureGroups": 5,
+      "materialLayers": 3,
+      "repetitionSystems": 1,
+      "reviewViewpoints": 4
+    },
+    "featureGroups": [
+      {
+        "id": "slab-and-strata",
+        "name": "Diorama slab, cut faces and strata",
+        "required": true,
+        "qualityCriteria": [
+          "Rectangular slab with sharp 90-degree corners and a flat underside.",
+          "Every side face carries a blue water band over an ochre earth stratum.",
+          "The water/earth interface is ragged along its length, never a straight line.",
+          "Slab thickness is ~0.12 of its edge length."
+        ],
+        "evidenceRefs": [
+          "crops/slab-edge.png",
+          "full-object"
+        ],
+        "failureModes": [
+          "slab renders as a plain box with one colour",
+          "strata interface drawn as a level band, which reads as a printed stripe",
+          "terrain spills over the cut edge instead of being sliced by it"
+        ]
+      },
+      {
+        "id": "landform-grammar",
+        "name": "Plateau-and-cliff landform grammar",
+        "required": true,
+        "qualityCriteria": [
+          "Land is built of flat tables separated by near-vertical rock risers.",
+          "Plateau tops are flat enough to carry rectilinear field parcels.",
+          "Cliff risers are grey-violet with vertical fluting and a hard grass lip.",
+          "Coast alternates between cliff-to-water and beach-to-water; both occur."
+        ],
+        "evidenceRefs": [
+          "crops/nw-waterfall.png",
+          "crops/center-castle.png"
+        ],
+        "failureModes": [
+          "terrain renders as smooth rolling hills with no risers",
+          "every coast is a beach, or every coast is a cliff",
+          "fields drape over slopes instead of lying on flat tops"
+        ]
+      },
+      {
+        "id": "water-system",
+        "name": "Sea, shallows and foam",
+        "required": true,
+        "qualityCriteria": [
+          "Depth-ordered colour: deep blue offshore, cyan mid, pale turquoise shallow.",
+          "A continuous white foam band at every land/water contact, islets included.",
+          "Sea surface flush with the slab top; satin, not mirror, not matte."
+        ],
+        "evidenceRefs": [
+          "crops/slab-edge.png"
+        ],
+        "failureModes": [
+          "flat single-blue water with no depth gradient",
+          "missing foam line, which is what makes the coast read as a coast",
+          "mirror-like water that contradicts the painted finish"
+        ]
+      },
+      {
+        "id": "landmark-set",
+        "name": "The ten identity landmarks",
+        "required": true,
+        "qualityCriteria": [
+          "Mountain massif rear-centre, snow-capped, pyramidal, snow reaching down gullies.",
+          "Stone ring monument on the NW plateau.",
+          "Waterfall off the west cliff with a spray disc at its base.",
+          "Multi-arch bridge over the central strait.",
+          "Windmill with four sails plus red-roofed village, east plateau.",
+          "Castle with red conical tower caps on the central islet.",
+          "Lighthouse on the south islet.",
+          "Ochre mesa with fortress massing, rear-right.",
+          "Rock islets in open water, each carrying a conifer.",
+          "Cloud masses at and below plateau height."
+        ],
+        "evidenceRefs": [
+          "crops/mountain.png",
+          "crops/nw-waterfall.png",
+          "crops/east-windmill.png"
+        ],
+        "failureModes": [
+          "a landmark missing entirely",
+          "a landmark present but in the wrong quadrant",
+          "landmarks at the wrong scale relative to the slab"
+        ]
+      },
+      {
+        "id": "painted-finish",
+        "name": "Hand-painted finish, explicitly not cel shading",
+        "required": true,
+        "qualityCriteria": [
+          "Albedo carries the value structure (painted), lighting stays soft and broad.",
+          "No quantised toon bands and no ink outline anywhere.",
+          "No specular hotspot on any matte surface; only the sea shows a satin response.",
+          "High-key saturated palette matching the reference stops."
+        ],
+        "evidenceRefs": [
+          "full-object"
+        ],
+        "failureModes": [
+          "toon gradient map applied, which the user explicitly rejected",
+          "flat unlit colour that loses all form",
+          "desaturated or grey-shifted palette"
+        ]
+      },
+      {
+        "id": "repetition-systems",
+        "name": "Scatter systems and their distribution rules",
+        "required": true,
+        "qualityCriteria": [
+          "Conifers cluster along ridges, cliff lips and shorelines - never uniformly spread.",
+          "Houses appear in hamlets of 3-8, not singly scattered.",
+          "Field parcels tile only flat plateau tops.",
+          "Every scatter is deterministic from a seed."
+        ],
+        "evidenceRefs": [
+          "crops/east-windmill.png",
+          "crops/center-castle.png"
+        ],
+        "failureModes": [
+          "uniform tree spacing, which reads as a plantation not a landscape",
+          "props floating above or sunk into the ground",
+          "props standing in water"
+        ]
+      }
+    ],
+    "visualDeltaChecks": [
+      "slab proportion and cut-face strata delta",
+      "landmass footprint and coastline shape delta",
+      "plateau tier count and cliff-riser presence delta",
+      "landmark position-by-quadrant delta",
+      "sea depth-gradient and foam-band delta",
+      "palette hue/value/saturation delta per material region",
+      "scatter density and clustering delta"
+    ],
+    "antiShallowSpecRules": [
+      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
+      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
+      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
+      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
+      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
+      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
+      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
+      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
+      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity.",
+      "Do not place adjacent separate-geometry parts below 0.02 world-unit seam overlap (source: grimoire/build/geometry_patterns.md).",
+      "Do not satisfy raised or recessed relief, fasteners, or grip structure with a map alone when the feature affects form; use geometry or displacement (source: grimoire/build/geometry_patterns.md)."
+    ]
+  },
+  "authoringInstruction": "Fill observed object class, complexity reasoning, featureGroups, visualDeltaChecks, and unknowns before generating or implementing ObjectSculptSpec.",
+  "localSpecSearch": {
+    "collection": "core_3d",
+    "query": "Isometric Diorama Island roughness matte diffuse albedo instancing repetition scatter displacement heightfield vertex vertex colors attribute orthographic camera projection ambient occlusion contact shadow",
+    "index": {
+      "status": "hit",
+      "reason": "current",
+      "fingerprint": "6857e5ab528b42ac12f4f411f862610a0bffce8e47aee3610a7603c318072fe8"
+    },
+    "matches": [
+      {
+        "record_id": "core.pbr-roughness",
+        "file_path": "grimoire/glossary/3d_vocabulary.md",
+        "heading": "Material And PBR",
+        "key_path": null,
+        "score": 13.560485355968,
+        "snippets": [
+          "Roughness is microfacet scatter: high roughness reads matte and low roughness reads glossy. Recognition cues: low roughness reads as a sharp, mirror-like, tight specular highlight; high roughness reads as a blurry, wide, dim highlight and matte ..."
+        ],
+        "source_refs": [
+          {
+            "path": "grimoire/glossary/3d_vocabulary.md",
+            "heading": "Material And PBR",
+            "key_path": null
+          },
+          {
+            "path": "grimoire/intake/image_analysis.md",
+            "heading": "Layer 5 \u2014 Materials & surface (PBR)",
+            "key_path": null
+          },
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[1]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "grimoire/glossary/3d_vocabulary.md"
+          },
+          {
+            "kind": "notebooklm-research",
+            "ref": "notebooklm:4b03c2f9-8393-411f-b5b4-039ab9532843",
+            "note": "Validated generic schema vocabulary; numeric claims remain backed by local source_refs."
+          },
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation \u2014 merged recognition cues + Three.js target instead of duplicating this entity."
+          }
+        ]
+      },
+      {
+        "record_id": "core.pbr-hand-painted-vs-pbr-texture",
+        "file_path": "docs/raw/img2threejs-skill-dataset.json",
+        "heading": null,
+        "key_path": "categories.material_pbr[12]",
+        "score": 7.236886486573,
+        "snippets": [
+          "... as the object rotates or lighting changes; visible brushstrokes; single diffuse-only map; PBR: specular highlights and shadow shapes move logically with view/light angle; micro-detail (pores, scratches) shows directional shading from ..."
+        ],
+        "source_refs": [
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[12]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation"
+          }
+        ]
+      },
+      {
+        "record_id": "core.pbr-ambient-occlusion-ao",
+        "file_path": "docs/raw/img2threejs-skill-dataset.json",
+        "heading": null,
+        "key_path": "categories.material_pbr[3]",
+        "score": 6.628792863678,
+        "snippets": [
+          "Baked grayscale map darkening indirect light in crevices, seams, and recesses. B\u1ea3n \u0111\u1ed3 grayscale \u0111\u01b0\u1ee3c n\u01b0\u1edbng s\u1eb5n l\u00e0m t\u1ed1i \u00e1nh s\u00e1ng gi\u00e1n ti\u1ebfp t\u1ea1i c\u00e1c khe, r\u00e3nh v\u00e0 ch\u1ed7 l\u00f5m. Recognition cues: Soft, contact-shadow-like darkening in grooves, screw ..."
+        ],
+        "source_refs": [
+          {
+            "path": "docs/raw/img2threejs-skill-dataset.json",
+            "heading": null,
+            "key_path": "categories.material_pbr[3]"
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "docs/raw/img2threejs-skill-dataset.json",
+            "note": "img2threejs NotebookLM research distillation"
+          }
+        ]
+      }
+    ]
+  }
+}

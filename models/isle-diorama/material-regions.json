@@ -1,0 +1,260 @@
+{
+ "referenceId": "iso-front-corner",
+ "regions": [
+  {
+   "componentId": "sea-surface",
+   "regionId": "sea",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 772,
+    "y": 796,
+    "width": 150,
+    "height": 150
+   },
+   "family": "glass",
+   "subtype": "clear",
+   "finish": "polished",
+   "materialSpecId": "sea"
+  },
+  {
+   "componentId": "slab-water-band",
+   "regionId": "slab-water",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 1392,
+    "y": 592,
+    "width": 12,
+    "height": 12
+   },
+   "family": "glass",
+   "subtype": "clear",
+   "finish": "polished",
+   "materialSpecId": "slab-water"
+  },
+  {
+   "componentId": "foam-ring",
+   "regionId": "foam",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 770,
+    "y": 782,
+    "width": 10,
+    "height": 10
+   },
+   "family": "glass",
+   "subtype": "frosted",
+   "finish": "rough-transmissive",
+   "materialSpecId": "foam"
+  },
+  {
+   "componentId": "beach-band",
+   "regionId": "beach-sand",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 660,
+    "y": 540,
+    "width": 45,
+    "height": 45
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "beach-sand"
+  },
+  {
+   "componentId": "landmass",
+   "regionId": "grass",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 576,
+    "y": 612,
+    "width": 90,
+    "height": 90
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "grass"
+  },
+  {
+   "componentId": "farmland",
+   "regionId": "field-crop",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 592,
+    "y": 599,
+    "width": 60,
+    "height": 60
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "field-crop"
+  },
+  {
+   "componentId": "cliff-band",
+   "regionId": "cliff-rock",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 510,
+    "y": 482,
+    "width": 55,
+    "height": 55
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "cliff-rock"
+  },
+  {
+   "componentId": "ne-mesa",
+   "regionId": "mesa-stone",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 1030,
+    "y": 349,
+    "width": 60,
+    "height": 60
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "mesa-stone"
+  },
+  {
+   "componentId": "mountain-massif",
+   "regionId": "mountain-rock",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 732,
+    "y": 171,
+    "width": 80,
+    "height": 80
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "mountain-rock"
+  },
+  {
+   "componentId": "mountain-massif",
+   "regionId": "snow",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 804,
+    "y": 169,
+    "width": 55,
+    "height": 55
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "snow"
+  },
+  {
+   "componentId": "slab-earth-stratum",
+   "regionId": "earth-stratum",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 1344,
+    "y": 604,
+    "width": 45,
+    "height": 45
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "earth-stratum"
+  },
+  {
+   "componentId": "house-roof",
+   "regionId": "roof-tile",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 1172,
+    "y": 552,
+    "width": 8,
+    "height": 8
+   },
+   "family": "ceramic",
+   "subtype": "glazed",
+   "finish": "glossy",
+   "materialSpecId": "roof-tile"
+  },
+  {
+   "componentId": "house-unit",
+   "regionId": "wall-plaster",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 1164,
+    "y": 536,
+    "width": 8,
+    "height": 8
+   },
+   "family": "ceramic",
+   "subtype": "glazed",
+   "finish": "glossy",
+   "materialSpecId": "wall-plaster"
+  },
+  {
+   "componentId": "conifer-unit",
+   "regionId": "conifer",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 616,
+    "y": 526,
+    "width": 46,
+    "height": 46
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "conifer"
+  },
+  {
+   "componentId": "cloud-puff",
+   "regionId": "cloud-mass",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 716,
+    "y": 245,
+    "width": 70,
+    "height": 70
+   },
+   "family": "stone",
+   "subtype": "natural",
+   "finish": "rough-or-polished",
+   "materialSpecId": "cloud-mass"
+  },
+  {
+   "componentId": "pier",
+   "regionId": "timber",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 984,
+    "y": 612,
+    "width": 8,
+    "height": 8
+   },
+   "family": "wood",
+   "subtype": "generic",
+   "finish": "unfinished",
+   "materialSpecId": "timber"
+  },
+  {
+   "componentId": "waterfall",
+   "regionId": "waterfall",
+   "sourceImage": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+   "bbox": {
+    "x": 431,
+    "y": 489,
+    "width": 20,
+    "height": 20
+   },
+   "family": "glass",
+   "subtype": "frosted",
+   "finish": "rough-transmissive",
+   "materialSpecId": "waterfall"
+  }
+ ]
+}

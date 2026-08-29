@@ -1,0 +1,70 @@
+{
+ "parts": [
+  {
+   "name": "Isle Diorama"
+  },
+  {
+   "name": "arch-bridge"
+  },
+  {
+   "name": "castle"
+  },
+  {
+   "name": "cloud-layer"
+  },
+  {
+   "name": "conifer-scatter"
+  },
+  {
+   "name": "conifers"
+  },
+  {
+   "name": "hamlet-clusters"
+  },
+  {
+   "name": "house-roof"
+  },
+  {
+   "name": "house-unit"
+  },
+  {
+   "name": "landmass"
+  },
+  {
+   "name": "lighthouse"
+  },
+  {
+   "name": "pier"
+  },
+  {
+   "name": "sea-surface"
+  },
+  {
+   "name": "slab-base"
+  },
+  {
+   "name": "stone-ring"
+  },
+  {
+   "name": "structures"
+  },
+  {
+   "name": "terrain"
+  },
+  {
+   "name": "watchtower-a"
+  },
+  {
+   "name": "watchtower-b"
+  },
+  {
+   "name": "waterfall"
+  },
+  {
+   "name": "windmill"
+  },
+  {
+   "name": "windmill-sails"
+  }
+ ]
+}

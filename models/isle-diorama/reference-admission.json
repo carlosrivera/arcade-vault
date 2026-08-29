@@ -1,0 +1,14 @@
+{
+  "admitted": true,
+  "reasons": [],
+  "provenance": {
+    "viewpoint": "iso-front-corner",
+    "sourcePath": "/Users/carlos/code/wipeout/models/isle-diorama/reference.png",
+    "width": 1536,
+    "height": 1024,
+    "foregroundCoverage": 0.4662,
+    "largestComponentFraction": 1.0,
+    "pHash": 18082161604285337088,
+    "duplicateOfHash": null
+  }
+}
