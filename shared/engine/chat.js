@@ -19,35 +19,108 @@ const FILE_BLOCK = /```(?:js|javascript)\s+path=(\S+)([^\n]*)\n([\s\S]*?)```/g;
 const PATCH_PAIR = /<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE/g;
 
 const CSS = `
-.vault-chat { position: fixed; right: 16px; bottom: 16px; z-index: 99999;
-  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #e8ecf4; }
-.vault-chat__fab { width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
-  background: #7fd6ff; color: #06070a; font-size: 20px; font-weight: 700;
-  box-shadow: 0 6px 24px rgba(0,0,0,.45); }
-.vault-chat__panel { display: none; flex-direction: column; width: min(440px, calc(100vw - 32px));
-  height: min(560px, calc(100vh - 96px)); background: #0e1117ee; backdrop-filter: blur(8px);
-  border: 1px solid #2a3140; border-radius: 10px; overflow: hidden;
-  box-shadow: 0 12px 48px rgba(0,0,0,.55); }
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Matches the eject button's cabinet language: pixel font for chrome, 3px
+   black borders, hard unblurred offset shadows, and a bevel from inset
+   highlight/shadow pairs. Body text stays terminal-monospace — Press Start 2P
+   is a display face and unreadable at paragraph length. */
+.vault-chat {
+  position: fixed; top: 16px; right: 16px; z-index: 10000;
+  font-family: 'Press Start 2P', monospace, sans-serif;
+  user-select: none; -webkit-user-select: none;
+}
+
+.vault-chat__fab {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  background: #0f1224; color: #8da2d8;
+  padding: 8px 12px; font: inherit; font-size: 9px; letter-spacing: 1px;
+  border: 3px solid #000;
+  box-shadow: inset 2px 2px 0 #384270, inset -2px -2px 0 #060812, 4px 4px 0 #000;
+  transition: all .12s ease-out;
+}
+.vault-chat__fab .ico { font-size: 13px; color: #ffcc00; transition: transform .15s ease; }
+.vault-chat__fab:hover {
+  background: #1c2242; color: #6cf0a0;
+  transform: translate(-1px,-1px);
+  box-shadow: inset 2px 2px 0 #4f5d9c, inset -2px -2px 0 #060812, 6px 6px 0 #000;
+}
+.vault-chat__fab:hover .ico { color: #6cf0a0; transform: translateY(-2px); }
+.vault-chat__fab:active {
+  transform: translate(2px,2px);
+  box-shadow: inset 2px 2px 0 #060812, inset -2px -2px 0 #384270, 2px 2px 0 #000;
+}
+
+.vault-chat__panel {
+  display: none; flex-direction: column;
+  width: min(420px, calc(100vw - 32px)); height: min(540px, calc(100vh - 64px));
+  background: #0f1224; border: 3px solid #000;
+  box-shadow: inset 2px 2px 0 #384270, inset -2px -2px 0 #060812, 6px 6px 0 #000;
+}
 .vault-chat--open .vault-chat__panel { display: flex; }
 .vault-chat--open .vault-chat__fab { display: none; }
-.vault-chat__bar { display: flex; align-items: center; gap: 8px; padding: 8px 10px;
-  background: #151a23; border-bottom: 1px solid #2a3140; }
-.vault-chat__bar strong { font-size: 11px; letter-spacing: .12em; color: #7fd6ff; flex: 1; }
-.vault-chat__bar button { background: #232b38; color: #cfd8e6; border: 1px solid #333d4d;
-  border-radius: 4px; padding: 3px 8px; font: inherit; font-size: 11px; cursor: pointer; }
-.vault-chat__bar button:hover { background: #2c3646; }
-.vault-chat__log { flex: 1; overflow-y: auto; padding: 10px; display: flex;
-  flex-direction: column; gap: 10px; }
+
+.vault-chat__bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 8px; background: #1c2242; border-bottom: 3px solid #000;
+}
+.vault-chat__bar strong { flex: 1; font-size: 9px; letter-spacing: 1px; color: #ffcc00; }
+.vault-chat__bar button {
+  background: #0f1224; color: #8da2d8; border: 2px solid #000;
+  box-shadow: inset 1px 1px 0 #384270, inset -1px -1px 0 #060812, 2px 2px 0 #000;
+  padding: 5px 7px; font: inherit; font-size: 7px; letter-spacing: 1px; cursor: pointer;
+}
+.vault-chat__bar button:hover { color: #6cf0a0; background: #232a4e; }
+.vault-chat__bar button:active {
+  transform: translate(1px,1px);
+  box-shadow: inset 1px 1px 0 #060812, inset -1px -1px 0 #384270, 1px 1px 0 #000;
+}
+
+/* Scanline wash over the log, like a CRT readout. */
+.vault-chat__log {
+  flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 9px;
+  font-family: 'Courier New', ui-monospace, monospace; font-size: 12px; line-height: 1.5;
+  color: #8da2d8; background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.22) 2px 4px), #0a0d1c;
+}
+.vault-chat__log::-webkit-scrollbar { width: 8px; }
+.vault-chat__log::-webkit-scrollbar-thumb { background: #384270; border: 2px solid #000; }
+
 .vault-chat__msg { white-space: pre-wrap; word-break: break-word; }
-.vault-chat__msg--user { color: #9dff2f; }
-.vault-chat__msg--err { color: #ff6b6b; }
-.vault-chat__msg--note { color: #8b97a8; font-size: 11px; }
-.vault-chat__form { display: flex; gap: 6px; padding: 8px; border-top: 1px solid #2a3140; }
-.vault-chat__form textarea { flex: 1; resize: none; height: 52px; background: #151a23;
-  color: inherit; border: 1px solid #333d4d; border-radius: 4px; padding: 6px; font: inherit; }
-.vault-chat__form button { background: #7fd6ff; color: #06070a; border: 0; border-radius: 4px;
-  padding: 0 14px; font: inherit; font-weight: 700; cursor: pointer; }
-.vault-chat__form button:disabled { opacity: .5; cursor: default; }
+.vault-chat__msg--user { color: #6cf0a0; }
+.vault-chat__msg--user::before { content: '> '; color: #ffcc00; }
+.vault-chat__msg--err { color: #ff3344; }
+.vault-chat__msg--err::before { content: '!! '; }
+.vault-chat__msg--note {
+  color: #ffcc00; font-family: 'Press Start 2P', monospace; font-size: 7px;
+  letter-spacing: 1px; line-height: 1.8;
+}
+
+.vault-chat__form { display: flex; gap: 6px; padding: 8px; border-top: 3px solid #000; background: #1c2242; }
+.vault-chat__form textarea {
+  flex: 1; resize: none; height: 50px; padding: 6px;
+  background: #0a0d1c; color: #6cf0a0; border: 2px solid #000;
+  box-shadow: inset 1px 1px 0 #060812;
+  font-family: 'Courier New', ui-monospace, monospace; font-size: 12px;
+}
+.vault-chat__form textarea::placeholder { color: #4a5580; }
+.vault-chat__form textarea:focus { outline: none; border-color: #384270; }
+.vault-chat__form button {
+  background: #ffcc00; color: #0f1224; border: 3px solid #000;
+  box-shadow: inset 2px 2px 0 #ffe680, inset -2px -2px 0 #a07f00, 3px 3px 0 #000;
+  padding: 0 12px; font: inherit; font-size: 8px; letter-spacing: 1px; cursor: pointer;
+}
+.vault-chat__form button:hover:not(:disabled) { background: #ffd633; }
+.vault-chat__form button:active:not(:disabled) {
+  transform: translate(2px,2px);
+  box-shadow: inset 2px 2px 0 #a07f00, inset -2px -2px 0 #ffe680, 1px 1px 0 #000;
+}
+.vault-chat__form button:disabled { background: #3a3a48; color: #6a6a78; box-shadow: none; cursor: default; }
+
+@media (max-width: 600px) {
+  .vault-chat { top: 10px; right: 10px; }
+  .vault-chat__fab .label { display: none; }
+}
 `;
 
 /**
@@ -116,18 +189,20 @@ export function mountChat({ game, gameId, sources = [] }) {
   const root = document.createElement('div');
   root.className = 'vault-chat';
   root.innerHTML = `
-    <button class="vault-chat__fab" type="button" title="Edit this game">✎</button>
+    <button class="vault-chat__fab" type="button" title="Edit this cartridge">
+      <span class="ico">✎</span><span class="label">EDIT</span>
+    </button>
     <div class="vault-chat__panel">
       <div class="vault-chat__bar">
-        <strong>EDIT · ${gameId}</strong>
-        <button data-act="export">export</button>
-        <button data-act="revert">revert</button>
-        <button data-act="close">✕</button>
+        <strong>${gameId.toUpperCase()}</strong>
+        <button data-act="export">EXPORT</button>
+        <button data-act="revert">REVERT</button>
+        <button data-act="close">X</button>
       </div>
       <div class="vault-chat__log"></div>
       <form class="vault-chat__form">
-        <textarea placeholder="Describe a change — e.g. make the camera lower and wider" required></textarea>
-        <button type="submit">Send</button>
+        <textarea placeholder="describe a change..." required></textarea>
+        <button type="submit">SEND</button>
       </form>
     </div>`;
   document.body.append(root);
