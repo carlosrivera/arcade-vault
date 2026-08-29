@@ -495,8 +495,24 @@ export class GameState {
       this.populateBoard(x, y);
     }
 
-    const area = [center, ...this.getNeighbors(x, y)];
-    const hiddenTraps = area.filter((c) => c.isTrap && c.state !== CELL_STATE.TRIGGERED).length;
+    // The compass points at treasure, not traps.
+    //
+    // Counting adjacent traps duplicated what the board's numbers already
+    // tell you, so spending a charge bought nothing. A bearing to the nearest
+    // buried relic is information the grid cannot give at any price, which
+    // makes the tool a reason to dig somewhere specific rather than a hint.
+    let nearest = null;
+    let nearestDist = Number.POSITIVE_INFINITY;
+    for (const row of this.grid) {
+      for (const cell of row) {
+        if (!cell.relicType || cell.state === CELL_STATE.REVEALED) continue;
+        const d = Math.hypot(cell.x - x, cell.y - y);
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearest = cell;
+        }
+      }
+    }
 
     this.compasses--;
     this.emit('onToolsChanged', {
@@ -505,10 +521,38 @@ export class GameState {
       compasses: this.compasses,
       maps: this.maps,
     });
-    this.log(`Compass: Detected ${hiddenTraps} traps in the sector.`, 'compass');
-    this.emit('onCompassScan', { center, area, count: hiddenTraps });
 
-    return { center, area, count: hiddenTraps };
+    if (!nearest) {
+      this.log('Compass: needle spins freely — no relics left buried.', 'compass');
+      this.emit('onCompassScan', { center, area: [center], count: 0, bearing: null });
+      return { center, area: [center], bearing: null, distance: null };
+    }
+
+    // Eight-point bearing: precise enough to commit to a direction, vague
+    // enough that you still have to search.
+    const dx = nearest.x - x;
+    const dy = nearest.y - y;
+    const COMPASS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+    const octant = Math.round(Math.atan2(dy, dx) / (Math.PI / 4));
+    const bearing = COMPASS[((octant % 8) + 8) % 8];
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    const range =
+      steps <= 2 ? 'very close' : steps <= 5 ? 'close' : steps <= 9 ? 'some way' : 'far';
+
+    // Highlight the cells along that bearing, so the reading is legible on
+    // the board and not only in the log.
+    const ux = Math.sign(dx);
+    const uy = Math.sign(dy);
+    const area = [center];
+    for (let i = 1; i <= Math.min(steps, 6); i++) {
+      const c = this.getCell(x + ux * i, y + uy * i);
+      if (c) area.push(c);
+    }
+
+    this.log(`Compass: relic bearing ${bearing}, ${range}.`, 'compass');
+    this.emit('onCompassScan', { center, area, count: 0, bearing, distance: steps });
+
+    return { center, area, bearing, distance: steps };
   }
 
   revealAllTraps() {
