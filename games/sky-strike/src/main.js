@@ -5,6 +5,7 @@ import { createFeel } from '#engine/feel.js';
 import { Keyboard } from '#engine/input.js';
 import { clamp, damp } from '#engine/math.js';
 import { PRNG } from '#engine/rng.js';
+import { heightAt, Terrain } from './terrain.js';
 
 // --- Procedural 3-tone Toon Gradient Map ---
 function createToonGradient() {
@@ -181,301 +182,101 @@ function createEnvironment(scene, rng, gradientMap) {
   envGroup.add(sky);
 
   // Distant Layered Mountains & Rolling Green Hills
-  const waterMat = makeToonMat(0x358ab8, gradientMap);
 
   // Lake at bottom
   // Water closes the composition at the bottom. A flat fill reads as a strip
   // of paint; three things make it read as water: it darkens with depth away
   // from the shore, it lightens sharply right at the waterline where the
   // shallows show the bed, and it carries something of known size on it.
-  const lakeGeo = new THREE.PlaneGeometry(600, 30);
+  // Sea level, as a horizontal plane the terrain dips below — hollows fill and
+  // become lakes on their own.
+  //
+  // The shading has to be written for a plane lying flat. The previous version
+  // was authored for an upright band, keying depth off vUv.y as distance from
+  // a shoreline; laid flat that maps across the ground and renders almost
+  // entirely as deep water, which is why the lake went near-black.
+  const lakeGeo = new THREE.PlaneGeometry(900, 460, 1, 1);
   const lake = new THREE.Mesh(
     lakeGeo,
     new THREE.ShaderMaterial({
       fog: false,
       uniforms: {
-        uShallow: { value: new THREE.Color(0x8fd4e8) },
-        uDeep: { value: new THREE.Color(0x1c5f8f) },
-        uShoreline: { value: new THREE.Color(0xd6f2fb) },
+        // Pitched bright deliberately: the renderer tone-maps with ACES
+        // filmic, which pulls saturated mid-blues down hard, so an
+        // authored-correct water colour arrives on screen looking like a void.
+        uNear: { value: new THREE.Color(0x5ec8f0) },
+        uFar: { value: new THREE.Color(0xa8d4e2) }, // matches the terrain's distance wash
       },
       vertexShader: `
-        varying vec2 vUv;
+        varying float vDepth;
         void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vec4 world = modelMatrix * vec4(position, 1.0);
+          // Distance into the scene, which for a flat plane is the only
+          // meaningful axis — the shore is wherever the ground rises through.
+          vDepth = clamp((-world.z - 40.0) / 240.0, 0.0, 1.0);
+          gl_Position = projectionMatrix * viewMatrix * world;
         }`,
       fragmentShader: `
-        uniform vec3 uShallow;
-        uniform vec3 uDeep;
-        uniform vec3 uShoreline;
-        varying vec2 vUv;
+        uniform vec3 uNear;
+        uniform vec3 uFar;
+        varying float vDepth;
         void main() {
-          // vUv.y = 1 at the far edge (the shore), 0 nearest the viewer.
-          float depth = 1.0 - vUv.y;
-          vec3 col = mix(uShallow, uDeep, smoothstep(0.0, 0.75, depth));
-          // Bright band exactly at the waterline.
-          col = mix(col, uShoreline, smoothstep(0.93, 1.0, vUv.y) * 0.85);
-          // Broad horizontal glints, so the surface has motion-free texture.
-          float glint = smoothstep(0.55, 1.0, sin(vUv.y * 90.0) * 0.5 + 0.5) * 0.06;
-          gl_FragColor = vec4(col + glint, 1.0);
+          // Same atmospheric wash the terrain uses, so water and land recede
+          // together instead of the lake staying a hard colour to the horizon.
+          gl_FragColor = vec4(mix(uNear, uFar, smoothstep(0.0, 0.85, vDepth)), 1.0);
         }`,
     }),
   );
-  lake.position.set(0, -42, -24);
+  lake.rotation.x = -Math.PI / 2;
+  // Below most of the country, so water shows in the hollows rather than
+  // drowning the valley.
+  lake.position.set(0, -30, -150);
   envGroup.add(lake);
 
   // --- Landscape --------------------------------------------------------
   //
-  // Built as layered ridgeline silhouettes rather than overlapping spheres.
-  // Squashed dodecahedrons read as a row of lumps because every hill has the
-  // same convex outline; a landscape reads as a landscape because its crest
-  // line is continuous and irregular, rising into peaks and settling into
-  // saddles. One noise-driven profile per layer gives that directly.
-  //
-  // Colour carries the depth. Each layer is mixed toward the horizon haze in
-  // proportion to its distance, which is what atmospheric perspective is:
-  // scattered air between you and the hill, washing out contrast and pulling
-  // hue toward the sky. Without it, layers separate only by overlap and the
-  // whole backdrop flattens.
+  // A real heightfield, streamed in chunks, replacing the five painted layers
+  // that used to stand in for one. Depth is genuine now: hills occlude each
+  // other correctly, flying gives true parallax, and props stand on a surface
+  // instead of being pinned to a silhouette's outline.
+  const terrain = new Terrain(scene, gradientMap);
+  terrain.update(0);
+
+  // Trees and hamlets sit ON the ground, sampled from the same height
+  // function the mesh is built from — so they cannot drift off it however the
+  // terrain is retuned.
+  const treeMat = makeToonMat(0x2a6b2f, gradientMap);
+  const wallMat = makeToonMat(0xf2ede2, gradientMap);
+  const roofMat = makeToonMat(0xc4402f, gradientMap);
+
+  const scatter = (count, zRange, place) => {
+    for (let i = 0; i < count; i++) {
+      const x = rng.range(-260, 260);
+      const z = rng.range(zRange[0], zRange[1]);
+      place(x, heightAt(x, z), z);
+    }
+  };
+
+  scatter(340, [-150, -20], (x, y, z) => {
+    const h = rng.range(2.4, 5.2);
+    const tree = new THREE.Mesh(new THREE.ConeGeometry(h * 0.34, h, 5), treeMat);
+    tree.position.set(x, y + h * 0.45, z);
+    envGroup.add(tree);
+  });
+
+  scatter(26, [-95, -25], (x, y, z) => {
+    const house = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.4, 3), wallMat);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(2.9, 2.1, 4), roofMat);
+    roof.position.y = 2.2;
+    roof.rotation.y = Math.PI / 4;
+    house.add(base, roof);
+    house.position.set(x, y + 1.2, z);
+    house.rotation.y = rng.range(0, Math.PI * 2);
+    envGroup.add(house);
+  });
 
   const HAZE = new THREE.Color(0xa9d6ee); // colour of the air at the horizon
-
-  /** 1D fractal noise: octaves of smoothed value noise across x. */
-  function ridgeNoise(x, seedOffset) {
-    let sum = 0;
-    let amp = 1;
-    let freq = 1;
-    let norm = 0;
-    for (let o = 0; o < 4; o++) {
-      const xf = x * freq + seedOffset * 37.1;
-      const i = Math.floor(xf);
-      const f = xf - i;
-      // hash two lattice points and smoothstep between them
-      const h = (n) => {
-        const v = Math.sin((n + seedOffset * 13.7) * 127.1) * 43758.5453;
-        return v - Math.floor(v);
-      };
-      const u = f * f * (3 - 2 * f);
-      sum += (h(i) * (1 - u) + h(i + 1) * u) * amp;
-      norm += amp;
-      amp *= 0.5;
-      freq *= 2.1;
-    }
-    return sum / norm;
-  }
-
-  /**
-   * One ridge layer: a filled silhouette whose top edge is the noise profile.
-   *
-   * @param {object} o
-   * @param {number} o.baseY   where the layer's flat bottom sits
-   * @param {number} o.height  vertical scale of the undulation
-   * @param {number} o.z       depth, which also drives the haze mix
-   * @param {number} o.haze    0 = full colour, 1 = fully the colour of air
-   */
-  function buildRidge({ baseY, height, z, haze, color, wavelength, seed }) {
-    const shape = new THREE.Shape();
-    const halfWidth = 260;
-    const step = 3;
-    shape.moveTo(-halfWidth, baseY - 40);
-
-    for (let x = -halfWidth; x <= halfWidth; x += step) {
-      const n = ridgeNoise(x / wavelength, seed);
-      // Sharpen the profile a little so crests read as hills rather than swell.
-      const shaped = n ** 1.35;
-      shape.lineTo(x, baseY + shaped * height);
-    }
-    shape.lineTo(halfWidth, baseY - 40);
-    shape.closePath();
-
-    const mat = new THREE.MeshBasicMaterial({
-      // Flat, unlit colour: these are silhouettes seen through kilometres of
-      // air, and shading them would fight the depth the haze is establishing.
-      color: new THREE.Color(color).lerp(HAZE, haze),
-      fog: false,
-    });
-    const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), mat);
-    mesh.position.z = z;
-    envGroup.add(mesh);
-    return mesh;
-  }
-
-  // Far to near. Each layer sits lower, undulates more, and is less hazy —
-  // the nearer the hill, the more of its own colour survives the air.
-  // Depth is carried by z (perspective shrink), haze (air between) and value
-  // (near hills darker). All three agree, which is what stops the layers
-  // reading as a flat cut-out stack.
-  const LAYERS = [
-    { baseY: -20, height: 26, z: -60, haze: 0.55, color: 0x3f7f8c, wavelength: 62, seed: 1 },
-    { baseY: -21, height: 20, z: -52, haze: 0.34, color: 0x2f8f63, wavelength: 46, seed: 2 },
-    { baseY: -22, height: 15, z: -44, haze: 0.18, color: 0x35a63f, wavelength: 34, seed: 3 },
-    { baseY: -26, height: 19, z: -36, haze: 0.07, color: 0x2f9c2c, wavelength: 25, seed: 4 },
-    { baseY: -28, height: 17, z: -30, haze: 0.0, color: 0x1f8a25, wavelength: 18, seed: 5 },
-  ];
-  LAYERS.forEach(buildRidge);
-
-  // Sailboats. Open water has no features to judge size against, so a lake
-  // without them could be a pond or an inland sea. A handful of known-sized
-  // objects settles it instantly — the same job the conifers do on the hills.
-  for (let i = 0; i < 14; i++) {
-    const boat = new THREE.Group();
-    const hull = new THREE.Mesh(
-      new THREE.BoxGeometry(1.6, 0.35, 0.6),
-      new THREE.MeshBasicMaterial({ color: 0xf4f7fa, fog: false }),
-    );
-    const sail = new THREE.Mesh(
-      new THREE.ConeGeometry(0.62, 1.7, 3),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }),
-    );
-    sail.position.y = 1.0;
-    boat.add(hull, sail);
-    // Nearer the viewer means lower on the water and slightly larger.
-    const t = rng.range(0, 1);
-    const scale = 0.55 + t * 0.9;
-    boat.scale.setScalar(scale);
-    boat.position.set(rng.range(-240, 240), -40 + (1 - t) * 11, -23.6);
-    envGroup.add(boat);
-  }
-
-  // Horizon glow. Air is brightest where you look through the most of it, so
-  // a pale band sits along the skyline in every landscape painting. It also
-  // does something the haze alone cannot: it separates the furthest ridge from
-  // the sky, which otherwise meet at a hard line and kill the sense of scale.
-  {
-    const glowGeo = new THREE.PlaneGeometry(600, 26);
-    const glowMat = new THREE.ShaderMaterial({
-      transparent: true,
-      depthWrite: false,
-      fog: false,
-      uniforms: { uColor: { value: new THREE.Color(0xdff0fb) } },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }`,
-      fragmentShader: `
-        uniform vec3 uColor;
-        varying vec2 vUv;
-        void main() {
-          // Densest at the horizon line, falling away above and below.
-          float d = abs(vUv.y - 0.42);
-          float a = smoothstep(0.5, 0.0, d) * 0.55;
-          gl_FragColor = vec4(uColor, a);
-        }`,
-    });
-    const glow = new THREE.Mesh(glowGeo, glowMat);
-    glow.position.set(0, -12, -58);
-    envGroup.add(glow);
-  }
-
-  // Farmland. The valley in the reference is not one green — it is a quilt of
-  // parcels, each a different crop at a different stage, separated by tracks.
-  // That patchwork is most of what reads as cultivated country rather than a
-  // painted hillside, and the previous attempt failed because it was too
-  // timid: low opacity over a near-identical green is invisible at altitude.
-  {
-    const near = LAYERS[4];
-    const CROPS = [
-      0x7ec850, // young wheat
-      0x9ed84f, // barley
-      0x4f9e33, // pasture
-      0xc9c74e, // rape / stubble
-      0x6bb03f,
-      0x3f8a2e,
-    ];
-    const slopeY = (x) => near.baseY + ridgeNoise(x / near.wavelength, near.seed) ** 1.35 * near.height;
-
-    // Parcels are laid in runs so neighbours share an edge, the way real
-    // field boundaries do — scattering them independently reads as confetti.
-    let x = -250;
-    while (x < 250) {
-      const runWidth = rng.range(14, 34);
-      const rows = Math.floor(rng.range(1, 3));
-      for (let r = 0; r < rows; r++) {
-        const w = runWidth * rng.range(0.75, 1);
-        const h = rng.range(3.5, 7);
-        const cx = x + runWidth / 2 + rng.range(-1.5, 1.5);
-        const parcel = new THREE.Mesh(
-          new THREE.PlaneGeometry(w, h),
-          new THREE.MeshBasicMaterial({ color: rng.choice(CROPS), fog: false }),
-        );
-        // Below the crest, stacked downslope, so parcels sit ON the hill.
-        parcel.position.set(cx, slopeY(cx) - 2.5 - r * (h * 0.9), near.z + 0.35 + r * 0.02);
-        envGroup.add(parcel);
-      }
-
-      // A pale track along the boundary between runs.
-      if (rng.chance(0.55)) {
-        const track = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.7, rng.range(7, 13)),
-          new THREE.MeshBasicMaterial({ color: 0xd8cfa8, fog: false }),
-        );
-        track.position.set(x, slopeY(x) - 5, near.z + 0.45);
-        track.rotation.z = rng.range(-0.25, 0.25);
-        envGroup.add(track);
-      }
-      x += runWidth;
-    }
-  }
-
-  // Conifers along the two nearest crests. Small dark verticals are what give
-  // a hillside its scale — without something known-sized on it, a ridge could
-  // be a mound or a mountain.
-  for (const [li, layer] of [
-    [3, LAYERS[3]],
-    [4, LAYERS[4]],
-  ]) {
-    const treeMat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(0x1f5528).lerp(HAZE, layer.haze),
-      fog: false,
-    });
-    const count = li === 4 ? 150 : 90;
-    for (let i = 0; i < count; i++) {
-      const x = rng.range(-250, 250);
-      const n = ridgeNoise(x / layer.wavelength, layer.seed) ** 1.35;
-      const y = layer.baseY + n * layer.height;
-      const h = rng.range(2.6, 4.8) * (li === 4 ? 1 : 0.72);
-      const tree = new THREE.Mesh(new THREE.ConeGeometry(h * 0.36, h, 4), treeMat);
-      tree.position.set(x, y + h * 0.4, layer.z + 0.6);
-      envGroup.add(tree);
-    }
-  }
-
-  // Hamlets on the nearest slopes: a red roof is the one warm accent in an
-  // otherwise green field, and reads as habitation at a glance.
-  const nearLayer = LAYERS[4];
-  for (let i = 0; i < 22; i++) {
-    const x = rng.range(-240, 240);
-    const n = ridgeNoise(x / nearLayer.wavelength, nearLayer.seed) ** 1.35;
-    const y = nearLayer.baseY + n * nearLayer.height;
-
-    const houseGroup = new THREE.Group();
-    const base = new THREE.Mesh(
-      new THREE.BoxGeometry(2.8, 2.1, 2.2),
-      new THREE.MeshBasicMaterial({ color: 0xf2ede2, fog: false }),
-    );
-    const roof = new THREE.Mesh(
-      new THREE.ConeGeometry(2.3, 1.8, 4),
-      new THREE.MeshBasicMaterial({ color: 0xc4402f, fog: false }),
-    );
-    roof.position.y = 1.9;
-    roof.rotation.y = Math.PI / 4;
-    houseGroup.add(base, roof);
-    houseGroup.position.set(x, y + 1.05, nearLayer.z + 1.2);
-    envGroup.add(houseGroup);
-  }
-
-  // --- Clouds -----------------------------------------------------------
-  //
-  // Every puff used to be pure white with the same heavy outline no matter how
-  // far away it was, so the whole sky sat on one plane. Two changes give it
-  // depth: the same haze the hills use, and a shading ramp within each cloud.
-  //
-  // A cumulus is bright along its sunlit crown and turns grey-blue underneath,
-  // where the mass of the cloud shadows itself. Tinting each puff by its
-  // height inside the cluster reproduces that for almost nothing, and it is
-  // the single cue that stops a cloud reading as a heap of white spheres.
 
   const clouds = [];
 
@@ -586,7 +387,7 @@ function createEnvironment(scene, rng, gradientMap) {
   }
 
   scene.add(envGroup);
-  return { envGroup, clouds };
+  return { envGroup, clouds, terrain };
 }
 
 // --- Smoke Ribbon Trail System (Indexed Triangle Strip) ---
@@ -1963,7 +1764,11 @@ export function init({ renderer, state }) {
       camera.position.x += feel.offset.x;
       camera.position.y += feel.offset.y;
 
-      env.envGroup.position.x = camera.position.x * 0.75;
+      // The strip is world-space, so it is streamed by player position rather
+      // than parallaxed — the perspective does the work the parallax used to
+      // fake.
+      env.terrain.update(player.pos.x);
+      env.envGroup.position.x = camera.position.x * 0.12;
 
       drawMinimap();
       updateOffscreenIndicators();
