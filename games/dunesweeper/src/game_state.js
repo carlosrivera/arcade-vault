@@ -3,8 +3,8 @@
  * Pure logical representation of the Minesweeper board, solver, and expedition state
  */
 
+import { PRNG } from '#engine/rng.js';
 import { CONFIG } from './config.js';
-import { PRNG } from './prng.js';
 
 export const CELL_STATE = {
   COVERED: 'covered',

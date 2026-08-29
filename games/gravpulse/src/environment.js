@@ -1,4 +1,4 @@
-import * as THREE from '../../../shared/vendor/three.module.js';
+import * as THREE from 'three';
 import { fitToShipSpace, loadModel } from './models.js';
 import { TRACK_CONFIGS } from './track.js';
 

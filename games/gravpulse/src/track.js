@@ -1,4 +1,4 @@
-import * as THREE from '../../../shared/vendor/three.module.js';
+import * as THREE from 'three';
 
 // Closed-loop anti-grav circuit built from a Catmull-Rom spline.
 // Everything on the track is addressed by arc-length distance `s` in

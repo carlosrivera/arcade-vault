@@ -2,7 +2,7 @@
 // shared afterburner flame cones and the procedural missile model.
 
 import * as THREE from 'three';
-import { GLTFLoader } from '../../../shared/vendor/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Shared GLB template (loaded once from main.js). New rigs pick it up
 // automatically; existing rigs get swapped via applyJetTemplate().

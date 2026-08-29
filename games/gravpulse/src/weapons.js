@@ -1,4 +1,4 @@
-import * as THREE from '../../../shared/vendor/three.module.js';
+import * as THREE from 'three';
 import { shipEvents, sparkBurst } from './ships.js';
 import { WEAPON_PAD_FRACTIONS } from './track.js';
 

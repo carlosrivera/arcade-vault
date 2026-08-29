@@ -1,5 +1,5 @@
-import { GLTFLoader } from '../../../shared/vendor/jsm/loaders/GLTFLoader.js';
-import * as THREE from '../../../shared/vendor/three.module.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Small GLTF loading layer. Everything is CC0 Kenney Space Kit
 // (kenney.nl/assets/space-kit); models live in assets/models/.

@@ -1,4 +1,5 @@
-import * as THREE from '../../../shared/vendor/three.module.js';
+import { damp } from '#engine/math.js';
+import * as THREE from 'three';
 import { fitToShipSpace, loadModel } from './models.js';
 import { WALL_LAT } from './track.js';
 
@@ -718,7 +719,7 @@ export class Ship {
     const grip = Math.min(1, this.speed / 50);
     const airbrakeBite = (this.airbrakeR - this.airbrakeL) * AIRBRAKE_LAT * grip;
     const latTarget = this.steer * STEER_LAT * grip + airbrakeBite;
-    this.latVel += (latTarget - this.latVel) * Math.min(1, dt * 8.5);
+    this.latVel = damp(this.latVel, latTarget, 8.5, dt);
 
     // Centrifugal drift in curves
     const iK = Math.floor(this.s / this.track.ds) % this.track.n;

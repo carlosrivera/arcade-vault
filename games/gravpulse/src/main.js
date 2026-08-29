@@ -1,11 +1,14 @@
-import { AfterimagePass } from '../../../shared/vendor/jsm/postprocessing/AfterimagePass.js';
-import { BokehPass } from '../../../shared/vendor/jsm/postprocessing/BokehPass.js';
-import { EffectComposer } from '../../../shared/vendor/jsm/postprocessing/EffectComposer.js';
-import { OutputPass } from '../../../shared/vendor/jsm/postprocessing/OutputPass.js';
-import { RenderPass } from '../../../shared/vendor/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from '../../../shared/vendor/jsm/postprocessing/ShaderPass.js';
-import { UnrealBloomPass } from '../../../shared/vendor/jsm/postprocessing/UnrealBloomPass.js';
-import * as THREE from '../../../shared/vendor/three.module.js';
+import { damp } from '#engine/math.js';
+import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { createRenderer, handleResize } from '#engine/render.js';
+import * as THREE from 'three';
+import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { Sound } from './audio.js';
 import { buildEnvironment, loadSceneryModels, updateEnvironment } from './environment.js';
 import { Hud } from './hud.js';
@@ -19,19 +22,13 @@ import { WeaponSystem } from './weapons.js';
 const canvas = document.getElementById('gl');
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer = createRenderer(canvas, { maxPixelRatio: 2, toneMappingExposure: 1.12 });
 } catch (e) {
   document.body.innerHTML =
     '<div style="color:#dffcff;font-family:monospace;padding:40px">' +
     'WebGL is not available in this browser, so the race cannot start.</div>';
   throw e;
 }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.12;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.5, 6000);
@@ -72,12 +69,7 @@ const ZoomBlurShader = {
     tDiffuse: { value: null },
     strength: { value: 0 }, // 0..1
   },
-  vertexShader: `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }`,
+  vertexShader: FULLSCREEN_VERTEX_SHADER,
   fragmentShader: `
     uniform sampler2D tDiffuse;
     uniform float strength;
@@ -111,12 +103,7 @@ const GradeShader = {
     caAmount: { value: 0.0035 },
     grain: { value: 0.05 },
   },
-  vertexShader: `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }`,
+  vertexShader: FULLSCREEN_VERTEX_SHADER,
   fragmentShader: `
     uniform sampler2D tDiffuse;
     uniform float uTime;
@@ -188,12 +175,7 @@ function adaptQuality(dt) {
   }
 }
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
-});
+handleResize(renderer, camera, () => composer);
 
 const hud = new Hud();
 const audio = new Sound();
@@ -551,7 +533,7 @@ function chaseCam(dt, snap = false) {
   // Dynamic FOV Warp
   const baseFov = mode === 'COCKPIT' ? 76 : 66;
   const fovT = baseFov + spN * 16 + (p.boostTime > 0 ? 10 : 0);
-  camera.fov += (fovT - camera.fov) * Math.min(1, dt * 6);
+  camera.fov = damp(camera.fov, fovT, 6, dt);
   camera.updateProjectionMatrix();
 }
 
@@ -565,7 +547,7 @@ function menuCam(dt) {
   );
   camera.up.set(0, 1, 0);
   camera.lookAt(0, 20, 0);
-  camera.fov += (55 - camera.fov) * Math.min(1, dt * 2);
+  camera.fov = damp(camera.fov, 55, 2, dt);
   camera.updateProjectionMatrix();
 }
 
@@ -577,7 +559,7 @@ function finishCam(dt) {
     camera.position.copy(_finishCamPos);
     camera.up.set(0, 1, 0);
     camera.lookAt(p.mesh.position);
-    camera.fov += (62 - camera.fov) * Math.min(1, dt * 3);
+    camera.fov = damp(camera.fov, 62, 3, dt);
     camera.updateProjectionMatrix();
     if (p.speed < 45) {
       finishMode = 'beauty';

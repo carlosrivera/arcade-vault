@@ -118,7 +118,13 @@
   <button id="startBtn" type="button">ENGAGE</button>
 </div>
 <script type="importmap">
-{ "imports": { "three": "../../shared/vendor/three.module.js" } }
+{
+  "imports": {
+    "three": "../../shared/vendor/three.module.js",
+    "three/addons/": "../../shared/vendor/jsm/",
+    "#engine/": "../../shared/engine/"
+  }
+}
 </script>
 <script type="module" src="../../shared/eject.js"></script>
 <script type="module" src="./src/main.js"></script>

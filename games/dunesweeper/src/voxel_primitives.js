@@ -3,9 +3,9 @@
  * 100% Procedural compositions of micro-voxel cubes matching the archaeological diorama
  */
 
+import { PRNG } from '#engine/rng.js';
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
-import { PRNG } from './prng.js';
 
 export const BOX_GEOMETRY = new THREE.BoxGeometry(1, 1, 1);
 

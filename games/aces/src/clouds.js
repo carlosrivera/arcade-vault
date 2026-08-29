@@ -3,6 +3,9 @@
 // dual-lobe Henyey-Greenstein phase scattering, Beer's law light marching,
 // powder effect, and cumulus height profiling.
 
+import { damp } from '#engine/math.js';
+import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { mulberry32 } from '#engine/rng.js';
 import * as THREE from 'three';
 
 // ---------------------------------------------------------------- 2D puff fallback for trails
@@ -34,15 +37,6 @@ export function puffTexture(_hardCore = false) {
 // Seeded so the JS-side density twin (cloudDensityAt) sees the SAME field as
 // the GPU texture — used for the inside-cloud lens wetness detection.
 const NOISE_SEED = 0xc10d5;
-function mulberry32(a) {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 let _grids = null;
 function getWorleyGrids() {
   if (_grids) return _grids;
@@ -154,13 +148,7 @@ export const CloudShader = {
     uViewInverse: { value: new THREE.Matrix4() },
     logDepthBufFC: { value: 2.0 / Math.log2(400000.0 + 1.0) },
   },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
+  vertexShader: FULLSCREEN_VERTEX_SHADER,
   fragmentShader: /* glsl */ `
     precision highp float;
     precision highp sampler3D;
@@ -433,9 +421,7 @@ export const DropletShader = {
     uTime: { value: 0 },
     uWet: { value: 0 },
   },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  vertexShader: FULLSCREEN_VERTEX_SHADER,
   fragmentShader: /* glsl */ `
     uniform sampler2D tDiffuse;
     uniform float uTime, uWet;
@@ -563,12 +549,7 @@ export function buildCloudSystem(_renderer) {
       uHBottom: CloudShader.uniforms.uHBottom,
       uHTop: CloudShader.uniforms.uHTop,
     },
-    vertexShader: /* glsl */ `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }`,
+    vertexShader: FULLSCREEN_VERTEX_SHADER,
     fragmentShader: /* glsl */ `
       precision highp float;
       precision highp sampler3D;
@@ -707,7 +688,7 @@ export function buildCloudSystem(_renderer) {
       }
       const target = Math.min(1, Math.max(0, (od - 0.04) / 0.1));
       const uWet = dropletMat.uniforms.uWet;
-      uWet.value += (target - uWet.value) * Math.min(1, dt * 2.5);
+      uWet.value = damp(uWet.value, target, 2.5, dt);
     },
   };
 }

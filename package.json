@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A repository and arcade portal for vanilla web games generated with LLMs. Zero build step, runs directly in the browser.",
   "type": "module",
+  "imports": {
+    "#engine/*": "./shared/engine/*"
+  },
   "scripts": {
     "lint": "biome lint .",
     "format": "biome format --write .",

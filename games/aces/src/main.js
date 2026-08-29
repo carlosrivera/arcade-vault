@@ -1,13 +1,15 @@
 // main.js — STRIKEVECTOR: scene, input, camera, targeting, game flow.
 
+import { Keyboard } from '#engine/input.js';
+import { damp } from '#engine/math.js';
+import { createComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import { createRenderer, handleResize } from '#engine/render.js';
 import * as THREE from 'three';
-import { AfterimagePass } from '../../../shared/vendor/jsm/postprocessing/AfterimagePass.js';
-import { BokehPass } from '../../../shared/vendor/jsm/postprocessing/BokehPass.js';
-import { EffectComposer } from '../../../shared/vendor/jsm/postprocessing/EffectComposer.js';
-import { OutputPass } from '../../../shared/vendor/jsm/postprocessing/OutputPass.js';
-import { Pass } from '../../../shared/vendor/jsm/postprocessing/Pass.js';
-import { RenderPass } from '../../../shared/vendor/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from '../../../shared/vendor/jsm/postprocessing/ShaderPass.js';
+import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { Pass } from 'three/addons/postprocessing/Pass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { Audio } from './audio.js';
 import { buildCloudSystem } from './clouds.js';
 import {
@@ -34,18 +36,11 @@ const msgEl = document.getElementById('msg');
 // Logarithmic depth: at continental range a conventional depth buffer with a
 // 1 m near plane has hundreds of metres of granularity past 100 km, which
 // z-fights terrain against the ocean plane.
-const renderer = new THREE.WebGLRenderer({
-  canvas: glCanvas,
-  antialias: true,
+const renderer = createRenderer(glCanvas, {
   logarithmicDepthBuffer: true,
+  maxPixelRatio: 1.35,
+  toneMappingExposure: 1.06,
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.06;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setSize(window.innerWidth, window.innerHeight);
 
 const scene = new THREE.Scene();
 // Fog carries to the edge of the streamed field so the outermost level
@@ -56,15 +51,7 @@ const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerH
 const START_ALTITUDE = 3300;
 
 // Post: speed-reactive motion blur + gentle bokeh.
-const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-  type: THREE.HalfFloatType,
-});
-renderTarget.depthTexture = new THREE.DepthTexture();
-renderTarget.depthTexture.type = THREE.UnsignedShortType;
-
-const composer = new EffectComposer(renderer, renderTarget);
-const renderPass = new RenderPass(scene, camera);
-composer.addPass(renderPass);
+const composer = createComposer(renderer, scene, camera, { depth: true });
 
 // Clouds raymarch the scene depth, so they run immediately after the render
 // pass: they always read the untouched scene + its depth texture here, and
@@ -128,9 +115,7 @@ const HeatShader = {
     uPoints: { value: Array.from({ length: 6 }, () => new THREE.Vector4(0, 0, 0, 0)) },
     uShock: { value: new THREE.Vector4(0, 0, 0, 0) }, // xy: center screen uv, z: radius, w: intensity
   },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  vertexShader: FULLSCREEN_VERTEX_SHADER,
   fragmentShader: /* glsl */ `
     uniform sampler2D tDiffuse;
     uniform float uTime, uAspect;
@@ -333,51 +318,38 @@ function showMsg(text, secs) {
 }
 
 // ---------------------------------------------------------------- input
-const keys = {};
-window.addEventListener('keydown', (e) => {
-  keys[e.code] = true;
-  if (e.code === 'KeyC') camMode = camMode === 'chase' ? 'cockpit' : 'chase';
-  if (e.code === 'KeyT') cycleTarget(1);
-  if (e.code === 'KeyY') cycleTarget(-1);
-  if (e.code === 'KeyF') fireMissile();
-  if (e.code === 'KeyH') showMsg(`TERRAIN VIEW // ${terrain.cycleDebugMode()}`, 1.5);
-  if (e.code === 'KeyR') restart();
-  if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code))
-    e.preventDefault();
+const keys = new Keyboard();
+keys.onPress('KeyC', () => {
+  camMode = camMode === 'chase' ? 'cockpit' : 'chase';
 });
-window.addEventListener('keyup', (e) => {
-  keys[e.code] = false;
-  if (!e.shiftKey) {
-    keys.ShiftLeft = false;
-    keys.ShiftRight = false;
-  }
-});
-window.addEventListener('blur', () => {
-  for (const k in keys) keys[k] = false;
-});
+keys.onPress('KeyT', () => cycleTarget(1));
+keys.onPress('KeyY', () => cycleTarget(-1));
+keys.onPress('KeyF', () => fireMissile());
+keys.onPress('KeyH', () => showMsg(`TERRAIN VIEW // ${terrain.cycleDebugMode()}`, 1.5));
+keys.onPress('KeyR', () => restart());
 
 function readControls(dt) {
   const c = player.controls;
   const ease = 7;
-  const lerpTo = (cur, target) => cur + (target - cur) * Math.min(1, dt * ease);
 
-  const pitchIn = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0); // S = pull
-  const rollIn = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
-  const yawIn = (keys.KeyE ? 1 : 0) - (keys.KeyQ ? 1 : 0);
+  // S/Down pulls back on the stick, so pitch is inverted relative to screen up.
+  const pitchIn = keys.axis(['KeyW', 'ArrowUp'], ['KeyS', 'ArrowDown']);
+  const rollIn = keys.axis(['KeyA', 'ArrowLeft'], ['KeyD', 'ArrowRight']);
+  const yawIn = keys.axis('KeyQ', 'KeyE');
 
-  c.pitch = lerpTo(c.pitch, pitchIn);
-  c.roll = lerpTo(c.roll, rollIn);
-  c.yaw = lerpTo(c.yaw, yawIn);
+  c.pitch = damp(c.pitch, pitchIn, ease, dt);
+  c.roll = damp(c.roll, rollIn, ease, dt);
+  c.yaw = damp(c.yaw, yawIn, ease, dt);
 
-  const thrUp = keys.ShiftLeft || keys.ShiftRight;
-  const thrDn = keys.ControlLeft || keys.ControlRight || keys.KeyZ;
+  const thrUp = keys.anyDown('ShiftLeft', 'ShiftRight');
+  const thrDn = keys.anyDown('ControlLeft', 'ControlRight', 'KeyZ');
   const rate = 0.55;
   if (thrUp) c.throttle = Math.min(1, c.throttle + rate * dt);
   if (thrDn) c.throttle = Math.max(0, c.throttle - rate * dt);
   c.afterburner = c.throttle > 0.97 && thrUp;
   c.airbrake = !!thrDn && c.throttle < 0.05;
 
-  if (keys.Space && player.gunAmmo > 0) {
+  if (keys.isDown('Space') && player.gunAmmo > 0) {
     gunTimer -= dt;
     if (gunTimer <= 0) {
       gunTimer = 0.075;
@@ -612,7 +584,7 @@ function updateCamera(dt) {
   }
   // subtle FOV kick with speed / afterburner
   const targetFov = 66 + Math.min(player.speed / 22, 14) + (player.controls.afterburner ? 4 : 0);
-  camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 3);
+  camera.fov = damp(camera.fov, targetFov, 3, dt);
   camera.updateProjectionMatrix();
 }
 
@@ -861,12 +833,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
   }
 });
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
-});
+handleResize(renderer, camera, composer);
 
 // render one static frame behind the menu; build the whole field up front
 // here, where a pause is free, rather than streaming it in after ENGAGE
