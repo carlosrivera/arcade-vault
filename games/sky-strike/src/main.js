@@ -46,6 +46,7 @@ function addOutline(mesh, scale = 1.1) {
 // --- 3D Jet Construction ---
 function createFighterMesh(primaryColor, canopyColor, gradientMap) {
   const group = new THREE.Group();
+  group.rotation.order = 'ZYX';
 
   // Fuselage
   const bodyGeo = new THREE.ConeGeometry(0.7, 3.2, 6);
@@ -524,6 +525,55 @@ class SoundManager {
 // --- Arena and Weapons Config ---
 const WORLD = { minX: -140, maxX: 140, groundY: -15, ceilY: 48 };
 
+/**
+ * Flight envelope.
+ *
+ * The old model let the nose swing at a fixed rate no matter how fast the
+ * aircraft was going, so it handled like a helicopter: you could pirouette on
+ * the spot and every fight collapsed into two planes rotating to face each
+ * other. Nothing was traded, so nothing had to be flown around.
+ *
+ * These numbers make speed the currency. Turn rate is bought with airspeed,
+ * airspeed is bought with altitude and throttle, and both are spent by
+ * turning — which is what gives a dogfight its shape.
+ */
+const FLIGHT = {
+  stallSpeed: 10, // below this the wing carries nothing and cannot turn at all
+  nLimit: 7.0, // structural g limit — the airframe's own ceiling on the turn
+  turnG: 19, // scales the turn; the pull available at one g of load
+  maxSpeed: 46,
+  thrust: 17, // full throttle
+  idleThrust: 5.5,
+  airbrake: 20,
+  dragK: 0.0105, // grows with v², which is what caps top speed near 40
+  gravity: 11, // trades altitude for speed, both directions
+  turnDrag: 0.55, // hauling on the stick bleeds energy
+};
+
+/**
+ * Turn rate at a given airspeed — the "doghouse" every real aircraft has.
+ *
+ * A wing turns by pulling g, and the g it can pull is limited by two different
+ * things at different speeds. Slowly, by the lift available, which grows with
+ * v²: at stall speed the wing can barely hold the aircraft up, let alone
+ * bend its path, so the turn rate is zero. Quickly, by the airframe itself,
+ * and since rate = g / v, the same g sweeps an ever wider arc the faster you
+ * go.
+ *
+ * The two limits cross at corner speed, which is the fastest an aircraft can
+ * ever change direction and the reason a pilot has a speed they want to fight
+ * at. Fixed-rate steering has no such speed, which is exactly why the old
+ * model flew like a helicopter and made every merge identical.
+ */
+const CORNER_SPEED = FLIGHT.stallSpeed * Math.sqrt(FLIGHT.nLimit);
+
+function turnRateAt(speed) {
+  if (speed <= FLIGHT.stallSpeed) return 0;
+  const liftLimited = (speed / FLIGHT.stallSpeed) ** 2;
+  const n = Math.min(liftLimited, FLIGHT.nLimit);
+  return (FLIGHT.turnG * Math.sqrt(Math.max(0, n * n - 1))) / speed;
+}
+
 const CANNON_TIERS = [
   {
     name: 'DUAL LASER',
@@ -690,6 +740,7 @@ export function init({ renderer, state }) {
     lockedTarget: null,
     muzzleTimer: 0,
     hitFlash: 0,
+    roll: state?.roll ?? 0,
     alive: true,
     deadFor: 0,
   };
@@ -704,6 +755,33 @@ export function init({ renderer, state }) {
   const damageTexts = [];
 
   let spawnTimer = 0.5;
+
+  // Airspeed readout. With a real envelope the player has to be able to see
+  // where the edge of it is; without this, stalling is indistinguishable from
+  // the controls simply breaking.
+  let speedEl = document.getElementById('hud-speed');
+  if (!speedEl) {
+    speedEl = document.createElement('div');
+    speedEl.id = 'hud-speed';
+    speedEl.style.cssText = `
+      position: fixed; top: 46px; left: 20px; z-index: 40;
+      font-family: ui-monospace, Menlo, monospace; font-size: 15px; font-weight: 800;
+      letter-spacing: 0.08em; pointer-events: none;
+      text-shadow: 2px 2px 0 #0a1220, -1px -1px 0 #0a1220;
+    `;
+    document.body.appendChild(speedEl);
+  }
+
+  function refreshSpeed() {
+    const v = player.speed;
+    const stalling = v < FLIGHT.stallSpeed;
+    // Corner speed is the number worth flying to, so it is called out rather
+    // than left to be discovered by feel.
+    const near = Math.abs(v - CORNER_SPEED) < 3.5;
+    const color = stalling ? '#ff3355' : near ? '#00ff99' : '#cfd8e6';
+    const tag = stalling ? ' STALL' : near ? ' CORNER' : '';
+    speedEl.innerHTML = `<span style="color:${color}">SPD ${v.toFixed(0).padStart(2, '0')}${tag}</span>`;
+  }
 
   function refreshHud() {
     const tier = CANNON_TIERS[player.cannonTier];
@@ -781,10 +859,14 @@ export function init({ renderer, state }) {
       ),
       vel: new THREE.Vector2(spawnLeft ? rng.range(10, 16) : -rng.range(10, 16), rng.range(-3, 3)),
       angle: spawnLeft ? 0 : Math.PI,
-      speed: isAce ? 18 : 14,
+      // Start inside the envelope: 14 is below stall, which would have every
+      // enemy spawn already falling out of the sky.
+      speed: isAce ? 27 : 23,
+      throttle: (isAce ? 0.95 : 0.8) * FLIGHT.thrust,
       hp: isAce ? 55 : 25,
       maxHp: isAce ? 55 : 25,
       isAce,
+      roll: spawnLeft ? 0 : Math.PI,
       trail: new RibbonTrail(scene, 70, isAce ? 0xffbbff : 0xddddff, 0.3),
       healthBar: createHealthBarSprite(),
       fireTimer: rng.range(0.8, 2.0),
@@ -970,32 +1052,59 @@ export function init({ renderer, state }) {
       const throttle = player.alive && keys.anyDown('ArrowUp', 'KeyW');
       const brake = player.alive && keys.anyDown('ArrowDown', 'KeyS');
 
-      const turnSpeed = 4.0;
-      player.angle += steer * turnSpeed * dt;
+      // --- Energy ---
+      // Climbing spends speed, diving earns it. sin(angle) is the climb
+      // component of the nose, so a vertical pull drains the tanks and a dive
+      // refills them — the whole basis of trading height for speed.
+      const climb = Math.sin(player.angle);
+      // The airbrake scales with airspeed, because a bouncing airbrake needs
+      // air to bite on. A constant one lets you hold zero forever with the key
+      // down — an aircraft hanging motionless in the sky, which is the
+      // helicopter problem wearing a different hat.
+      const brakeForce = FLIGHT.airbrake * Math.min(1, player.speed / 18);
+      let accel = throttle ? FLIGHT.thrust : brake ? -brakeForce : FLIGHT.idleThrust;
+      accel -= FLIGHT.gravity * climb;
+      accel -= FLIGHT.dragK * player.speed * player.speed;
+      // Hauling on the stick costs energy, so a sustained turn bleeds you.
+      accel -= Math.abs(steer) * FLIGHT.turnDrag * player.speed * 0.1;
 
-      let targetSpeed = 18;
+      player.speed = clamp(player.speed + accel * dt, 0, FLIGHT.maxSpeed);
+
       if (throttle) {
-        targetSpeed = 28;
         player.flame.visible = true;
         player.flame.scale.set(rng.range(0.9, 1.4), rng.range(0.8, 1.2), 1);
-        sound.updateEngine(340);
       } else if (brake) {
-        targetSpeed = 9;
         player.flame.visible = false;
-        sound.updateEngine(120);
       } else {
         player.flame.visible = rng.chance(0.25);
         player.flame.scale.set(0.6, 0.6, 1);
-        sound.updateEngine(190);
+      }
+      sound.updateEngine(120 + (player.speed / FLIGHT.maxSpeed) * 260);
+
+      // --- Turn authority ---
+      const stalled = player.speed < FLIGHT.stallSpeed;
+      player.angle += steer * turnRateAt(player.speed) * dt;
+
+      if (stalled) {
+        // The nose falls through toward the vertical, which is both the
+        // punishment and the way out — gravity hands the speed back.
+        const severity = 1 - player.speed / FLIGHT.stallSpeed;
+        let toDown = -Math.PI / 2 - player.angle;
+        while (toDown < -Math.PI) toDown += Math.PI * 2;
+        while (toDown > Math.PI) toDown -= Math.PI * 2;
+        player.angle += toDown * severity * 1.6 * dt;
       }
 
-      player.speed = damp(player.speed, targetSpeed, 6, dt);
+      refreshSpeed();
 
       const fwdX = Math.cos(player.angle);
       const fwdY = Math.sin(player.angle);
 
-      player.vel.x = damp(player.vel.x, fwdX * player.speed, 5, dt);
-      player.vel.y = damp(player.vel.y, fwdY * player.speed - 2.0, 4, dt);
+      // Velocity trails the nose rather than snapping to it, so a hard pull
+      // slides the aircraft through the turn instead of teleporting its
+      // heading. That lag is what a reversal is fought against.
+      player.vel.x = damp(player.vel.x, fwdX * player.speed, 6, dt);
+      player.vel.y = damp(player.vel.y, fwdY * player.speed, 6, dt);
 
       player.pos.x += player.vel.x * dt;
       player.pos.y += player.vel.y * dt;
@@ -1026,10 +1135,29 @@ export function init({ renderer, state }) {
         player.vel.x = -Math.abs(player.vel.x) * 0.5;
       }
 
+      // Visual Orientation & Auto-Righting Roll
+      // In 2D plane: when heading left (cos(angle) < 0), local +Y (canopy) is pointed down.
+      // If the player is not actively steering, auto-roll so canopy faces UP into the sky!
+      const isHeadingLeft = Math.cos(player.angle) < 0;
+      let targetRoll = 0;
+
+      if (Math.abs(steer) > 0.05) {
+        // While actively steering, bank dynamically into the turn
+        targetRoll = (isHeadingLeft ? Math.PI : 0) - steer * 0.65;
+      } else {
+        // When NOT steering / releasing controls, auto-roll upright so canopy points toward the sky
+        targetRoll = isHeadingLeft ? Math.PI : 0;
+      }
+
+      // Smooth shortest-arc interpolation for natural barrel rolls
+      let rollDiff = targetRoll - player.roll;
+      while (rollDiff < -Math.PI) rollDiff += Math.PI * 2;
+      while (rollDiff > Math.PI) rollDiff -= Math.PI * 2;
+      player.roll += rollDiff * Math.min(1, dt * 7.5);
+
       player.root.position.set(player.pos.x, player.pos.y, 0);
       player.root.rotation.z = player.angle;
-      const targetRoll = -steer * 0.65;
-      player.root.rotation.x = damp(player.root.rotation.x, targetRoll, 8, dt);
+      player.root.rotation.x = player.roll;
 
       // Muzzle flash visibility
       if (player.muzzleTimer > 0) {
@@ -1304,20 +1432,50 @@ export function init({ renderer, state }) {
         let diff = desiredAngle - e.angle;
         while (diff < -Math.PI) diff += Math.PI * 2;
         while (diff > Math.PI) diff -= Math.PI * 2;
-        e.angle += clamp(diff, -2.8 * dt, 2.8 * dt);
+
+        // Enemies fly the same envelope the player does. Leaving them on a
+        // fixed turn rate would mean the only aircraft that had to manage
+        // energy was yours — the fight would read as a handicap rather than a
+        // contest, and every hard-won position could simply be rotated away.
+        const eClimb = Math.sin(e.angle);
+        const eAccel =
+          (e.throttle ?? FLIGHT.thrust * 0.82) -
+          FLIGHT.gravity * eClimb -
+          FLIGHT.dragK * e.speed * e.speed;
+        e.speed = clamp(e.speed + eAccel * dt, 0, FLIGHT.maxSpeed);
+
+        const eTurn = turnRateAt(e.speed) * (e.isAce ? 1.0 : 0.86);
+        e.angle += clamp(diff, -eTurn * dt, eTurn * dt);
+
+        // Stalled AI drops its nose exactly as the player's does, so a rival
+        // that over-pulls hands you the same opening you would hand it.
+        if (e.speed < FLIGHT.stallSpeed) {
+          const severity = 1 - e.speed / FLIGHT.stallSpeed;
+          let eToDown = -Math.PI / 2 - e.angle;
+          while (eToDown < -Math.PI) eToDown += Math.PI * 2;
+          while (eToDown > Math.PI) eToDown -= Math.PI * 2;
+          e.angle += eToDown * severity * 1.6 * dt;
+        }
 
         const efwdX = Math.cos(e.angle);
         const efwdY = Math.sin(e.angle);
 
-        e.vel.x = damp(e.vel.x, efwdX * e.speed, 3, dt);
-        e.vel.y = damp(e.vel.y, efwdY * e.speed, 3, dt);
+        e.vel.x = damp(e.vel.x, efwdX * e.speed, 6, dt);
+        e.vel.y = damp(e.vel.y, efwdY * e.speed, 6, dt);
 
         e.pos.x += e.vel.x * dt;
         e.pos.y += e.vel.y * dt;
 
+        const eIsLeft = Math.cos(e.angle) < 0;
+        const eTargetRoll = (eIsLeft ? Math.PI : 0) - diff * 0.4;
+        let eRollDiff = eTargetRoll - (e.roll || 0);
+        while (eRollDiff < -Math.PI) eRollDiff += Math.PI * 2;
+        while (eRollDiff > Math.PI) eRollDiff -= Math.PI * 2;
+        e.roll = (e.roll || 0) + eRollDiff * Math.min(1, dt * 6.0);
+
         e.root.position.set(e.pos.x, e.pos.y, 0);
         e.root.rotation.z = e.angle;
-        e.root.rotation.x = damp(e.root.rotation.x, -diff * 0.4, 6, dt);
+        e.root.rotation.x = e.roll;
 
         e.trail.addPoint(
           new THREE.Vector3(e.pos.x - efwdX * 0.8, e.pos.y - efwdY * 0.8, 0),
@@ -1509,6 +1667,7 @@ export function init({ renderer, state }) {
         px: player.pos.x,
         py: player.pos.y,
         pa: player.angle,
+        roll: player.roll,
         cannonTier: player.cannonTier,
         missiles: player.missiles,
       };
@@ -1518,6 +1677,7 @@ export function init({ renderer, state }) {
       for (const off of unbind) off();
       keys.dispose();
       scoreEl?.remove();
+      speedEl?.remove();
       mapEl?.remove();
       indicatorsEl?.remove();
       feel.reset();
