@@ -1,0 +1,47 @@
+<meta charset="utf-8">
+<title>AURICOM 07 — img2threejs reconstruction</title>
+<link rel="stylesheet" href="../../shared/model-viewer.css">
+<script>
+window.__errs = [];
+addEventListener('error', (e) => {
+  const t = e.target;
+  window.__errs.push(t?.src ? `404? ${t.src}` : (e.message || String(e.error)));
+}, true);
+addEventListener('unhandledrejection', (e) => window.__errs.push(`reject: ${e.reason}`));
+</script>
+<script type="importmap">
+{ "imports": { "three": "../../shared/vendor/three.module.js",
+               "three/addons/": "../../shared/vendor/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { createModelViewer } from '../../shared/model-viewer.js';
+import { createAuricom07 } from './dist/auricomBuild.js';
+
+// Hard key from the start. The previous craft proved that a soft rig compresses adjacent
+// facet values until the creases disappear, and this hull is near-white, which makes the
+// problem worse: on a white shell there is no albedo difference between panels at all, so
+// the ONLY thing separating them is the value step the light produces.
+const key = new THREE.DirectionalLight(0xfff6ec, 3.2);
+key.position.set(0.62, 0.90, 0.62).multiplyScalar(3);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.bias = -0.0004;
+Object.assign(key.shadow.camera, { left: -0.8, right: 0.8, top: 0.8, bottom: -0.8, near: 0.1, far: 8 });
+key.shadow.camera.updateProjectionMatrix();
+const fill = new THREE.DirectionalLight(0xa8bccf, 0.40);
+fill.position.set(-0.85, 0.20, 0.40).multiplyScalar(3);
+const rim = new THREE.DirectionalLight(0xbfe2ff, 0.65);
+rim.position.set(-0.25, 0.35, -1.0).multiplyScalar(3);
+
+createModelViewer({
+  model: createAuricom07(),
+  title: 'AURICOM 07',
+  lights: [key, fill, rim, new THREE.AmbientLight(0xc9d6e4, 0.20)],
+  // 45 degrees, matching the sheet's own render panel.
+  camera: { fov: 30, azimuth: 45, elevation: 22, distanceFactor: 1.9, viewDistanceFactor: 2.7 },
+  exposure: 0.92,
+  bloom: { strength: 0.22, radius: 0.4, threshold: 0.9 },
+  background: 0x11141a,
+});
+</script>
