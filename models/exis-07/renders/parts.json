@@ -4,6 +4,15 @@
    "name": "EXIS 07"
   },
   {
+   "name": "air-intake-l"
+  },
+  {
+   "name": "air-intake-r"
+  },
+  {
+   "name": "air-intakes"
+  },
+  {
    "name": "canopy"
   },
   {
@@ -13,10 +22,16 @@
    "name": "chine-strip-r"
   },
   {
-   "name": "decal-l"
+   "name": "decal-hull-l"
   },
   {
-   "name": "decal-r"
+   "name": "decal-hull-r"
+  },
+  {
+   "name": "decal-nose-l"
+  },
+  {
+   "name": "decal-nose-r"
   },
   {
    "name": "decal-set"
@@ -64,31 +79,7 @@
    "name": "engine-outboard-r-housing"
   },
   {
-   "name": "feather-l-0"
-  },
-  {
-   "name": "feather-l-1"
-  },
-  {
-   "name": "feather-l-2"
-  },
-  {
-   "name": "feather-l-3"
-  },
-  {
    "name": "feather-plate"
-  },
-  {
-   "name": "feather-r-0"
-  },
-  {
-   "name": "feather-r-1"
-  },
-  {
-   "name": "feather-r-2"
-  },
-  {
-   "name": "feather-r-3"
   },
   {
    "name": "fin-strip-l"
@@ -98,6 +89,12 @@
   },
   {
    "name": "hull"
+  },
+  {
+   "name": "intake-lip-l"
+  },
+  {
+   "name": "intake-lip-r"
   },
   {
    "name": "light-channels"

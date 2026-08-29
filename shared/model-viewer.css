@@ -1,0 +1,25 @@
+/* Shared chrome for every model viewer under models/. */
+html, body { margin: 0; height: 100%; background: #0b0e13; overflow: hidden; }
+canvas { display: block; }
+#hud {
+  position: fixed; left: 12px; top: 12px; z-index: 10;
+  font: 12px/1.55 ui-monospace, Menlo, monospace; color: #8fb6cf;
+  background: rgba(8, 14, 22, .74); border: 1px solid #1d3448; padding: 8px 11px;
+  pointer-events: none;
+}
+#hud b { color: #d8e6f2; }
+#hud .hint { color: #55748c; }
+
+#inspect {
+  position: fixed; right: 12px; top: 12px; z-index: 10; max-width: 340px;
+  font: 11px/1.5 ui-monospace, Menlo, monospace; color: #9fb4c8;
+  background: rgba(8, 14, 22, .82); border: 1px solid #1d3448; padding: 8px 10px;
+}
+#inspect .k { color: #3ad6ff; }
+#inspect b { color: #d8e6f2; }
+#inspect .dim { color: #55748c; }
+#inspect .marks { margin: 6px 0; border-top: 1px solid #1d3448; padding-top: 6px; }
+#inspect .m { margin: 2px 0; color: #ffb3c4; }
+#inspect .m .n { color: #ff3b6b; }
+#inspect .help { margin-top: 6px; border-top: 1px solid #1d3448; padding-top: 6px; color: #55748c; }
+#inspect .rm { margin: 6px 0 0; color: #ffd28a; }

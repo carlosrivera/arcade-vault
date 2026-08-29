@@ -18,7 +18,11 @@
 
 import * as THREE from 'three';
 
-export const SHIP = { length: 1.0, span: 0.62, height: 0.26 };
+// Height raised from 0.26 to 0.33 of length. Measured back off the reference's own side
+// and rear views (height/length 250/760 = 0.33) rather than guessed - the first table was
+// 20% too shallow, which is why the craft read as a flat dart and left no internal volume
+// for the air intake to breathe into.
+export const SHIP = { length: 1.0, span: 0.62, height: 0.33 };
 
 /**
  * Hull cross-sections, nose (+Z) to tail (-Z).
@@ -30,15 +34,21 @@ export const SHIP = { length: 1.0, span: 0.62, height: 0.26 };
  */
 type Station = { z: number; hw: number; topY: number; chineY: number; botY: number; topHW: number };
 const STATIONS: Station[] = [
-  { z:  0.500, hw: 0.010, topY: 0.004, chineY:  0.000, botY: -0.006, topHW: 0.005 },
-  { z:  0.430, hw: 0.052, topY: 0.030, chineY:  0.004, botY: -0.030, topHW: 0.024 },
-  { z:  0.310, hw: 0.104, topY: 0.055, chineY:  0.008, botY: -0.046, topHW: 0.050 },
-  { z:  0.160, hw: 0.175, topY: 0.076, chineY:  0.014, botY: -0.056, topHW: 0.070 },
-  { z:  0.000, hw: 0.242, topY: 0.086, chineY:  0.018, botY: -0.060, topHW: 0.080 },
-  { z: -0.150, hw: 0.292, topY: 0.086, chineY:  0.018, botY: -0.060, topHW: 0.086 },
-  { z: -0.280, hw: 0.310, topY: 0.080, chineY:  0.014, botY: -0.055, topHW: 0.090 },
-  { z: -0.400, hw: 0.268, topY: 0.070, chineY:  0.010, botY: -0.050, topHW: 0.086 },
-  { z: -0.500, hw: 0.218, topY: 0.060, chineY:  0.006, botY: -0.045, topHW: 0.080 },
+  // Reshaped after comparing planforms. The first table tapered smoothly from a long point
+  // and read as a dart: max span arrived at z -0.28, three quarters of the way aft. The
+  // reference is a DELTA - a near-straight leading edge that reaches most of its span by
+  // mid-length, then holds a wide constant-width body to the tail. Span/length stays 0.62,
+  // measured from the rear and side views (span/height 1.81, length/height 3.04).
+  { z: 0.500, hw: 0.010, topY: 0.0051, chineY: 0.0000, botY: -0.0077, topHW: 0.005 },
+  { z: 0.440, hw: 0.046, topY: 0.0358, chineY: 0.0051, botY: -0.0358, topHW: 0.022 },
+  { z: 0.360, hw: 0.098, topY: 0.0666, chineY: 0.0102, botY: -0.0563, topHW: 0.046 },
+  { z: 0.250, hw: 0.170, topY: 0.0922, chineY: 0.0166, botY: -0.0691, topHW: 0.066 },
+  { z: 0.120, hw: 0.240, topY: 0.1075, chineY: 0.0218, botY: -0.0768, topHW: 0.078 },
+  { z: -0.020, hw: 0.292, topY: 0.1126, chineY: 0.0243, botY: -0.0794, topHW: 0.084 },
+  { z: -0.170, hw: 0.312, topY: 0.1101, chineY: 0.0230, botY: -0.0768, topHW: 0.088 },
+  { z: -0.300, hw: 0.308, topY: 0.1024, chineY: 0.0192, botY: -0.0717, topHW: 0.090 },
+  { z: -0.410, hw: 0.272, topY: 0.0909, chineY: 0.0128, botY: -0.0640, topHW: 0.087 },
+  { z: -0.500, hw: 0.220, topY: 0.0768, chineY: 0.0077, botY: -0.0576, topHW: 0.080 },
 ];
 
 /** The five profile points of a half-station, top centre round to bottom centre. */
@@ -134,6 +144,46 @@ function prism(
   return f.mesh(material, name);
 }
 
+/**
+ * Mirror a mesh across the centreline plane.
+ *
+ * Negating x is only half of a reflection: it also reverses the winding of every triangle,
+ * so a part built by multiplying its x coordinates by -1 comes out with inverted normals.
+ * That is exactly what made the craft asymmetric - the port fin, pod, feather plates and
+ * light channels were all lit from the inside. Reversing each triangle's vertex order
+ * restores the handedness, which is the same rule the skill states for `-l`/`-r` pairs:
+ * a reflection, never a rotation.
+ */
+function mirrorX(mesh: THREE.Mesh, name: string): THREE.Mesh {
+  const src = mesh.geometry.getAttribute('position');
+  const out = new Float32Array(src.count * 3);
+  for (let t = 0; t < src.count; t += 3) {
+    // Vertices 1 and 2 swap, which flips the winding back.
+    const order = [0, 2, 1];
+    for (let k = 0; k < 3; k++) {
+      const i = t + order[k];
+      out[(t + k) * 3 + 0] = -src.getX(i);
+      out[(t + k) * 3 + 1] = src.getY(i);
+      out[(t + k) * 3 + 2] = src.getZ(i);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(out, 3));
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, mesh.material);
+  m.name = name;
+  m.castShadow = mesh.castShadow;
+  m.receiveShadow = mesh.receiveShadow;
+  return m;
+}
+
+/** Build a starboard part and add it together with its true mirror. */
+function addPair(g: THREE.Group, build: () => THREE.Mesh, base: string) {
+  const r = build();
+  r.name = `${base}-r`;
+  g.add(r, mirrorX(r, `${base}-l`));
+}
+
 /** A ribbon of quads along a 3D polyline, used for every inset light channel. */
 function ribbon(
   path: [number, number, number][], width: number, material: THREE.Material, name: string,
@@ -200,11 +250,11 @@ function buildSpine(): THREE.Mesh {
   const S = (z: number, hw: number, y0: number, y1: number): { z: number; pts: [number, number][] } =>
     ({ z, pts: [[-hw, y0], [-hw * 0.7, y1], [hw * 0.7, y1], [hw, y0]] });
   return prism([
-    S(0.300, 0.030, 0.052, 0.060),
-    S(0.180, 0.072, 0.072, 0.086),
-    S(0.020, 0.082, 0.084, 0.094),
-    S(-0.170, 0.078, 0.084, 0.108),
-    S(-0.300, 0.058, 0.078, 0.096),
+    S(0.300, 0.030, 0.067, 0.077),
+    S(0.180, 0.072, 0.092, 0.110),
+    S(0.020, 0.082, 0.108, 0.120),
+    S(-0.170, 0.078, 0.108, 0.138),
+    S(-0.300, 0.058, 0.100, 0.123),
   ], MAT.hull(), 'dorsal-spine');
 }
 
@@ -213,11 +263,11 @@ function buildCanopy(): THREE.Mesh {
   const S = (z: number, hw: number, y0: number, y1: number): { z: number; pts: [number, number][] } =>
     ({ z, pts: [[-hw, y0], [-hw * 0.62, y1], [hw * 0.62, y1], [hw, y0]] });
   const m = prism([
-    S(0.250, 0.018, 0.076, 0.086),
-    S(0.175, 0.058, 0.084, 0.118),
-    S(0.065, 0.072, 0.090, 0.132),
-    S(-0.045, 0.060, 0.090, 0.124),
-    S(-0.100, 0.024, 0.086, 0.104),
+    S(0.250, 0.018, 0.097, 0.110),
+    S(0.175, 0.058, 0.108, 0.151),
+    S(0.065, 0.072, 0.115, 0.169),
+    S(-0.045, 0.060, 0.115, 0.159),
+    S(-0.100, 0.024, 0.110, 0.133),
   ], MAT.canopy(), 'canopy');
   return m;
 }
@@ -226,12 +276,15 @@ function buildCanopy(): THREE.Mesh {
 function buildFins(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'dorsal-fins';
-  for (const sx of [1, -1]) {
+  // Built once on the starboard side and reflected. Multiplying x by -1 in place, as the
+  // first version did, reverses the winding of every triangle and lights the port fin from
+  // the inside - which is where the craft's asymmetry came from.
+  const buildFin = () => {
     const f = new Facets();
     // Root and tip outlines in (z, y); the fin is a thin swept plate.
-    const root: [number, number][] = [[-0.180, 0.100], [-0.300, 0.096], [-0.430, 0.092], [-0.360, 0.088]];
-    const tip: [number, number][]  = [[-0.250, 0.238], [-0.320, 0.232], [-0.400, 0.196], [-0.330, 0.190]];
-    const xr = 0.052 * sx, xt = 0.088 * sx, th = 0.009;
+    const root: [number, number][] = [[-0.180, 0.128], [-0.300, 0.123], [-0.430, 0.118], [-0.360, 0.113]];
+    const tip: [number, number][]  = [[-0.250, 0.286], [-0.320, 0.279], [-0.400, 0.238], [-0.330, 0.231]];
+    const xr = 0.052, xt = 0.088, th = 0.009;
     for (let k = 0; k < root.length; k++) {
       const k2 = (k + 1) % root.length;
       for (const o of [-th / 2, th / 2]) {
@@ -243,15 +296,13 @@ function buildFins(): THREE.Group {
       f.quad([xt - th / 2, tip[k][1], tip[k][0]], [xt + th / 2, tip[k][1], tip[k][0]],
              [xt + th / 2, tip[k2][1], tip[k2][0]], [xt - th / 2, tip[k2][1], tip[k2][0]]);
     }
-    g.add(f.mesh(MAT.hull(), sx > 0 ? 'dorsal-fin-r' : 'dorsal-fin-l'));
-    // Emissive strip ON the outer face, parallel to the swept leading edge. The first
-    // version ran along the fin's top edge at y 0.196-0.236, which put it above the plate
-    // rather than on it - it read as a glowing hook floating over the tail.
-    const finX = 0.070 * sx + 0.006 * sx;
-    g.add(ribbon([
-      [finX, 0.118, -0.208], [finX, 0.170, -0.238], [finX, 0.212, -0.270],
-    ], 0.016, MAT.emissive(), sx > 0 ? 'fin-strip-r' : 'fin-strip-l', [0, 0, 1]));
-  }
+    return f.mesh(MAT.hull(), 'dorsal-fin');
+  };
+  addPair(g, buildFin, 'dorsal-fin');
+  // Emissive strip ON the outer face, parallel to the swept leading edge.
+  addPair(g, () => ribbon([
+    [0.076, 0.148, -0.208], [0.076, 0.208, -0.238], [0.076, 0.256, -0.270],
+  ], 0.016, MAT.emissive(), 'fin-strip', [0, 0, 1]), 'fin-strip');
   return g;
 }
 
@@ -259,20 +310,22 @@ function buildFins(): THREE.Group {
 function buildPods(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'wingtip-pods';
-  for (const sx of [1, -1]) {
-    const S = (z: number, x0: number, x1: number, y0: number, y1: number) =>
-      ({ z, pts: [[x0 * sx, y0], [x0 * sx, y1], [x1 * sx, y1], [x1 * sx, y0]] as [number, number][] });
-    const pod = prism([
-      S(-0.120, 0.272, 0.300, -0.014, 0.020),
-      S(-0.240, 0.268, 0.320, -0.034, 0.038),
-      S(-0.360, 0.262, 0.316, -0.032, 0.036),
-      S(-0.430, 0.268, 0.300, -0.022, 0.024),
-    ], MAT.hull(), sx > 0 ? 'wingtip-pod-r' : 'wingtip-pod-l');
-    g.add(pod);
-    // Emissive slot on the pod leading face.
-    g.add(ribbon([[0.286 * sx, 0.004, -0.130], [0.292 * sx, 0.004, -0.215]], 0.026,
-                 MAT.emissive(), sx > 0 ? 'tip-slot-r' : 'tip-slot-l'));
-  }
+  const S = (z: number, x0: number, x1: number, y0: number, y1: number) =>
+    ({ z, pts: [[x0, y0], [x0, y1], [x1, y1], [x1, y0]] as [number, number][] });
+  // The pod is a NACELLE: it now runs from an inlet lip at z +0.06 back to the nozzle at
+  // -0.43, so the intake at its nose and the engine at its tail are the two ends of one
+  // duct. Previously the pod started at -0.12 and the intake sat separately on the hull
+  // flank, which left the outboard engines breathing from nothing.
+  addPair(g, () => prism([
+    S(0.060, 0.276, 0.302, -0.026, 0.033),
+    S(-0.060, 0.270, 0.312, -0.041, 0.051),
+    S(-0.200, 0.266, 0.322, -0.044, 0.049),
+    S(-0.360, 0.262, 0.318, -0.041, 0.046),
+    S(-0.430, 0.268, 0.300, -0.028, 0.031),
+  ], MAT.hull(), 'wingtip-pod'), 'wingtip-pod');
+  // Emissive slot on the pod leading face.
+  addPair(g, () => ribbon([[0.286, 0.004, -0.130], [0.292, 0.004, -0.215]], 0.026,
+                          MAT.emissive(), 'tip-slot'), 'tip-slot');
   return g;
 }
 
@@ -325,41 +378,85 @@ function buildNozzle(x: number, y: number, z: number, r: number, bars: number, n
 }
 
 /** Layered plates fanning aft from each wing trailing edge, four per side. */
+/**
+ * Trailing plates — REMOVED after review.
+ *
+ * The reviewer deleted all eight (four per side) in the inspector, which is an unambiguous
+ * verdict on the implementation: they were built as flat shelves cantilevered off the wing
+ * trailing edge and read as shipping pallets bolted to the back of the craft, not as the
+ * reference's layered swept blades.
+ *
+ * The reference DOES carry this feature — the side view clearly shows three or four stacked
+ * plates fanning aft. So this is a removal of a bad implementation, not of the feature. A
+ * correct version needs each plate tapered in chord, swept to a point, and integrated INTO
+ * the trailing edge rather than hung off it; until that exists the craft is better without.
+ * Recorded in the spec's risks so it cannot quietly disappear from the plan.
+ */
 function buildFeathers(): THREE.Group {
   const g = new THREE.Group();
-  g.name = 'feather-plates';
-  for (const sx of [1, -1]) {
-    for (let i = 0; i < 4; i++) {
-      const t = i / 3;
-      const f = new Facets();
-      const x0 = (0.150 + t * 0.055) * sx, x1 = (0.255 + t * 0.055) * sx;
-      const z0 = -0.400 - t * 0.020, z1 = -0.510 - t * 0.055;
-      const y = 0.030 + t * 0.030, th = 0.012;
-      const quadAt = (yy: number) => f.quad(
-        [x0, yy, z0], [x1, yy, z0 - 0.030], [x1, yy, z1], [x0, yy, z1 + 0.020]);
-      quadAt(y - th / 2); quadAt(y + th / 2);
-      // Side walls, so each plate reads as a solid slab with a visible edge.
-      f.quad([x0, y - th/2, z0], [x0, y + th/2, z0], [x0, y + th/2, z1 + 0.020], [x0, y - th/2, z1 + 0.020]);
-      f.quad([x1, y - th/2, z0 - 0.030], [x1, y - th/2, z1], [x1, y + th/2, z1], [x1, y + th/2, z0 - 0.030]);
-      g.add(f.mesh(MAT.hullDark(), `feather-${sx > 0 ? 'r' : 'l'}-${i}`));
-    }
-  }
+  g.name = 'feather-plate';
   return g;
 }
 
 /** Orange intake vents, seated in recessed sockets: two on the spine, one per side aft. */
+/**
+ * Air intakes: a recessed opening on each lower flank, forward of the wing.
+ *
+ * Added at the reviewer's note that the craft needs the volume for one. It is also what the
+ * extra hull height is FOR — a 0.26-deep hull had nowhere to put a duct, and raising the
+ * section to 0.33 without opening an intake would just have made a fatter dart.
+ *
+ * Built as a lip and a throat that funnels inward and aft, with a dark interior, so the
+ * opening reads as a duct going somewhere rather than a black rectangle painted on.
+ */
+function buildIntakes(): THREE.Group {
+  const g = new THREE.Group();
+  g.name = 'air-intakes';
+  const throatMat = new THREE.MeshStandardMaterial({ color: 0x0a1017, roughness: 0.9, flatShading: true });
+
+  const buildIntake = () => {
+    const f = new Facets();
+    // The inlet is cut into the POD'S NOSE and ducts aft toward its engine, so intake and
+    // nozzle are the two ends of one nacelle. Sized just inside the pod's leading section
+    // (x 0.276-0.302, y -0.026..0.033) so the lip sits in the pod face rather than floating
+    // beside it.
+    const lip: [number, number][] = [[0.280, -0.019], [0.299, -0.019], [0.299, 0.026], [0.280, 0.026]];
+    const back: [number, number][] = [[0.284, -0.010], [0.295, -0.010], [0.295, 0.017], [0.284, 0.017]];
+    const zLip = 0.058, zBack = -0.056;
+    for (let k = 0; k < lip.length; k++) {
+      const k2 = (k + 1) % lip.length;
+      f.quad([lip[k][0], lip[k][1], zLip], [lip[k2][0], lip[k2][1], zLip],
+             [back[k2][0], back[k2][1], zBack], [back[k][0], back[k][1], zBack]);
+    }
+    // Closed back wall, so the duct is a cavity and not a hole through the hull - an open
+    // one shows as an interior hole in the turntable gate, and correctly so.
+    for (let k = 1; k < back.length - 1; k++) {
+      f.tri([back[0][0], back[0][1], zBack], [back[k + 1][0], back[k + 1][1], zBack],
+            [back[k][0], back[k][1], zBack]);
+    }
+    const m = f.mesh(throatMat, 'air-intake');
+    m.material.side = THREE.DoubleSide; // the throat is seen from inside
+    return m;
+  };
+  addPair(g, buildIntake, 'air-intake');
+
+  // A thin emissive sliver across the inlet's upper lip, matching the reference's habit of
+  // outlining every opening.
+  addPair(g, () => ribbon([
+    [0.281, 0.029, 0.059], [0.298, 0.029, 0.059],
+  ], 0.008, MAT.emissive(), 'intake-lip', [0, 0, 1]), 'intake-lip');
+  return g;
+}
+
 function buildVents(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'vents';
   const box = (w: number, h: number, d: number) => new THREE.BoxGeometry(w, h, d);
   const socketMat = new THREE.MeshStandardMaterial({ color: 0x0e161e, roughness: 0.85, flatShading: true });
   const place = (x: number, y: number, z: number, w: number, h: number, d: number, rz: number, name: string) => {
-    // A dark socket slightly larger than the vent, sunk below it, so the orange block reads
-    // as sitting IN a recess. Boxes sitting on the surface read as cargo strapped to the
-    // hull, which is what the first version looked like.
-    // The socket must sit BELOW the vent, not around it: at 1.1x height centred only
-    // 0.42h down, its top cleared the vent's and the orange block disappeared into a
-    // black box.
+    // A dark socket sunk BELOW the vent, so the orange block reads as sitting in a recess.
+    // Sized 1.1x tall and centred only 0.42h down, the socket's top cleared the vent's and
+    // swallowed it into a black box.
     const socket = new THREE.Mesh(box(w * 1.34, h * 0.9, d * 1.22), socketMat);
     socket.position.set(x, y - h * 0.62, z); socket.rotation.z = rz;
     socket.name = `${name}-socket`; socket.receiveShadow = true;
@@ -368,9 +465,12 @@ function buildVents(): THREE.Group {
     m.castShadow = true; m.receiveShadow = true;
     g.add(socket, m);
   };
+  // Boxes are symmetric in themselves, so mirroring these needs only the sign flip on x
+  // and on the roll angle - there is no winding to reverse in a BoxGeometry.
   for (const sx of [1, -1]) {
-    place(0.086 * sx, 0.100, 0.150, 0.030, 0.016, 0.070, -0.16 * sx, `vent-spine-${sx > 0 ? 'r' : 'l'}`);
-    place(0.152 * sx, 0.050, -0.140, 0.028, 0.014, 0.060, -0.22 * sx, `vent-mid-${sx > 0 ? 'r' : 'l'}`);
+    const side = sx > 0 ? 'r' : 'l';
+    place(0.086 * sx, 0.128, 0.150, 0.030, 0.016, 0.070, -0.16 * sx, `vent-spine-${side}`);
+    place(0.152 * sx, 0.066, -0.140, 0.028, 0.014, 0.060, -0.22 * sx, `vent-mid-${side}`);
   }
   return g;
 }
@@ -379,36 +479,32 @@ function buildVents(): THREE.Group {
 function buildLightChannels(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'light-channels';
-  for (const sx of [1, -1]) {
-    // The long run, nose to tail, riding the upper flank facet just inboard of the chine.
-    const chine: [number, number, number][] = [];
-    let flankDir: [number, number] = [0, 1];
-    for (let z = 0.44; z >= -0.42; z -= 0.02) {
-      const { p, dir } = flankAt(z, 0.72);
-      flankDir = dir;
-      // Lifted off the facet along its own outward sense so it never z-fights the hull.
-      chine.push([(p[0] + 0.006) * sx, p[1] + 0.004, z]);
-    }
-    g.add(ribbon(chine, 0.021, MAT.emissive(), `chine-strip-${sx > 0 ? 'r' : 'l'}`,
-                 [flankDir[0] * sx, flankDir[1], 0]));
-    // Nose chevron, apex forward, wrapping the underside of the nose.
-    g.add(ribbon([
-      [0.008 * sx, -0.006, 0.474], [0.078 * sx, -0.016, 0.336], [0.156 * sx, -0.020, 0.196],
-    ], 0.018, MAT.emissive(), `nose-chevron-${sx > 0 ? 'r' : 'l'}`, [0, 1, 0]));
-    // Wing loop: angular, following panel breaks. Corners stay hard - the reference has no
-    // curved light runs anywhere.
-    const loop: [number, number, number][] = [
-      [0.148, 0.048, -0.055], [0.238, 0.052, -0.150], [0.278, 0.048, -0.268],
-      [0.236, 0.044, -0.352], [0.150, 0.052, -0.318],
-    ];
-    g.add(ribbon(loop.map(([x, y, z]) => [x * sx, y, z] as [number, number, number]),
-                 0.019, MAT.emissive(), `wing-loop-${sx > 0 ? 'r' : 'l'}`, [0, 0, 1]));
+  // The long run, nose to tail, riding the upper flank facet just inboard of the chine.
+  const chine: [number, number, number][] = [];
+  let flankDir: [number, number] = [0, 1];
+  for (let z = 0.44; z >= -0.42; z -= 0.02) {
+    const { p, dir } = flankAt(z, 0.72);
+    flankDir = dir;
+    // Lifted off the facet along its own outward sense so it never z-fights the hull.
+    chine.push([p[0] + 0.006, p[1] + 0.004, z]);
   }
+  addPair(g, () => ribbon(chine, 0.021, MAT.emissive(), 'chine-strip',
+                          [flankDir[0], flankDir[1], 0]), 'chine-strip');
+  // Nose chevron, apex forward, wrapping the underside of the nose.
+  addPair(g, () => ribbon([
+    [0.008, -0.006, 0.474], [0.078, -0.016, 0.336], [0.156, -0.020, 0.196],
+  ], 0.018, MAT.emissive(), 'nose-chevron', [0, 1, 0]), 'nose-chevron');
+  // Wing loop: angular, following panel breaks. Corners stay hard - the reference has no
+  // curved light runs anywhere.
+  addPair(g, () => ribbon([
+    [0.148, 0.048, -0.055], [0.238, 0.052, -0.150], [0.278, 0.048, -0.268],
+    [0.236, 0.044, -0.352], [0.150, 0.052, -0.318],
+  ], 0.019, MAT.emissive(), 'wing-loop', [0, 0, 1]), 'wing-loop');
   return g;
 }
 
 /** Decals drawn to a canvas at build time — generated, never projected. */
-function decalTexture(): THREE.CanvasTexture {
+function decalTexture(kind: 'nose' | 'hull'): THREE.CanvasTexture {
   const c = document.createElement('canvas');
   c.width = 512; c.height = 256;
   const x = c.getContext('2d');
@@ -416,19 +512,28 @@ function decalTexture(): THREE.CanvasTexture {
   x.clearRect(0, 0, 512, 256);
   // Measured off the reference: the ink is off-white (#F2F5F8), not pure white.
   x.fillStyle = '#f2f5f8';
-  x.font = 'bold 132px "Helvetica Neue", Arial, sans-serif';
-  x.textBaseline = 'middle';
-  x.fillText('07', 330, 128);
-  x.font = 'bold 44px "Helvetica Neue", Arial, sans-serif';
-  x.fillText('EXIS', 190, 138);
-  // Arrow-in-triangle logo. An approximation: the mark's internal geometry is below the
-  // reference's resolution, which the spec records as an accepted approximation.
-  x.beginPath();
-  x.moveTo(96, 74); x.lineTo(140, 152); x.lineTo(52, 152); x.closePath();
-  x.strokeStyle = '#f2f5f8'; x.lineWidth = 9; x.stroke();
-  x.beginPath();
-  x.moveTo(96, 100); x.lineTo(116, 140); x.lineTo(76, 140); x.closePath();
-  x.fill();
+  x.strokeStyle = '#f2f5f8';
+  if (kind === 'nose') {
+    // Arrow-in-triangle logo over "07", as carried on the forward flank. The mark's
+    // internal geometry is below the reference's resolution; this is the approximation the
+    // spec records, not a claim to have read it.
+    x.beginPath();
+    x.moveTo(256, 34); x.lineTo(324, 150); x.lineTo(188, 150); x.closePath();
+    x.lineWidth = 12; x.stroke();
+    x.beginPath();
+    x.moveTo(256, 70); x.lineTo(288, 132); x.lineTo(224, 132); x.closePath();
+    x.fill();
+    x.font = 'bold 96px "Helvetica Neue", Arial, sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'top';
+    x.fillText('07', 256, 158);
+  } else {
+    // "EXIS" wordmark with the large "07" aft of it, as on the mid-hull flank.
+    x.textAlign = 'left'; x.textBaseline = 'middle';
+    x.font = 'bold 52px "Helvetica Neue", Arial, sans-serif';
+    x.fillText('EXIS', 26, 132);
+    x.font = 'bold 150px "Helvetica Neue", Arial, sans-serif';
+    x.fillText('07', 220, 128);
+  }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
@@ -437,21 +542,62 @@ function decalTexture(): THREE.CanvasTexture {
 function buildDecals(): THREE.Group {
   const g = new THREE.Group();
   g.name = 'decal-set';
-  const tex = decalTexture();
-  for (const sx of [1, -1]) {
-    const m = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.34, 0.17),
+
+  /**
+   * Seat a decal ON the upper flank facet at a given station.
+   *
+   * The first version placed a plane at a fixed x with a 90-degree Y rotation, which put it
+   * inside the hull and facing sideways - so the marks were half-buried and clipped. This
+   * craft has no vertical flanks: its section is 0.15 tall against 0.29 half-width, so the
+   * "side" the reference letters onto is a shallow sloping deck. The decal therefore has to
+   * be built on that facet's own frame: normal outward, text running along the fuselage.
+   */
+  const place = (
+    z: number, t: number, w: number, h: number, tex: THREE.CanvasTexture, name: string, sx: number,
+  ) => {
+    const { p, dir } = flankAt(z, t);
+    // dir runs chine -> shoulder within the facet. Its perpendicular in the XY plane, taken
+    // the outboard way, is the facet's outward normal. The whole FRAME is mirrored for the
+    // port side, not just the position: flipping position alone leaves the plane facing
+    // starboard, so the port marks were seen from behind and read backwards.
+    const n = new THREE.Vector3(-dir[1], dir[0], 0).normalize();
+    if (n.x < 0) n.negate();
+    n.x *= sx;
+    // Text runs along the plane's local +X. On starboard that is toward the TAIL, so the
+    // wordmark starts at the nose and reads forward-to-aft. Viewed from port the nose is on
+    // the other side of the screen, so the same reading order needs the opposite direction -
+    // mirroring only the normal left the glyphs reversed ("SIX3", "L0").
+    const along = new THREE.Vector3(0, 0, -sx);
+    const across = new THREE.Vector3().crossVectors(n, along).normalize();
+    const basis = new THREE.Matrix4().makeBasis(along, across, n);
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
       new THREE.MeshStandardMaterial({
         map: tex, transparent: true, roughness: 0.55, metalness: 0.05,
-        // Pushed toward the camera so the decal never z-fights the hull facet under it.
-        polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+        // Lifted off the facet AND depth-offset: a decal coplanar with a flat-shaded facet
+        // z-fights across the whole quad, not just at its edges.
+        polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
       }),
     );
-    m.position.set(0.190 * sx, 0.044, 0.010);
-    m.rotation.y = sx > 0 ? Math.PI / 2 : -Math.PI / 2;
-    m.rotation.z = -0.06;
-    m.name = `decal-${sx > 0 ? 'r' : 'l'}`;
-    g.add(m);
+    mesh.quaternion.setFromRotationMatrix(basis);
+    mesh.position.set(p[0] + n.x * 0.004, p[1] + n.y * 0.004, z);
+    mesh.name = name;
+    return mesh;
+  };
+
+  const noseTex = decalTexture('nose');
+  const hullTex = decalTexture('hull');
+  // Two marks per side, at the stations the reference carries them: the logo block on the
+  // forward flank, the wordmark and numerals on the mid-hull.
+  for (const [sx, side] of [[1, 'r'], [-1, 'l']] as [number, string][]) {
+    for (const [z, t, w, h, tex, base] of [
+      [0.250, 0.46, 0.150, 0.075, noseTex, 'decal-nose'],
+      [-0.045, 0.42, 0.300, 0.150, hullTex, 'decal-hull'],
+    ] as [number, number, number, number, THREE.CanvasTexture, string][]) {
+      const m = place(z, t, w, h, tex, `${base}-${side}`, sx);
+      m.position.x = Math.abs(m.position.x) * sx;
+      g.add(m);
+    }
   }
   return g;
 }
@@ -475,9 +621,12 @@ export function createExis07(): THREE.Group {
   const wing = new THREE.Group();
   wing.name = 'wing';
   const pods = buildPods(); pods.name = 'wingtip-pod';
+  // The feather group is still added, empty: the spec lists the component, and an empty
+  // named group records that it was removed on review rather than never specified.
   const feathers = buildFeathers(); feathers.name = 'feather-plate';
   wing.add(pods, feathers);
   root.add(wing);
+  root.add(buildIntakes());
 
   const channels = buildLightChannels();
   const chevron = new THREE.Group();

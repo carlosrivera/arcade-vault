@@ -54,7 +54,7 @@
       0.75,
       2.0
     ],
-    "note": "Matched to the three-quarter view. Elevation solved to 30 degrees, 8 above the initial visual estimate of 22; distance is 1.6x the bounding radius. Aspect and scale deltas are inside threshold at this pose, so the residual IoU gap is real shape difference rather than framing.",
+    "note": "Matched to the three-quarter view. Elevation solved to 30 degrees, 8 above the initial visual estimate of 22; distance is 1.6x the bounding radius. Aspect and scale deltas are inside threshold at this pose, so the residual IoU gap is real shape difference rather than framing. Hull height was later raised from 0.26 to 0.33 of length on review, so scale delta moved to 0.114; the pose itself is unchanged.",
     "distanceFactor": 1.6,
     "solveMethod": "swept azimuth/elevation/distance against diagnose_render silhouette metrics",
     "solveResult": {
@@ -5779,6 +5779,18 @@
       "description": "Three nozzles, not two or four - only the rear view shows this.",
       "severity": "medium",
       "mitigation": "propulsion-cluster review target."
+    },
+    {
+      "id": "feather-plates-removed",
+      "description": "The four-per-side trailing plates were REMOVED on review: built as flat shelves cantilevered off the wing they read as pallets bolted to the back. The reference does carry this feature - its side view shows three or four stacked swept blades - so the component remains specified and the built group is present but empty. This is a removed implementation, not a dropped requirement.",
+      "severity": "medium",
+      "mitigation": "Rebuild with tapered chord, swept trailing point, and integration into the trailing edge rather than a cantilever."
+    },
+    {
+      "id": "turntable-fin-gap",
+      "description": "The turntable gate reports an interior hole at azimuths 90/180/270. Verified by rendering the flood-fill mask (renders/hole-90.png): it is the gap BETWEEN the twin dorsal fins, which silhouette.negativeSpaces already lists as a designed void. The gate is doing its job - it flags background enclosed by the silhouette - but this is not a hole through the solid.",
+      "severity": "low",
+      "mitigation": "Accepted, with the mask render as evidence. Not fixed, because closing it would mean deforming the craft to satisfy a metric."
     }
   ],
   "localSpecSearch": {
