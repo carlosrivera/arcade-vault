@@ -119,7 +119,32 @@ function createFighterMesh(primaryColor, canopyColor, gradientMap) {
   flame.visible = false;
   group.add(flame);
 
-  return { root: group, flame, bodyMat };
+  // Muzzle Flash Sprite on Nose
+  const muzzleCanvas = document.createElement('canvas');
+  muzzleCanvas.width = 32;
+  muzzleCanvas.height = 32;
+  const mctx = muzzleCanvas.getContext('2d');
+  mctx.fillStyle = '#ffffff';
+  mctx.beginPath();
+  mctx.arc(16, 16, 12, 0, Math.PI * 2);
+  mctx.fill();
+  mctx.fillStyle = '#22ffbb';
+  mctx.beginPath();
+  mctx.arc(16, 16, 7, 0, Math.PI * 2);
+  mctx.fill();
+  const muzzleTex = new THREE.CanvasTexture(muzzleCanvas);
+  const muzzleMat = new THREE.SpriteMaterial({
+    map: muzzleTex,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+  });
+  const muzzleSprite = new THREE.Sprite(muzzleMat);
+  muzzleSprite.position.set(1.8, 0, 0);
+  muzzleSprite.scale.set(1.6, 1.6, 1);
+  muzzleSprite.visible = false;
+  group.add(muzzleSprite);
+
+  return { root: group, flame, bodyMat, muzzleSprite };
 }
 
 // --- Dynamic Cel-Shaded Background ---
@@ -127,8 +152,7 @@ function createEnvironment(scene, rng, gradientMap) {
   const envGroup = new THREE.Group();
 
   // Sky Backdrop Quad
-  // Wide enough to cover the whole arena plus the camera's travel.
-  const skyGeo = new THREE.PlaneGeometry(420, 140);
+  const skyGeo = new THREE.PlaneGeometry(500, 160);
   const skyMat = new THREE.ShaderMaterial({
     uniforms: {
       topColor: { value: new THREE.Color(0x1e8ce6) },
@@ -156,19 +180,19 @@ function createEnvironment(scene, rng, gradientMap) {
   envGroup.add(sky);
 
   // Distant Layered Mountains & Rolling Green Hills
-  const hillMat1 = makeToonMat(0x32a852, gradientMap); // foreground lush green
-  const hillMat2 = makeToonMat(0x278542, gradientMap); // midground green
-  const hillMat3 = makeToonMat(0x2e666a, gradientMap); // distant blue-green ridge
-  const waterMat = makeToonMat(0x358ab8, gradientMap); // lake water
+  const hillMat1 = makeToonMat(0x32a852, gradientMap);
+  const hillMat2 = makeToonMat(0x278542, gradientMap);
+  const hillMat3 = makeToonMat(0x2e666a, gradientMap);
+  const waterMat = makeToonMat(0x358ab8, gradientMap);
 
   // Lake at bottom
-  const lakeGeo = new THREE.PlaneGeometry(420, 14);
+  const lakeGeo = new THREE.PlaneGeometry(500, 16);
   const lake = new THREE.Mesh(lakeGeo, waterMat);
   lake.position.set(0, -22, -35);
   envGroup.add(lake);
 
   // Rolling Hills (Layer 3 - distant)
-  for (let i = -200; i <= 200; i += 20) {
+  for (let i = -240; i <= 240; i += 20) {
     const r = rng.range(14, 22);
     const h = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), hillMat3);
     h.position.set(i + rng.range(-5, 5), -24 - rng.range(2, 6), -42);
@@ -178,7 +202,7 @@ function createEnvironment(scene, rng, gradientMap) {
   }
 
   // Rolling Hills (Layer 2 - midground)
-  for (let i = -200; i <= 200; i += 16) {
+  for (let i = -240; i <= 240; i += 16) {
     const r = rng.range(10, 16);
     const h = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), hillMat2);
     h.position.set(i + rng.range(-4, 4), -22 - rng.range(1, 4), -38);
@@ -188,7 +212,7 @@ function createEnvironment(scene, rng, gradientMap) {
   }
 
   // Rolling Hills (Layer 1 - closer with small red roof houses)
-  for (let i = -200; i <= 200; i += 12) {
+  for (let i = -240; i <= 240; i += 12) {
     const r = rng.range(7, 12);
     const h = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), hillMat1);
     h.position.set(i + rng.range(-3, 3), -20 - rng.range(0, 3), -32);
@@ -196,7 +220,6 @@ function createEnvironment(scene, rng, gradientMap) {
     addOutline(h, 1.05);
     envGroup.add(h);
 
-    // Little houses on hills
     if (rng.chance(0.4)) {
       const houseGroup = new THREE.Group();
       const base = new THREE.Mesh(
@@ -222,7 +245,7 @@ function createEnvironment(scene, rng, gradientMap) {
   const clouds = [];
   const cloudMat = makeToonMat(0xffffff, gradientMap);
 
-  for (let c = 0; c < 12; c++) {
+  for (let c = 0; c < 16; c++) {
     const cloudGroup = new THREE.Group();
     const clusterCount = Math.floor(rng.range(4, 9));
     for (let p = 0; p < clusterCount; p++) {
@@ -233,7 +256,7 @@ function createEnvironment(scene, rng, gradientMap) {
       cloudGroup.add(puff);
     }
     const zDepth = rng.range(-25, -12);
-    cloudGroup.position.set(rng.range(-60, 60), rng.range(0, 24), zDepth);
+    cloudGroup.position.set(rng.range(-120, 120), rng.range(0, 28), zDepth);
     cloudGroup.userData = { speed: rng.range(0.8, 2.5), zDepth };
     envGroup.add(cloudGroup);
     clouds.push(cloudGroup);
@@ -396,10 +419,10 @@ function createHealthBarSprite() {
 
 function createDamageText(scene, text, pos, color = '#22ffbb') {
   const canvas = document.createElement('canvas');
-  canvas.width = 64;
-  canvas.height = 32;
+  canvas.width = 128;
+  canvas.height = 36;
   const ctx = canvas.getContext('2d');
-  ctx.font = 'bold 24px monospace';
+  ctx.font = 'bold 22px monospace';
   ctx.fillStyle = '#060a12';
   ctx.fillText(text, 14, 26);
   ctx.fillStyle = color;
@@ -409,16 +432,16 @@ function createDamageText(scene, text, pos, color = '#22ffbb') {
   const mat = new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true });
   const sprite = new THREE.Sprite(mat);
   sprite.position.copy(pos);
-  sprite.scale.set(2.4, 1.2, 1);
+  sprite.scale.set(3.6, 1.0, 1);
   scene.add(sprite);
 
   return {
     sprite,
-    life: 0.7,
+    life: 0.8,
     update(dt) {
       this.life -= dt;
       this.sprite.position.y += 3.5 * dt;
-      mat.opacity = Math.max(0, this.life / 0.7);
+      mat.opacity = Math.max(0, this.life / 0.8);
       if (this.life <= 0) {
         scene.remove(this.sprite);
         texture.dispose();
@@ -452,64 +475,92 @@ class SoundManager {
   }
 
   playLaser() {
-    this.audio.tone({ frequency: 880, sweepTo: 220, duration: 0.08, gain: 0.25 });
+    this.audio.tone({ frequency: 920, sweepTo: 240, duration: 0.07, gain: 0.28 });
   }
 
   playEnemyLaser() {
-    this.audio.tone({ frequency: 600, sweepTo: 180, duration: 0.08, gain: 0.15 });
+    this.audio.tone({ frequency: 540, sweepTo: 160, duration: 0.08, gain: 0.16 });
   }
 
   playMissile() {
-    this.audio.tone({ frequency: 320, sweepTo: 900, duration: 0.15, gain: 0.35, type: 'sawtooth' });
+    this.audio.tone({
+      frequency: 340,
+      sweepTo: 960,
+      duration: 0.18,
+      gain: 0.38,
+      type: 'sawtooth',
+    });
+  }
+
+  playLockOn() {
+    this.audio.tone({ frequency: 1200, duration: 0.06, gain: 0.25, type: 'sine' });
+  }
+
+  playDryFire() {
+    this.audio.tone({ frequency: 160, duration: 0.04, gain: 0.15, type: 'square' });
   }
 
   playHit() {
-    this.audio.tone({ frequency: 400, duration: 0.04, gain: 0.2 });
+    this.audio.tone({ frequency: 440, duration: 0.04, gain: 0.22 });
   }
 
   playPlayerHit() {
-    this.audio.tone({ frequency: 150, duration: 0.1, gain: 0.4 });
+    this.audio.tone({ frequency: 140, duration: 0.1, gain: 0.45 });
   }
 
   playExplosion() {
     if (this.noiseBuf) {
       this.audio.burst({
         buffer: this.noiseBuf,
-        duration: 0.4,
-        frequency: 400,
-        sweepTo: 60,
-        gain: 0.6,
+        duration: 0.45,
+        frequency: 380,
+        sweepTo: 50,
+        gain: 0.65,
       });
     }
   }
 }
 
-// --- Main Init ---
-/**
- * The arena is much wider than the camera can see (~52 units at z=32), so the
- * fight has somewhere to run to and the minimap has a job. Height is bounded
- * by ground and a stall ceiling rather than by the view.
- */
-const WORLD = { minX: -120, maxX: 120, groundY: -15, ceilY: 44 };
+// --- Arena and Weapons Config ---
+const WORLD = { minX: -140, maxX: 140, groundY: -15, ceilY: 48 };
 
-/**
- * Cannon progression. You start with something deliberately weak — a slow,
- * single, low-damage pea-shooter — so that the first drop is felt rather than
- * merely collected.
- */
 const CANNON_TIERS = [
-  { name: 'MK-I', cooldown: 0.3, damage: 7, shots: 1, spread: 0, speed: 50, color: 0x9fe870 },
-  { name: 'MK-II', cooldown: 0.2, damage: 10, shots: 1, spread: 0, speed: 58, color: 0x4dff88 },
   {
-    name: 'MK-III',
-    cooldown: 0.14,
-    damage: 12,
+    name: 'DUAL LASER',
+    cooldown: 0.1,
+    damage: 18,
     shots: 2,
-    spread: 0.07,
-    speed: 62,
-    color: 0x00ffbb,
+    spread: 0.04,
+    speed: 80,
+    color: 0x00ff88,
   },
-  { name: 'MK-IV', cooldown: 0.1, damage: 14, shots: 3, spread: 0.11, speed: 68, color: 0x66ffff },
+  {
+    name: 'TRI-PLASMA',
+    cooldown: 0.085,
+    damage: 22,
+    shots: 3,
+    spread: 0.08,
+    speed: 88,
+    color: 0x00ffcc,
+  },
+  {
+    name: 'QUAD BEAM',
+    cooldown: 0.075,
+    damage: 26,
+    shots: 4,
+    spread: 0.12,
+    speed: 95,
+    color: 0x33ffff,
+  },
+  {
+    name: 'HYPER OVERDRIVE',
+    cooldown: 0.055,
+    damage: 32,
+    shots: 5,
+    spread: 0.16,
+    speed: 105,
+    color: 0xff33cc,
+  },
 ];
 
 export function init({ renderer, state }) {
@@ -520,10 +571,9 @@ export function init({ renderer, state }) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500);
   camera.position.set(0, 0, 32);
-  // Hitstop, shake and slow-motion, shared with the other games.
   const feel = createFeel();
 
-  // Cel Lighting Setup
+  // Lighting
   const ambient = new THREE.AmbientLight(0xddeeff, 0.7);
   scene.add(ambient);
 
@@ -535,39 +585,64 @@ export function init({ renderer, state }) {
   rimLight.position.set(-20, -10, 10);
   scene.add(rimLight);
 
-  // Build Environment
   const env = createEnvironment(scene, rng, toonGradient);
-
-  // Sound Manager
   const sound = new SoundManager();
-
-  // Input Handling
   const keys = new Keyboard();
   const menu = document.getElementById('menu');
+
   let running = state?.running ?? false;
   let score = state?.score ?? 0;
   let kills = state?.kills ?? 0;
 
+  // --- Target Lock Indicator Mesh ---
+  const lockCanvas = document.createElement('canvas');
+  lockCanvas.width = 64;
+  lockCanvas.height = 64;
+  const lctx = lockCanvas.getContext('2d');
+  lctx.strokeStyle = '#ff3344';
+  lctx.lineWidth = 3;
+  // Corner targeting brackets
+  lctx.strokeRect(6, 6, 52, 52);
+  lctx.fillStyle = '#ff3344';
+  lctx.fillRect(28, 28, 8, 8);
+  const lockTex = new THREE.CanvasTexture(lockCanvas);
+  const lockMat = new THREE.SpriteMaterial({
+    map: lockTex,
+    depthTest: false,
+    transparent: true,
+  });
+  const lockSprite = new THREE.Sprite(lockMat);
+  lockSprite.scale.set(3.2, 3.2, 1);
+  lockSprite.visible = false;
+  scene.add(lockSprite);
+
+  // --- Rich HUD Overlay ---
   let scoreEl = document.getElementById('hud-score');
   if (!scoreEl) {
     scoreEl = document.createElement('div');
     scoreEl.id = 'hud-score';
     scoreEl.style.cssText = `
       position: fixed; top: 16px; left: 20px; z-index: 40;
-      font-family: ui-monospace, Menlo, monospace; font-size: 20px; font-weight: 800;
-      color: #ffffff; text-shadow: 2px 2px 0 #0a1220, -1px -1px 0 #0a1220;
-      letter-spacing: 0.1em; pointer-events: none;
+      font-family: ui-monospace, Menlo, monospace; font-size: 14px; font-weight: 800;
+      color: #ffffff; text-shadow: 2px 2px 0 #0a1220;
+      letter-spacing: 0.08em; pointer-events: none;
+      background: rgba(8, 16, 28, 0.78); border: 2px solid #1a3050;
+      border-radius: 4px; padding: 10px 16px;
+      display: flex; flex-direction: column; gap: 6px;
     `;
     document.body.appendChild(scoreEl);
   }
-  const refreshHud = () => {
-    const tier = CANNON_TIERS[player.cannonTier];
-    scoreEl.innerHTML =
-      `SCORE: <span style="color:#00ff99;">${String(score).padStart(5, '0')}</span>` +
-      ` | ACES: <span style="color:#ff5588;">${kills}</span>` +
-      ` | <span style="color:#00ffbb;">${tier.name}</span>` +
-      ` | MSL: <span style="color:${player.missileAmmo ? '#ff9922' : '#66707f'};">${player.missileAmmo}</span>`;
-  };
+
+  // Offscreen target arrows container
+  let indicatorsEl = document.getElementById('hud-indicators');
+  if (!indicatorsEl) {
+    indicatorsEl = document.createElement('div');
+    indicatorsEl.id = 'hud-indicators';
+    indicatorsEl.style.cssText = `
+      position: fixed; inset: 0; z-index: 35; pointer-events: none; overflow: hidden;
+    `;
+    document.body.appendChild(indicatorsEl);
+  }
 
   const unbind = [];
   const on = (target, type, handler) => {
@@ -597,29 +672,29 @@ export function init({ renderer, state }) {
   }
 
   // --- Entities ---
-  // Player Setup
+  const MAX_MISSILES = 4;
   const player = {
     ...createFighterMesh(0x22bb55, 0x00ffff, toonGradient),
     pos: new THREE.Vector2(state?.px ?? -10, state?.py ?? 16),
     vel: new THREE.Vector2(0, 0),
     angle: state?.pa ?? 0,
-    speed: 16,
+    speed: 18,
     hp: 100,
     maxHp: 100,
     trail: new RibbonTrail(scene, 100, 0xffffff, 0.4),
     healthBar: createHealthBarSprite(),
     fireTimer: 0,
-    missileTimer: 0,
-    hitFlash: 0,
+    missiles: state?.missiles ?? MAX_MISSILES,
+    missileRecharge: 0,
     cannonTier: state?.cannonTier ?? 0,
-    // Missiles are finite and start empty: they are a reward, not a default.
-    missileAmmo: state?.missileAmmo ?? 0,
+    lockedTarget: null,
+    muzzleTimer: 0,
+    hitFlash: 0,
     alive: true,
     deadFor: 0,
   };
   scene.add(player.root);
   scene.add(player.healthBar.sprite);
-  refreshHud();
 
   const bullets = [];
   const missiles = [];
@@ -628,9 +703,33 @@ export function init({ renderer, state }) {
   const particles = [];
   const damageTexts = [];
 
-  let spawnTimer = 1.0;
+  let spawnTimer = 0.5;
 
-  function spawnExplosion(pos, count = 12, _color = 0xff6600) {
+  function refreshHud() {
+    const tier = CANNON_TIERS[player.cannonTier];
+    const mslIcons = '🚀 '.repeat(player.missile);
+    const mslEmpty = '⚪ '.repeat(MAX_MISSILES - player.missiles);
+    const rechargePct = Math.floor((1 - player.missileRecharge / 1.4) * 100);
+
+    const lockStatus = player.lockedTarget
+      ? `<span style="color:#ff3355; font-weight:bold;">[ LOCKED: ${Math.round(player.pos.distanceTo(player.lockedTarget.pos))}m ]</span>`
+      : `<span style="color:#667a99;">[ NO LOCK ]</span>`;
+
+    scoreEl.innerHTML = `
+      <div style="display:flex; justify-content:space-between; gap:20px; font-size:16px;">
+        <span>SCORE: <span style="color:#00ff99;">${String(score).padStart(5, '0')}</span></span>
+        <span>ACES: <span style="color:#ff5588;">${kills}</span></span>
+      </div>
+      <div style="display:flex; gap:16px; font-size:12px; border-top:1px solid #1a3050; padding-top:4px;">
+        <span>CANNON: <span style="color:#00ffbb;">${tier.name}</span></span>
+        <span>MISSILES: <span style="color:#ffaa00;">${mslIcons}</span><span style="opacity:0.35;">${mslEmpty}</span> ${player.missiles < MAX_MISSILES ? `(${rechargePct}%)` : ''}</span>
+        ${lockStatus}
+      </div>
+    `;
+  }
+  refreshHud();
+
+  function spawnExplosion(pos, count = 14, _color = 0xff6600) {
     sound.playExplosion();
     for (let i = 0; i < count; i++) {
       const geo = new THREE.DodecahedronGeometry(rng.range(0.4, 1.2), 0);
@@ -641,7 +740,7 @@ export function init({ renderer, state }) {
       scene.add(pMesh);
 
       const angle = rng.range(0, Math.PI * 2);
-      const spd = rng.range(6, 22);
+      const spd = rng.range(8, 26);
       particles.push({
         mesh: pMesh,
         vx: Math.cos(angle) * spd,
@@ -653,19 +752,38 @@ export function init({ renderer, state }) {
     }
   }
 
+  function spawnWaterSplash(pos) {
+    for (let i = 0; i < 10; i++) {
+      const geo = new THREE.DodecahedronGeometry(rng.range(0.3, 0.7), 0);
+      const mat = makeToonMat(0x88e0ff, toonGradient);
+      const pMesh = new THREE.Mesh(geo, mat);
+      pMesh.position.set(pos.x + rng.range(-1, 1), WORLD.groundY + 1, 0);
+      scene.add(pMesh);
+      particles.push({
+        mesh: pMesh,
+        vx: rng.range(-6, 6),
+        vy: rng.range(8, 16),
+        rot: rng.range(-4, 4),
+        life: 0.5,
+        maxLife: 0.5,
+      });
+    }
+  }
+
   function spawnEnemy() {
-    const isAce = rng.chance(0.3);
+    const isAce = rng.chance(0.35);
+    const spawnLeft = rng.chance(0.5);
     const enemyData = {
       ...createFighterMesh(isAce ? 0x9b30ff : 0x6030c0, 0xffd700, toonGradient),
       pos: new THREE.Vector2(
-        clamp(player.pos.x + (rng.chance(0.5) ? 42 : -42), WORLD.minX + 4, WORLD.maxX - 4),
-        rng.range(WORLD.groundY + 6, 30),
+        clamp(player.pos.x + (spawnLeft ? -50 : 50), WORLD.minX + 8, WORLD.maxX - 8),
+        rng.range(WORLD.groundY + 8, 32),
       ),
-      vel: new THREE.Vector2(-rng.range(10, 16), rng.range(-3, 3)),
-      angle: Math.PI,
-      speed: isAce ? 18 : 13,
-      hp: isAce ? 60 : 30,
-      maxHp: isAce ? 60 : 30,
+      vel: new THREE.Vector2(spawnLeft ? rng.range(10, 16) : -rng.range(10, 16), rng.range(-3, 3)),
+      angle: spawnLeft ? 0 : Math.PI,
+      speed: isAce ? 18 : 14,
+      hp: isAce ? 55 : 25,
+      maxHp: isAce ? 55 : 25,
       isAce,
       trail: new RibbonTrail(scene, 70, isAce ? 0xffbbff : 0xddddff, 0.3),
       healthBar: createHealthBarSprite(),
@@ -680,10 +798,7 @@ export function init({ renderer, state }) {
 
   const camTarget = new THREE.Vector2(0, 0);
 
-  // --- Minimap ---------------------------------------------------------
-  // The arena is four times the width of the view, so without this the
-  // player has no idea where the fight is. Drawn in 2D over the canvas
-  // rather than in the scene: it is chrome, not world.
+  // --- Minimap ---
   const MAP_W = 220;
   const MAP_H = 78;
   let mapEl = document.getElementById('hud-map');
@@ -695,7 +810,7 @@ export function init({ renderer, state }) {
     mapEl.style.cssText = `
       position: fixed; bottom: 16px; right: 16px; z-index: 40;
       width: ${MAP_W}px; height: ${MAP_H}px; pointer-events: none;
-      border: 3px solid #0a1220; background: rgba(6, 14, 26, 0.72);
+      border: 3px solid #0a1220; background: rgba(6, 14, 26, 0.75);
       box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
       image-rendering: pixelated;
     `;
@@ -714,12 +829,9 @@ export function init({ renderer, state }) {
 
   function drawMinimap() {
     mapCtx.clearRect(0, 0, MAP_W, MAP_H);
-
-    // Ground line — the thing that kills you, so it is drawn as a hazard.
     mapCtx.fillStyle = '#2f6b3a';
     mapCtx.fillRect(0, MAP_H - 4, MAP_W, 4);
 
-    // The slice of the arena currently on screen.
     const halfView = camera.position.z * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
     mapCtx.strokeStyle = 'rgba(255,255,255,0.25)';
     mapCtx.lineWidth = 1;
@@ -730,13 +842,14 @@ export function init({ renderer, state }) {
       MAP_H - 2,
     );
 
-    for (const pu of pickups)
+    for (const pu of pickups) {
       blip(pu.pos.x, pu.pos.y, 4, pu.kind === 'cannon' ? '#00ffbb' : '#ff9922');
-    for (const e of enemies) blip(e.pos.x, e.pos.y, 5, e.isAce ? '#ff44aa' : '#b070ff');
+    }
+    for (const e of enemies) {
+      blip(e.pos.x, e.pos.y, 5, e.isAce ? '#ff44aa' : '#b070ff');
+    }
 
     if (player.alive) {
-      // Player drawn as a heading triangle: on a map this small, direction is
-      // more useful than an exact position.
       const px = mapX(player.pos.x);
       const py = mapY(player.pos.y);
       mapCtx.save();
@@ -753,11 +866,10 @@ export function init({ renderer, state }) {
     }
   }
 
-  /** Drop a collectable where an enemy died. */
   function spawnPickup(pos, kind) {
     const isCannon = kind === 'cannon';
     const geo = isCannon
-      ? new THREE.OctahedronGeometry(0.7, 0)
+      ? new THREE.OctahedronGeometry(0.8, 0)
       : new THREE.BoxGeometry(0.9, 0.9, 0.9);
     const mesh = new THREE.Mesh(geo, makeToonMat(isCannon ? 0x00ffbb : 0xff9922, toonGradient));
     addOutline(mesh, 1.18);
@@ -768,15 +880,11 @@ export function init({ renderer, state }) {
       kind,
       pos: new THREE.Vector2(pos.x, pos.y),
       vy: 3,
-      life: 14,
+      life: 16,
       spin: rng.range(2, 4),
     });
   }
 
-  /**
-   * Destroy the player. Used by both gunfire and terrain — a crash is not a
-   * special case, it is simply lethal damage from the ground.
-   */
   function killPlayer(reason) {
     if (!player.alive) return;
     player.alive = false;
@@ -784,7 +892,6 @@ export function init({ renderer, state }) {
     player.hp = 0;
     player.root.visible = false;
     spawnExplosion(player.pos, 34, 0x00ff99);
-    // A crash should register in the body before it registers on the HUD.
     feel.hitstop(0.16);
     feel.shake(1.5, 4.5);
     feel.timeScale(0.35, 1.6);
@@ -794,21 +901,55 @@ export function init({ renderer, state }) {
   function respawn() {
     player.alive = true;
     player.hp = player.maxHp;
-    player.pos.set(rng.range(-30, 30), 22);
+    player.pos.set(rng.range(-20, 20), 22);
     player.vel.set(0, 0);
     player.angle = 0;
     player.root.visible = true;
-    // Crashing costs progress — the cannon drops a tier and missiles are lost,
-    // so the drops you collected are worth protecting.
-    player.cannonTier = Math.max(0, player.cannonTier - 1);
-    player.missileAmmo = 0;
+    player.missiles = MAX_MISSILES;
     refreshHud();
+  }
+
+  // --- Off-Screen Bandit Indicators Update ---
+  function updateOffscreenIndicators() {
+    indicatorsEl.innerHTML = '';
+    if (!player.alive) return;
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const halfW =
+      (camera.position.z * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect * w) / w;
+    const halfH = camera.position.z * Math.tan((camera.fov * Math.PI) / 360);
+
+    for (const e of enemies) {
+      const dx = e.pos.x - camera.position.x;
+      const dy = e.pos.y - camera.position.y;
+
+      if (Math.abs(dx) > halfW || Math.abs(dy) > halfH) {
+        const screenX = clamp((dx / halfW) * (w / 2) + w / 2, 28, w - 28);
+        const screenY = clamp((-dy / halfH) * (h / 2) + h / 2, 28, h - 28);
+        const angle = Math.atan2(-dy, dx);
+        const dist = Math.round(player.pos.distanceTo(e.pos));
+
+        const arrow = document.createElement('div');
+        arrow.style.cssText = `
+          position: absolute; left: ${screenX}px; top: ${screenY}px;
+          transform: translate(-50%, -50%);
+          color: ${e.isAce ? '#ff44aa' : '#b070ff'};
+          font-family: monospace; font-size: 11px; font-weight: 800;
+          text-shadow: 1px 1px 0 #000;
+          display: flex; flex-direction: column; align-items: center;
+        `;
+        arrow.innerHTML = `
+          <div style="transform: rotate(${angle}rad); font-size: 16px; line-height: 1;">▶</div>
+          <div>${dist}m</div>
+        `;
+        indicatorsEl.appendChild(arrow);
+      }
+    }
   }
 
   return {
     update(rawDt, _elapsed) {
-      // One value governs hitstop, shake and slow-motion; everything below
-      // integrates the result without knowing they exist.
       const dt = feel.step(rawDt);
       if (!running) {
         for (const cloud of env.clouds) {
@@ -820,7 +961,7 @@ export function init({ renderer, state }) {
       }
 
       if (!player.alive) {
-        player.deadFor += rawDt; // real time: the world is in slow motion
+        player.deadFor += rawDt;
         if (player.deadFor > 2.2) respawn();
       }
 
@@ -829,23 +970,23 @@ export function init({ renderer, state }) {
       const throttle = player.alive && keys.anyDown('ArrowUp', 'KeyW');
       const brake = player.alive && keys.anyDown('ArrowDown', 'KeyS');
 
-      const turnSpeed = 3.8;
+      const turnSpeed = 4.0;
       player.angle += steer * turnSpeed * dt;
 
-      let targetSpeed = 16;
+      let targetSpeed = 18;
       if (throttle) {
-        targetSpeed = 26;
+        targetSpeed = 28;
         player.flame.visible = true;
         player.flame.scale.set(rng.range(0.9, 1.4), rng.range(0.8, 1.2), 1);
-        sound.updateEngine(320);
+        sound.updateEngine(340);
       } else if (brake) {
-        targetSpeed = 8;
+        targetSpeed = 9;
         player.flame.visible = false;
         sound.updateEngine(120);
       } else {
-        player.flame.visible = rng.chance(0.2);
+        player.flame.visible = rng.chance(0.25);
         player.flame.scale.set(0.6, 0.6, 1);
-        sound.updateEngine(180);
+        sound.updateEngine(190);
       }
 
       player.speed = damp(player.speed, targetSpeed, 6, dt);
@@ -854,37 +995,49 @@ export function init({ renderer, state }) {
       const fwdY = Math.sin(player.angle);
 
       player.vel.x = damp(player.vel.x, fwdX * player.speed, 5, dt);
-      player.vel.y = damp(player.vel.y, fwdY * player.speed - 2.5, 4, dt);
+      player.vel.y = damp(player.vel.y, fwdY * player.speed - 2.0, 4, dt);
 
       player.pos.x += player.vel.x * dt;
       player.pos.y += player.vel.y * dt;
 
-      // Ground is lethal. Previously it bounced you, which taught the player
-      // that the floor is furniture; now the terrain is the main hazard and
-      // low passes are a real decision.
+      // --- Forgiving Ground Grazing / Water Cushion ---
       if (player.pos.y <= WORLD.groundY) {
         player.pos.y = WORLD.groundY;
-        killPlayer('CRASHED');
+        if (player.vel.y < -16) {
+          killPlayer('CRASHED');
+        } else {
+          // Bounce off water & create splash
+          player.vel.y = Math.abs(player.vel.y) * 0.7 + 6;
+          spawnWaterSplash(player.pos);
+          feel.shake(0.3, 6);
+        }
       }
-      // The ceiling is thin air rather than a wall: you stall and sink back.
+
       if (player.pos.y > WORLD.ceilY) {
         player.pos.y = WORLD.ceilY;
         player.vel.y = Math.min(player.vel.y, -4);
       }
-      // Arena walls turn you back hard instead of silently pinning you.
       if (player.pos.x < WORLD.minX) {
         player.pos.x = WORLD.minX;
-        player.vel.x = Math.abs(player.vel.x) * 0.4;
+        player.vel.x = Math.abs(player.vel.x) * 0.5;
       }
       if (player.pos.x > WORLD.maxX) {
         player.pos.x = WORLD.maxX;
-        player.vel.x = -Math.abs(player.vel.x) * 0.4;
+        player.vel.x = -Math.abs(player.vel.x) * 0.5;
       }
 
       player.root.position.set(player.pos.x, player.pos.y, 0);
       player.root.rotation.z = player.angle;
       const targetRoll = -steer * 0.65;
       player.root.rotation.x = damp(player.root.rotation.x, targetRoll, 8, dt);
+
+      // Muzzle flash visibility
+      if (player.muzzleTimer > 0) {
+        player.muzzleTimer -= dt;
+        player.muzzleSprite.visible = true;
+      } else {
+        player.muzzleSprite.visible = false;
+      }
 
       const wingTipPos = new THREE.Vector3(player.pos.x - fwdX * 0.8, player.pos.y - fwdY * 0.8, 0);
       player.trail.addPoint(wingTipPos, new THREE.Vector3(0, 0, 1));
@@ -900,15 +1053,58 @@ export function init({ renderer, state }) {
         player.bodyMat.color.setHex(0x22bb55);
       }
 
-      // --- Weapons: Primary Laser ---
+      // --- Target Lock-On Scanning ---
+      let bestTarget = null;
+      let bestDist = 45;
+      for (const e of enemies) {
+        const toEnemy = new THREE.Vector2().subVectors(e.pos, player.pos);
+        const dist = toEnemy.length();
+        if (dist < bestDist) {
+          const angleToEnemy = Math.atan2(toEnemy.y, toEnemy.x);
+          let diff = angleToEnemy - player.angle;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+
+          if (Math.abs(diff) < 0.75) {
+            bestDist = dist;
+            bestTarget = e;
+          }
+        }
+      }
+
+      if (bestTarget !== player.lockedTarget) {
+        player.lockedTarget = bestTarget;
+        if (player.lockedTarget) sound.playLockOn();
+        refreshHud();
+      }
+
+      if (player.lockedTarget && enemies.includes(player.lockedTarget)) {
+        lockSprite.visible = true;
+        lockSprite.position.set(player.lockedTarget.pos.x, player.lockedTarget.pos.y, 0.5);
+        lockSprite.rotation.z += dt * 3;
+      } else {
+        lockSprite.visible = false;
+      }
+
+      // --- Missile Auto-Recharge ---
+      if (player.missiles < MAX_MISSILES) {
+        player.missileRecharge -= dt;
+        if (player.missileRecharge <= 0) {
+          player.missiles++;
+          player.missileRecharge = 1.4;
+          refreshHud();
+        }
+      }
+
+      // --- Weapons: Primary Laser Cannon (Holding Space/J/Z) ---
       const cannon = CANNON_TIERS[player.cannonTier];
       player.fireTimer -= dt;
       if (player.alive && keys.anyDown('Space', 'KeyJ', 'KeyZ') && player.fireTimer <= 0) {
         player.fireTimer = cannon.cooldown;
+        player.muzzleTimer = 0.05;
         sound.playLaser();
+        feel.shake(0.08, 12);
 
-        // Higher tiers fan their shots, so the upgrade is visible in the air
-        // and not only in the damage numbers.
         for (let shot = 0; shot < cannon.shots; shot++) {
           const offset = (shot - (cannon.shots - 1) / 2) * cannon.spread;
           const a = player.angle + offset;
@@ -916,11 +1112,11 @@ export function init({ renderer, state }) {
           const ay = Math.sin(a);
 
           const laserMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(2.4, 0.22, 0.22),
+            new THREE.BoxGeometry(2.8, 0.26, 0.26),
             new THREE.MeshBasicMaterial({ color: cannon.color }),
           );
           laserMesh.rotation.z = a;
-          const muzzle = new THREE.Vector2(player.pos.x + ax * 2.0, player.pos.y + ay * 2.0);
+          const muzzle = new THREE.Vector2(player.pos.x + ax * 2.2, player.pos.y + ay * 2.2);
           laserMesh.position.set(muzzle.x, muzzle.y, 0);
           scene.add(laserMesh);
 
@@ -930,44 +1126,48 @@ export function init({ renderer, state }) {
             vel: new THREE.Vector2(ax * cannon.speed, ay * cannon.speed),
             isPlayer: true,
             damage: cannon.damage,
-            life: 1.2,
+            life: 1.4,
           });
         }
       }
 
-      // --- Weapons: Swarm Missiles ---
-      player.missileTimer -= dt;
+      // --- Weapons: Homing Swarm Missiles (X / K / Shift) ---
       if (
         player.alive &&
-        player.missileAmmo > 0 &&
         keys.anyDown('KeyX', 'KeyK', 'ShiftLeft', 'ShiftRight') &&
-        player.missileTimer <= 0
+        player.fireTimer <= 0.1
       ) {
-        player.missileTimer = 0.45;
-        player.missileAmmo--;
-        refreshHud();
-        sound.playMissile();
+        if (player.missiles > 0) {
+          player.missiles--;
+          if (player.missileRecharge <= 0) player.missileRecharge = 1.4;
+          refreshHud();
+          sound.playMissile();
+          feel.shake(0.2, 10);
 
-        const mGeo = new THREE.ConeGeometry(0.3, 1.2, 5);
-        mGeo.rotateZ(-Math.PI / 2);
-        const mMat = makeToonMat(0xff7700, toonGradient);
-        const mMesh = new THREE.Mesh(mGeo, mMat);
-        addOutline(mMesh, 1.2);
+          const mGeo = new THREE.ConeGeometry(0.35, 1.4, 6);
+          mGeo.rotateZ(-Math.PI / 2);
+          const mMat = makeToonMat(0xff7700, toonGradient);
+          const mMesh = new THREE.Mesh(mGeo, mMat);
+          addOutline(mMesh, 1.2);
 
-        const mPos = new THREE.Vector2(player.pos.x, player.pos.y);
-        mMesh.position.set(mPos.x, mPos.y, 0);
-        scene.add(mMesh);
+          const mPos = new THREE.Vector2(player.pos.x, player.pos.y);
+          mMesh.position.set(mPos.x, mPos.y, 0);
+          scene.add(mMesh);
 
-        missiles.push({
-          mesh: mMesh,
-          pos: mPos,
-          vel: new THREE.Vector2(fwdX * 12, fwdY * 12),
-          angle: player.angle + rng.range(-0.4, 0.4),
-          speed: 15,
-          damage: 35,
-          life: 3.5,
-          trail: new RibbonTrail(scene, 40, 0xffeebb, 0.25),
-        });
+          missiles.push({
+            mesh: mMesh,
+            pos: mPos,
+            vel: new THREE.Vector2(fwdX * 16, fwdY * 16),
+            angle: player.angle + rng.range(-0.35, 0.35),
+            speed: 18,
+            damage: 42,
+            life: 3.5,
+            target: player.lockedTarget,
+            trail: new RibbonTrail(scene, 50, 0xffeebb, 0.28),
+          });
+        } else if (rng.chance(0.1)) {
+          sound.playDryFire();
+        }
       }
 
       // --- Update Bullets ---
@@ -981,7 +1181,7 @@ export function init({ renderer, state }) {
         let hit = false;
         if (b.isPlayer) {
           for (const e of enemies) {
-            if (b.pos.distanceTo(e.pos) < 2.0) {
+            if (b.pos.distanceTo(e.pos) < 2.2) {
               e.hp -= b.damage;
               e.hitFlash = 0.08;
               damageTexts.push(createDamageText(scene, `-${b.damage}`, e.pos, '#00ff99'));
@@ -991,9 +1191,9 @@ export function init({ renderer, state }) {
             }
           }
         } else {
-          if (player.alive && b.pos.distanceTo(player.pos) < 1.6) {
-            feel.hitstop(0.03);
-            feel.shake(0.25, 10);
+          if (player.alive && b.pos.distanceTo(player.pos) < 1.8) {
+            feel.hitstop(0.04);
+            feel.shake(0.3, 10);
             player.hp -= b.damage;
             player.hitFlash = 0.1;
             damageTexts.push(createDamageText(scene, `-${b.damage}`, player.pos, '#ff3344'));
@@ -1002,7 +1202,15 @@ export function init({ renderer, state }) {
           }
         }
 
-        if (hit || b.life <= 0 || Math.abs(b.pos.x) > 35 || Math.abs(b.pos.y) > 25) {
+        // Broad arena boundaries check so bullets don't despawn mid-screen
+        if (
+          hit ||
+          b.life <= 0 ||
+          b.pos.x < WORLD.minX - 30 ||
+          b.pos.x > WORLD.maxX + 30 ||
+          b.pos.y < WORLD.groundY - 10 ||
+          b.pos.y > WORLD.ceilY + 20
+        ) {
           scene.remove(b.mesh);
           b.mesh.geometry.dispose();
           b.mesh.material.dispose();
@@ -1015,13 +1223,16 @@ export function init({ renderer, state }) {
         const m = missiles[i];
         m.life -= dt;
 
-        let target = null;
-        let minDist = 30;
-        for (const e of enemies) {
-          const d = m.pos.distanceTo(e.pos);
-          if (d < minDist) {
-            minDist = d;
-            target = e;
+        // Track target or nearest bandit
+        let target = m.target && enemies.includes(m.target) ? m.target : null;
+        if (!target) {
+          let minDist = 40;
+          for (const e of enemies) {
+            const d = m.pos.distanceTo(e.pos);
+            if (d < minDist) {
+              minDist = d;
+              target = e;
+            }
           }
         }
 
@@ -1030,10 +1241,10 @@ export function init({ renderer, state }) {
           let diff = desiredAngle - m.angle;
           while (diff < -Math.PI) diff += Math.PI * 2;
           while (diff > Math.PI) diff -= Math.PI * 2;
-          m.angle += clamp(diff, -5 * dt, 5 * dt);
+          m.angle += clamp(diff, -5.5 * dt, 5.5 * dt);
         }
 
-        m.speed = damp(m.speed, 35, 4, dt);
+        m.speed = damp(m.speed, 38, 4, dt);
         m.pos.x += Math.cos(m.angle) * m.speed * dt;
         m.pos.y += Math.sin(m.angle) * m.speed * dt;
 
@@ -1045,10 +1256,12 @@ export function init({ renderer, state }) {
 
         let hit = false;
         for (const e of enemies) {
-          if (m.pos.distanceTo(e.pos) < 2.2) {
+          if (m.pos.distanceTo(e.pos) < 2.4) {
             e.hp -= m.damage;
             e.hitFlash = 0.15;
-            spawnExplosion(m.pos, 8, 0xffaa00);
+            feel.hitstop(0.06);
+            feel.shake(0.4, 8);
+            spawnExplosion(m.pos, 10, 0xffaa00);
             damageTexts.push(createDamageText(scene, `CRIT -${m.damage}`, e.pos, '#ffcc00'));
             hit = true;
             break;
@@ -1056,7 +1269,7 @@ export function init({ renderer, state }) {
         }
 
         if (hit || m.life <= 0) {
-          if (hit) spawnExplosion(m.pos, 10);
+          if (hit) spawnExplosion(m.pos, 12);
           scene.remove(m.mesh);
           m.mesh.geometry.dispose();
           m.mesh.material.dispose();
@@ -1067,9 +1280,9 @@ export function init({ renderer, state }) {
 
       // --- Spawn Enemies Wave ---
       spawnTimer -= dt;
-      if (spawnTimer <= 0 && enemies.length < 5) {
+      if (spawnTimer <= 0 && enemies.length < 6) {
         spawnEnemy();
-        spawnTimer = rng.range(1.5, 3.5);
+        spawnTimer = rng.range(1.5, 3.2);
       }
 
       // --- Update Enemies ---
@@ -1122,12 +1335,13 @@ export function init({ renderer, state }) {
           e.bodyMat.color.setHex(e.isAce ? 0x9b30ff : 0x6030c0);
         }
 
+        // Enemy Shooting
         e.fireTimer -= dt;
-        if (e.fireTimer <= 0 && dist < 25 && Math.abs(diff) < 0.4) {
-          e.fireTimer = rng.range(1.2, 2.4);
+        if (e.fireTimer <= 0 && dist < 30 && Math.abs(diff) < 0.45) {
+          e.fireTimer = rng.range(1.2, 2.2);
           sound.playEnemyLaser();
 
-          const laserGeo = new THREE.BoxGeometry(1.8, 0.2, 0.2);
+          const laserGeo = new THREE.BoxGeometry(2.0, 0.22, 0.22);
           const laserMat = new THREE.MeshBasicMaterial({ color: 0xff3366 });
           const laserMesh = new THREE.Mesh(laserGeo, laserMat);
           laserMesh.rotation.z = e.angle;
@@ -1137,10 +1351,10 @@ export function init({ renderer, state }) {
           bullets.push({
             mesh: laserMesh,
             pos: new THREE.Vector2(e.pos.x + efwdX * 1.8, e.pos.y + efwdY * 1.8),
-            vel: new THREE.Vector2(efwdX * 45, efwdY * 45),
+            vel: new THREE.Vector2(efwdX * 50, efwdY * 50),
             isPlayer: false,
-            damage: 10,
-            life: 1.5,
+            damage: 12,
+            life: 1.6,
           });
         }
 
@@ -1153,10 +1367,10 @@ export function init({ renderer, state }) {
 
         if (e.hp <= 0) {
           spawnExplosion(e.pos, 18, e.isAce ? 0xff44aa : 0xff7700);
-          feel.hitstop(0.05);
-          feel.shake(0.35, 8);
-          // Aces are the ones worth hunting, so they carry the better drop.
-          if (e.isAce ? rng.chance(0.75) : rng.chance(0.3)) {
+          feel.hitstop(0.06);
+          feel.shake(0.4, 8);
+
+          if (e.isAce ? rng.chance(0.8) : rng.chance(0.35)) {
             spawnPickup(e.pos, e.isAce && rng.chance(0.6) ? 'cannon' : 'missiles');
           }
           score += e.isAce ? 250 : 100;
@@ -1173,9 +1387,9 @@ export function init({ renderer, state }) {
         }
 
         if (
-          Math.abs(e.pos.x - player.pos.x) > 90 ||
-          e.pos.y < WORLD.groundY - 6 ||
-          e.pos.y > WORLD.ceilY + 10
+          Math.abs(e.pos.x - player.pos.x) > 110 ||
+          e.pos.y < WORLD.groundY - 8 ||
+          e.pos.y > WORLD.ceilY + 12
         ) {
           scene.remove(e.root);
           scene.remove(e.healthBar.sprite);
@@ -1216,16 +1430,14 @@ export function init({ renderer, state }) {
       for (let i = pickups.length - 1; i >= 0; i--) {
         const pu = pickups[i];
         pu.life -= dt;
-        // Drift upward and settle, so a drop over open air stays reachable.
         pu.vy = damp(pu.vy, 0, 1.5, dt);
         pu.pos.y += pu.vy * dt;
         pu.mesh.position.set(pu.pos.x, pu.pos.y, 0);
         pu.mesh.rotation.z += pu.spin * dt;
         pu.mesh.rotation.y += pu.spin * 0.6 * dt;
-        // Blink out the last two seconds rather than vanishing unannounced.
         pu.mesh.visible = pu.life > 2 || Math.floor(pu.life * 8) % 2 === 0;
 
-        if (player.alive && pu.pos.distanceTo(player.pos) < 2.4) {
+        if (player.alive && pu.pos.distanceTo(player.pos) < 2.5) {
           if (pu.kind === 'cannon') {
             const was = player.cannonTier;
             player.cannonTier = Math.min(CANNON_TIERS.length - 1, player.cannonTier + 1);
@@ -1238,8 +1450,8 @@ export function init({ renderer, state }) {
               ),
             );
           } else {
-            player.missileAmmo += 3;
-            damageTexts.push(createDamageText(scene, '+3 MISSILES', pu.pos, '#ff9922'));
+            player.missiles = MAX_MISSILES;
+            damageTexts.push(createDamageText(scene, 'MISSILES RESTOCKED', pu.pos, '#ffaa00'));
           }
           sound.playHit();
           refreshHud();
@@ -1254,30 +1466,27 @@ export function init({ renderer, state }) {
         }
       }
 
-      // --- Camera: follow the player across an arena wider than the view ---
-      // Lead the camera in the direction of travel so you see where you are
-      // going rather than where you have been.
+      // --- Camera Follow ---
       const lookAhead = clamp(player.vel.x * 0.35, -10, 10);
       const halfView = camera.position.z * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect;
       camTarget.x = clamp(player.pos.x + lookAhead, WORLD.minX + halfView, WORLD.maxX - halfView);
       camTarget.y = clamp(player.pos.y * 0.6, WORLD.groundY + 10, WORLD.ceilY - 6);
       camera.position.x = damp(camera.position.x, camTarget.x, 3.5, rawDt);
       camera.position.y = damp(camera.position.y, camTarget.y, 2.5, rawDt);
-      // Shake is applied after the follow, or the damping would smooth it away.
       camera.position.x += feel.offset.x;
       camera.position.y += feel.offset.y;
 
-      // Background follows the camera at a fraction of its speed for depth.
       env.envGroup.position.x = camera.position.x * 0.75;
 
       drawMinimap();
+      updateOffscreenIndicators();
 
       // --- Background Clouds Parallax ---
       for (const cloud of env.clouds) {
         cloud.position.x -= cloud.userData.speed * dt;
-        if (cloud.position.x < camera.position.x - 80) {
-          cloud.position.x = camera.position.x + 80;
-          cloud.position.y = rng.range(0, 24);
+        if (cloud.position.x < camera.position.x - 90) {
+          cloud.position.x = camera.position.x + 90;
+          cloud.position.y = rng.range(0, 26);
         }
       }
 
@@ -1301,7 +1510,7 @@ export function init({ renderer, state }) {
         py: player.pos.y,
         pa: player.angle,
         cannonTier: player.cannonTier,
-        missileAmmo: player.missileAmmo,
+        missiles: player.missiles,
       };
     },
 
@@ -1310,6 +1519,7 @@ export function init({ renderer, state }) {
       keys.dispose();
       scoreEl?.remove();
       mapEl?.remove();
+      indicatorsEl?.remove();
       feel.reset();
       player.trail.dispose();
       player.healthBar.texture.dispose();

@@ -356,9 +356,17 @@ export const CloudShader = {
           // mottling instead of uniform white.
           stepLight *= mix(0.45, 1.0, smoothstep(0.03, 0.26, density));
 
-          // Extinction. At the old value the deck was translucent even where
-          // density existed, so clouds never occluded anything behind them.
-          float deltaTau = density * stepSize * 0.0034;
+          // Extinction, attenuated by THIS sample's distance rather than the
+          // ray's. A near-horizontal ray crosses tens of kilometres of slab,
+          // and at full strength that accumulates to solid white — walling off
+          // the horizon and erasing every distant mountain behind it.
+          //
+          // The fade used to key on tStart, the distance at which the ray
+          // enters the slab. Flying inside the deck that is zero for every
+          // ray, so the fade silently did nothing exactly when it was needed
+          // most. Per-sample distance holds regardless of where the camera is.
+          float sampleHaze = smoothstep(46000.0, 12000.0, t);
+          float deltaTau = density * stepSize * 0.0034 * sampleHaze;
           float stepTrans = exp(-deltaTau);
 
           colAcc += stepLight * transAcc * (1.0 - stepTrans);
@@ -372,9 +380,6 @@ export const CloudShader = {
         fragColor = sceneColor;
         return;
       }
-
-      float distHaze = smoothstep(60000.0, 15000.0, tStart);
-      alpha *= distHaze;
 
       fragColor = vec4(mix(sceneColor.rgb, colAcc / max(0.0001, alpha), alpha), 1.0);
     }
