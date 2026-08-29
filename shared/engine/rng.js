@@ -33,6 +33,9 @@ export function hashString(str) {
 
 /** Stateful generator over mulberry32 with the sampling helpers games want. */
 export class PRNG {
+  /** Also exposed as a static so `PRNG.hashString(s)` works without a second import. */
+  static hashString = hashString;
+
   constructor(seed = 'seed') {
     this.seedStr = String(seed);
     this.state = hashString(this.seedStr);
