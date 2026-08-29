@@ -6,6 +6,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { createLoop } from '#engine/loop.js';
 import { damp } from '#engine/math.js';
 import { FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
 import { createRenderer, handleResize } from '#engine/render.js';
@@ -611,14 +612,8 @@ for (const r of racers)
 // ---------------------------------------------------------------------------
 // main loop
 // ---------------------------------------------------------------------------
-let prevT = performance.now() / 1000;
-
-function tick() {
-  requestAnimationFrame(tick);
-  const now = performance.now() / 1000;
-  let dt = Math.min(now - prevT, 0.05);
-  prevT = now;
-  if (paused) dt = 0;
+function tick(rawDt) {
+  const dt = paused ? 0 : rawDt;
 
   if (state === S.MENU) {
     menuCam(dt);
@@ -739,4 +734,4 @@ function tick() {
 }
 
 hud.showHud(false);
-tick();
+createLoop(tick, { maxDt: 0.05 });
