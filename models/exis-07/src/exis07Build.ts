@@ -39,16 +39,26 @@ const STATIONS: Station[] = [
   // reference is a DELTA - a near-straight leading edge that reaches most of its span by
   // mid-length, then holds a wide constant-width body to the tail. Span/length stays 0.62,
   // measured from the rear and side views (span/height 1.81, length/height 3.04).
-  { z: 0.500, hw: 0.010, topY: 0.0051, chineY: 0.0000, botY: -0.0077, topHW: 0.005 },
-  { z: 0.440, hw: 0.046, topY: 0.0358, chineY: 0.0051, botY: -0.0358, topHW: 0.022 },
-  { z: 0.360, hw: 0.098, topY: 0.0666, chineY: 0.0102, botY: -0.0563, topHW: 0.046 },
-  { z: 0.250, hw: 0.170, topY: 0.0922, chineY: 0.0166, botY: -0.0691, topHW: 0.066 },
-  { z: 0.120, hw: 0.240, topY: 0.1075, chineY: 0.0218, botY: -0.0768, topHW: 0.078 },
-  { z: -0.020, hw: 0.292, topY: 0.1126, chineY: 0.0243, botY: -0.0794, topHW: 0.084 },
-  { z: -0.170, hw: 0.312, topY: 0.1101, chineY: 0.0230, botY: -0.0768, topHW: 0.088 },
-  { z: -0.300, hw: 0.308, topY: 0.1024, chineY: 0.0192, botY: -0.0717, topHW: 0.090 },
-  { z: -0.410, hw: 0.272, topY: 0.0909, chineY: 0.0128, botY: -0.0640, topHW: 0.087 },
-  { z: -0.500, hw: 0.220, topY: 0.0768, chineY: 0.0077, botY: -0.0576, topHW: 0.080 },
+  // Sixteen stations, with the deck width and chine height stepped rather than smoothly
+  // interpolated. A smooth interpolation puts every intermediate station on the same
+  // surface, so the extra quads are coplanar and invisible; stepping them makes each span a
+  // distinct panel.
+  { z:  0.500, hw: 0.010, topY: 0.0051, chineY: 0.0000, botY: -0.0077, topHW: 0.0050 },
+  { z:  0.455, hw: 0.032, topY: 0.0262, chineY: 0.0034, botY: -0.0272, topHW: 0.0148 },
+  { z:  0.410, hw: 0.062, topY: 0.0448, chineY: 0.0074, botY: -0.0410, topHW: 0.0308 },
+  { z:  0.360, hw: 0.098, topY: 0.0666, chineY: 0.0098, botY: -0.0563, topHW: 0.0442 },
+  { z:  0.305, hw: 0.136, topY: 0.0812, chineY: 0.0142, botY: -0.0638, topHW: 0.0594 },
+  { z:  0.250, hw: 0.170, topY: 0.0922, chineY: 0.0160, botY: -0.0691, topHW: 0.0686 },
+  { z:  0.185, hw: 0.208, topY: 0.1012, chineY: 0.0204, botY: -0.0736, topHW: 0.0748 },
+  { z:  0.120, hw: 0.240, topY: 0.1075, chineY: 0.0212, botY: -0.0768, topHW: 0.0812 },
+  { z:  0.050, hw: 0.270, topY: 0.1112, chineY: 0.0252, botY: -0.0788, topHW: 0.0806 },
+  { z: -0.020, hw: 0.292, topY: 0.1126, chineY: 0.0236, botY: -0.0794, topHW: 0.0874 },
+  { z: -0.095, hw: 0.305, topY: 0.1116, chineY: 0.0244, botY: -0.0784, topHW: 0.0842 },
+  { z: -0.170, hw: 0.312, topY: 0.1101, chineY: 0.0222, botY: -0.0768, topHW: 0.0916 },
+  { z: -0.240, hw: 0.311, topY: 0.1062, chineY: 0.0216, botY: -0.0744, topHW: 0.0868 },
+  { z: -0.300, hw: 0.308, topY: 0.1024, chineY: 0.0186, botY: -0.0717, topHW: 0.0936 },
+  { z: -0.410, hw: 0.272, topY: 0.0909, chineY: 0.0132, botY: -0.0640, topHW: 0.0846 },
+  { z: -0.500, hw: 0.220, topY: 0.0768, chineY: 0.0077, botY: -0.0576, topHW: 0.0824 },
 ];
 
 /** The five profile points of a half-station, top centre round to bottom centre. */
@@ -252,6 +262,88 @@ function flankAt(z: number, t: number): { p: [number, number]; dir: [number, num
   const dx = S[0] - C[0], dy = S[1] - C[1];
   const len = Math.hypot(dx, dy) || 1;
   return { p, dir: [dx / len, dy / len] };
+}
+
+/**
+ * A point on the whole upper surface, parameterised by `u`.
+ *
+ * `u` 0..1 runs centreline to deck edge across the flat deck; 1..2 runs deck edge to chine
+ * down the upper flank. One continuous parameter over both panels, so a plate can be laid
+ * anywhere on the top of the craft without caring which facet it lands on.
+ */
+function surfaceAt(z: number, u: number): { p: [number, number]; n: [number, number] } {
+  const s = stationAt(z);
+  if (u <= 1) {
+    const p: [number, number] = [s.topHW * u, s.topY];
+    return { p, n: [0, 1] };                       // the deck faces straight up
+  }
+  const t = u - 1;
+  const S: [number, number] = [s.topHW, s.topY];
+  const C: [number, number] = [s.hw, s.chineY];
+  const p: [number, number] = [S[0] + (C[0] - S[0]) * t, S[1] + (C[1] - S[1]) * t];
+  const dx = C[0] - S[0], dy = C[1] - S[1];
+  const len = Math.hypot(dx, dy) || 1;
+  return { p, n: [-dy / len, dx / len] };          // outward normal of the upper flank
+}
+
+/**
+ * A raised panel lying on the upper surface.
+ *
+ * This is where facet density comes from. Subdividing the loft finer only makes smaller
+ * pieces of the SAME plane, and chamfering the section rounds it - both were tried. What
+ * the reference actually has is many distinct plates with hard edges: each one adds a top
+ * face plus four side walls at a real angle to the hull, so it reads as a break even under
+ * flat light. Eight plates a side add more visible facets than doubling the station count.
+ */
+function plate(
+  z0: number, z1: number, u0: number, u1: number, thick: number,
+  material: THREE.Material, name: string,
+): THREE.Mesh {
+  const f = new Facets();
+  const corner = (z: number, u: number, lift: number): number[] => {
+    const { p, n } = surfaceAt(z, u);
+    return [p[0] + n[0] * lift, p[1] + n[1] * lift, z];
+  };
+  const eps = 0.0015;
+  const lo = [corner(z0, u0, eps), corner(z0, u1, eps), corner(z1, u1, eps), corner(z1, u0, eps)];
+  const hi = [corner(z0, u0, eps + thick), corner(z0, u1, eps + thick),
+              corner(z1, u1, eps + thick), corner(z1, u0, eps + thick)];
+  f.quad(hi[0], hi[1], hi[2], hi[3]);                       // top face
+  for (let k = 0; k < 4; k++) {                             // four hard-edged walls
+    const k2 = (k + 1) % 4;
+    f.quad(lo[k], lo[k2], hi[k2], hi[k]);
+  }
+  return f.mesh(material, name);
+}
+
+/** The panel network: discrete plates that give the hull its facet density. */
+function buildPlates(): THREE.Group {
+  const g = new THREE.Group();
+  g.name = 'hull-plates';
+  // z0, z1, u0, u1, thickness. Laid out to follow the craft's own structure: nose plates
+  // stepping back from the tip, deck panels either side of the spine, flank strakes running
+  // the chine, and a wing panel aft.
+  const PANELS: [number, number, number, number, number][] = [
+    [ 0.470,  0.395, 0.10, 0.85, 0.0026],   // nose crown
+    [ 0.470,  0.395, 1.15, 1.85, 0.0024],   // nose cheek
+    [ 0.385,  0.290, 0.15, 0.80, 0.0028],   // forward deck
+    [ 0.385,  0.290, 1.10, 1.90, 0.0026],   // forward flank
+    [ 0.275,  0.150, 0.55, 0.95, 0.0028],   // deck, outboard of the spine
+    [ 0.275,  0.150, 1.20, 1.92, 0.0028],   // mid flank strake
+    [ 0.130, -0.030, 0.60, 0.96, 0.0026],   // mid deck
+    [ 0.130, -0.030, 1.30, 1.94, 0.0028],   // long chine strake
+    [-0.050, -0.200, 0.62, 0.97, 0.0026],   // aft deck
+    [-0.050, -0.200, 1.25, 1.92, 0.0028],   // aft flank
+    [-0.220, -0.360, 0.55, 0.95, 0.0024],   // tail deck
+    [-0.220, -0.360, 1.20, 1.88, 0.0026],   // tail flank
+  ];
+  PANELS.forEach(([z0, z1, u0, u1, t], i) => {
+    // Mostly hull, with an occasional darker plate. Every third one dark read as patches of
+    // black rather than as panelling.
+    const mat = i % 5 === 3 ? MAT.hullDark() : MAT.hull();
+    addPair(g, () => plate(z0, z1, u0, u1, t, mat, `plate-${i}`), `plate-${i}`);
+  });
+  return g;
 }
 
 /** Raised dorsal spine: what the canopy is recessed into and the fins spring from. */
@@ -625,6 +717,7 @@ export function createExis07(): THREE.Group {
   const root = new THREE.Group();
   root.name = 'EXIS 07';
   root.add(buildHull());
+  root.add(buildPlates());
   root.add(buildSpine());
   root.add(buildCanopy());
   root.add(buildFins());
