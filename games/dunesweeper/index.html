@@ -547,13 +547,23 @@
       justify-content: center;
       z-index: 100;
     }
-    .settings-box label {
+    .settings-box label,
+    .settings-box .settings-label {
       display: block;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #a8a29e;
       margin: 18px 0 8px;
+    }
+    .settings-diffs-group {
+      border: 0;
+      margin: 0;
+      padding: 0;
+      min-inline-size: 0;
+    }
+    .settings-diffs-group > .settings-label {
+      padding: 0;
     }
     .settings-diffs {
       display: flex;
@@ -780,12 +790,14 @@
       <h2>EXPEDITION SETTINGS</h2>
       <label for="settings-seed-input">SEED</label>
       <input type="text" class="settings-seed" id="settings-seed-input" spellcheck="false" />
-      <label>DIFFICULTY</label>
-      <div class="settings-diffs">
-        <button type="button" class="settings-diff" data-diff="scout">SCOUT</button>
-        <button type="button" class="settings-diff" data-diff="explorer">EXPLORER</button>
-        <button type="button" class="settings-diff" data-diff="archaeologist">ARCHAEOLOGIST</button>
-      </div>
+      <fieldset class="settings-diffs-group">
+        <legend class="settings-label">DIFFICULTY</legend>
+        <div class="settings-diffs">
+          <button type="button" class="settings-diff" data-diff="scout">SCOUT</button>
+          <button type="button" class="settings-diff" data-diff="explorer">EXPLORER</button>
+          <button type="button" class="settings-diff" data-diff="archaeologist">ARCHAEOLOGIST</button>
+        </div>
+      </fieldset>
       <div class="modal-actions">
         <button type="button" class="modal-btn secondary" id="settings-cancel">CANCEL</button>
         <button type="button" class="modal-btn secondary" id="settings-restart">RESTART</button>

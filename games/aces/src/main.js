@@ -5,25 +5,25 @@ import { AfterimagePass } from '../../../shared/vendor/jsm/postprocessing/Afteri
 import { BokehPass } from '../../../shared/vendor/jsm/postprocessing/BokehPass.js';
 import { EffectComposer } from '../../../shared/vendor/jsm/postprocessing/EffectComposer.js';
 import { OutputPass } from '../../../shared/vendor/jsm/postprocessing/OutputPass.js';
+import { Pass } from '../../../shared/vendor/jsm/postprocessing/Pass.js';
 import { RenderPass } from '../../../shared/vendor/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from '../../../shared/vendor/jsm/postprocessing/ShaderPass.js';
-import { Pass } from '../../../shared/vendor/jsm/postprocessing/Pass.js';
-import { FlightModel } from './flight.js';
-import { Terrain, buildSky, terrainHeightAt } from './terrain.js';
+import { Audio } from './audio.js';
 import { buildCloudSystem } from './clouds.js';
-import { makeJetRig, applyJetTemplate, loadF22Model } from './jet.js';
-import { Hud } from './hud.js';
 import {
-  Enemy,
   Cannon,
-  Missiles,
-  VaporTrails,
+  Enemy,
   ExhaustFX,
   explode,
-  updateExplosions,
+  Missiles,
   resetKills,
+  updateExplosions,
+  VaporTrails,
 } from './combat.js';
-import { Audio } from './audio.js';
+import { FlightModel } from './flight.js';
+import { Hud } from './hud.js';
+import { applyJetTemplate, loadF22Model, makeJetRig } from './jet.js';
+import { buildSky, Terrain, terrainHeightAt } from './terrain.js';
 
 // ---------------------------------------------------------------- setup
 const glCanvas = document.getElementById('gl');
@@ -91,7 +91,7 @@ class JetOverlayPass extends Pass {
     // heat, tone map) see the finished image. needsSwap stays false.
     this.needsSwap = false;
   }
-  render(renderer, writeBuffer, readBuffer) {
+  render(renderer, _writeBuffer, readBuffer) {
     const oldAutoClear = renderer.autoClear;
     renderer.autoClear = false;
     renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
@@ -280,7 +280,7 @@ Object.assign(player, {
 player.reset(new THREE.Vector3(0, START_ALTITUDE, 0), 0);
 
 // chase-camera rig
-const chaseOffset = new THREE.Vector3(0, 4.5, 26);
+const _chaseOffset = new THREE.Vector3(0, 4.5, 26);
 let camMode = 'chase'; // 'chase' | 'cockpit'
 
 // ---------------------------------------------------------------- world state
@@ -348,8 +348,8 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
   keys[e.code] = false;
   if (!e.shiftKey) {
-    keys['ShiftLeft'] = false;
-    keys['ShiftRight'] = false;
+    keys.ShiftLeft = false;
+    keys.ShiftRight = false;
   }
 });
 window.addEventListener('blur', () => {
@@ -361,25 +361,23 @@ function readControls(dt) {
   const ease = 7;
   const lerpTo = (cur, target) => cur + (target - cur) * Math.min(1, dt * ease);
 
-  const pitchIn =
-    (keys['KeyS'] || keys['ArrowDown'] ? 1 : 0) - (keys['KeyW'] || keys['ArrowUp'] ? 1 : 0); // S = pull
-  const rollIn =
-    (keys['KeyD'] || keys['ArrowRight'] ? 1 : 0) - (keys['KeyA'] || keys['ArrowLeft'] ? 1 : 0);
-  const yawIn = (keys['KeyE'] ? 1 : 0) - (keys['KeyQ'] ? 1 : 0);
+  const pitchIn = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0); // S = pull
+  const rollIn = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
+  const yawIn = (keys.KeyE ? 1 : 0) - (keys.KeyQ ? 1 : 0);
 
   c.pitch = lerpTo(c.pitch, pitchIn);
   c.roll = lerpTo(c.roll, rollIn);
   c.yaw = lerpTo(c.yaw, yawIn);
 
-  const thrUp = keys['ShiftLeft'] || keys['ShiftRight'];
-  const thrDn = keys['ControlLeft'] || keys['ControlRight'] || keys['KeyZ'];
+  const thrUp = keys.ShiftLeft || keys.ShiftRight;
+  const thrDn = keys.ControlLeft || keys.ControlRight || keys.KeyZ;
   const rate = 0.55;
   if (thrUp) c.throttle = Math.min(1, c.throttle + rate * dt);
   if (thrDn) c.throttle = Math.max(0, c.throttle - rate * dt);
   c.afterburner = c.throttle > 0.97 && thrUp;
   c.airbrake = !!thrDn && c.throttle < 0.05;
 
-  if (keys['Space'] && player.gunAmmo > 0) {
+  if (keys.Space && player.gunAmmo > 0) {
     gunTimer -= dt;
     if (gunTimer <= 0) {
       gunTimer = 0.075;
@@ -428,7 +426,7 @@ function nearestThreat() {
 }
 
 function updateLock(dt) {
-  if (!world.target || !world.target.alive) {
+  if (!world.target?.alive) {
     world.target = nearestThreat();
     world.lockState = world.target ? 'locking' : 'none';
     world.lockProgress = 0;
@@ -493,7 +491,7 @@ function fireMissile() {
 
 // callbacks for enemy fire
 const combatCallbacks = {
-  onEnemyFire(enemy, playerFm, mis, can) {
+  onEnemyFire(enemy, _playerFm, mis, can) {
     // fire an AI missile ~40% of the time, otherwise gun burst
     if (Math.random() < 0.4) {
       const from = enemy.fm.position.clone().addScaledVector(enemy.fm.forward, 12);
@@ -529,7 +527,7 @@ const combatCallbacks = {
   },
   onHit(m) {
     if (m.friendly) {
-      if (m.target && m.target.damage) m.target.damage(60, 'missile');
+      if (m.target?.damage) m.target.damage(60, 'missile');
       explode(scene, m.pos, 1.4, { onExplode: () => audio.explosion(1) });
     } else {
       damagePlayer(28);
@@ -642,7 +640,7 @@ function collectWarnings() {
 let last = performance.now();
 let running = false;
 let shockTimer = 1.0;
-let shockOrigin = new THREE.Vector2(0.5, 0.5);
+const shockOrigin = new THREE.Vector2(0.5, 0.5);
 let lastAB = false;
 let lastSpeed = 0;
 
@@ -814,14 +812,14 @@ function frame(now) {
     shockTimer += dt * 2.3; // ~0.43s expansion
     const progress = Math.min(1.0, shockTimer);
     const radius = progress * 0.65;
-    const intensity = Math.pow(1.0 - progress, 1.6);
+    const intensity = (1.0 - progress) ** 1.6;
     heatPass.uniforms.uShock.value.set(shockOrigin.x, shockOrigin.y, radius, intensity);
   } else {
     heatPass.uniforms.uShock.value.set(0, 0, 0, 0);
   }
 
   // Motion blur scales with speed: off at a crawl, strong in the merge
-  blurPass.uniforms['damp'].value = THREE.MathUtils.clamp((player.speed - 120) / 700, 0, 0.62);
+  blurPass.uniforms.damp.value = THREE.MathUtils.clamp((player.speed - 120) / 700, 0, 0.62);
 
   // Perf guard: if the real frame rate sags, shed the expensive effects.
   fpsAccum += dt;
@@ -836,7 +834,7 @@ function frame(now) {
       if (qualityLevel === 0) {
         blurPass.enabled = false;
         renderer.setPixelRatio(1);
-        composer.setPixelRatio && composer.setPixelRatio(1);
+        composer.setPixelRatio?.(1);
       }
     }
   }
@@ -845,7 +843,7 @@ function frame(now) {
   // Focus locked far (the jet is composited after DOF, so it can't be
   // blurred). The 8 km start puts the blur ring squarely on the far
   // low-poly terrain, softening its silhouettes into the horizon.
-  bokehPass.uniforms['focus'].value = Math.max(camera.position.distanceTo(player.position), 8000);
+  bokehPass.uniforms.focus.value = Math.max(camera.position.distanceTo(player.position), 8000);
 
   composer.render();
 }

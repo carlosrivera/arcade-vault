@@ -16,7 +16,7 @@ const SCALE_HEIGHT = 8500; // m, exponential atmosphere
 const MASS = 15700; // kg, loaded
 const WING_AREA = 78; // m^2
 const MAX_THRUST_MIL = 232000; // N (2x F119, military)
-const MAX_THRUST_AB = 312000; // N (afterburner)
+const _MAX_THRUST_AB = 312000; // N (afterburner)
 
 // Lift curve: piecewise Cl vs AoA. Stalls hard past ~18 deg.
 function liftCoefficient(aoa) {
@@ -30,8 +30,8 @@ function liftCoefficient(aoa) {
 }
 
 function dragCoefficient(aoa, controls) {
-  const d = Math.abs(THREE.MathUtils.radToDeg(aoa));
-  const cd0 = 0.021 + 0.045 * Math.pow(Math.sin(Math.abs(aoa)), 3);
+  const _d = Math.abs(THREE.MathUtils.radToDeg(aoa));
+  const cd0 = 0.021 + 0.045 * Math.sin(Math.abs(aoa)) ** 3;
   const induced = (liftCoefficient(aoa) * liftCoefficient(aoa)) / (Math.PI * 4.2);
   const brake = controls.airbrake ? 0.09 : 0;
   return cd0 + induced + brake;

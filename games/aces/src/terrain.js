@@ -114,7 +114,7 @@ function makeDetailBumpTexture() {
     return ((Math.imul(h, 1274126177) ^ (h >>> 16)) >>> 0) / 4294967296;
   }
   function vn(x, y, period) {
-    let xi = Math.floor(x),
+    const xi = Math.floor(x),
       yi = Math.floor(y);
     const xf = x - xi,
       yf = y - yi;
@@ -483,6 +483,7 @@ function cachedHeight(x, z) {
   }
   return v;
 }
+
 export { cachedHeight as terrainHeightAt };
 
 // ---------------------------------------------------------------- chunks
@@ -792,7 +793,7 @@ export class Terrain {
 }
 
 // ---------------------------------------------------------------- sky
-export function buildSky(scene, renderer) {
+export function buildSky(scene, _renderer) {
   // Radius has to clear the corner of the outermost clipmap level (~290 km),
   // otherwise the sky shell sits in front of the farthest terrain and hides it.
   const skyGeo = new THREE.SphereGeometry(320000, 24, 12);
@@ -861,7 +862,7 @@ export function buildClouds(scene) {
     opacity: 0.75,
   });
   const CELL = 9000,
-    N = 5,
+    _N = 5,
     PUFFS = 46;
   const rand = mulberry32(4242);
   const cloudData = [];
@@ -891,7 +892,7 @@ export function buildClouds(scene) {
 }
 
 function mulberry32(a) {
-  return function () {
+  return () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);

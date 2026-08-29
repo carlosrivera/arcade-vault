@@ -7,7 +7,7 @@
 // Usage: node tools/generate_map.js [offsetX] [offsetZ] [outFile]
 // Output is written to the current directory and is gitignored.
 
-import fs from 'fs';
+import fs from 'node:fs';
 import { heightAt } from '../src/terrain.js';
 
 const width = 1024;

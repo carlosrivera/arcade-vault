@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 // ---------------------------------------------------------------- 2D puff fallback for trails
-export function puffTexture(hardCore = false) {
+export function puffTexture(_hardCore = false) {
   const size = 256;
   const c = document.createElement('canvas');
   c.width = c.height = size;
@@ -35,7 +35,7 @@ export function puffTexture(hardCore = false) {
 // the GPU texture — used for the inside-cloud lens wetness detection.
 const NOISE_SEED = 0xc10d5;
 function mulberry32(a) {
-  return function () {
+  return () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
@@ -350,7 +350,7 @@ export const CloudShader = {
 // one sample per frame at the camera position drives the lens-wetness effect.
 export function cloudDensityAt(px, py, pz, time) {
   const { w4, w8, w16, w32 } = getWorleyGrids();
-  const S = 96;
+  const _S = 96;
   const sampleWorley = (gx, gy, gz, w) => {
     const nc = w.numCells;
     const cx = Math.floor(gx * nc),
@@ -393,9 +393,9 @@ export function cloudDensityAt(px, py, pz, time) {
   const hGrad =
     Math.min(1, Math.max(0, (h - 0.0) / 0.12)) ** 1 *
     (1 - Math.min(1, Math.max(0, (h - 0.65) / 0.35))) *
-    Math.pow(h, 0.22);
+    h ** 0.22;
   if (hGrad < 0.001) return 0.0;
-  let base = Math.max(0.0, (n[0] - 0.44) / 0.56);
+  const base = Math.max(0.0, (n[0] - 0.44) / 0.56);
   if (base <= 0.0) return 0.0;
   const erosion = (1 - n[1]) * 0.3 + (1 - n[2]) * 0.42;
   let d = Math.max(0.0, base - erosion) * hGrad * 1.35;
@@ -533,7 +533,7 @@ export const DropletShader = {
 const SHADOW_RANGE = 30000; // metres covered by the shadow map (per side)
 const SHADOW_SIZE = 256;
 
-export function buildCloudSystem(renderer) {
+export function buildCloudSystem(_renderer) {
   const noiseTex = create3DNoiseTexture();
   const uTime = { value: 0 };
 

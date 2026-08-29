@@ -8,10 +8,10 @@
 // Usage: node tools/bake_radar.js [centerX] [centerZ]
 // Defaults to the spawn basin. Re-run whenever WORLD_OFFSET / HSCALE changes.
 
-import fs from 'fs';
-import path from 'path';
-import zlib from 'zlib';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
 import { heightAt } from '../src/terrain.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -77,7 +77,7 @@ for (let py = 0; py < SIZE; py++) {
       continue;
     }
     const t = Math.min(1, v / 3200);
-    let b = 46 + 185 * Math.pow(t, 0.7);
+    let b = 46 + 185 * t ** 0.7;
 
     // hillshade from central differences on the baked grid
     const gx = h[i + (px < SIZE - 1 ? 1 : 0)] - h[i - (px > 0 ? 1 : 0)];

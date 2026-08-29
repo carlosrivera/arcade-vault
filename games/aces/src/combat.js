@@ -4,30 +4,15 @@
 // Enemies fly a simple pursue-orbit policy with terrain avoidance.
 
 import * as THREE from 'three';
-import { FlightModel } from './flight.js';
-import { makeJetRig, buildMissile } from './jet.js';
-import { terrainHeightAt } from './terrain.js';
-import { setHudKills } from './hud.js';
 import { puffTexture } from './clouds.js';
+import { FlightModel } from './flight.js';
+import { setHudKills } from './hud.js';
+import { buildMissile, makeJetRig } from './jet.js';
+import { terrainHeightAt } from './terrain.js';
 
 const GRAV = 9.81;
 
 // ---------------------------------------------------------------- vapor trails
-let _vaporTex = null;
-function vaporTex() {
-  if (_vaporTex) return _vaporTex;
-  const c = document.createElement('canvas');
-  c.width = c.height = 64;
-  const g = c.getContext('2d');
-  const grad = g.createRadialGradient(32, 32, 2, 32, 32, 30);
-  grad.addColorStop(0, 'rgba(255,255,255,0.95)');
-  grad.addColorStop(0.5, 'rgba(255,255,255,0.45)');
-  grad.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 64, 64);
-  _vaporTex = new THREE.CanvasTexture(c);
-  return _vaporTex;
-}
 // Wingtip condensation puffs when pulling high G — the classic F-22 vapor look.
 export class VaporTrails {
   constructor(scene) {
@@ -65,7 +50,7 @@ export class VaporTrails {
         continue;
       }
 
-      let from = state.last;
+      const from = state.last;
       const seg = tip.clone().sub(from);
       const dist = seg.length();
       if (dist > 400) {
@@ -101,7 +86,7 @@ export class VaporTrails {
     }
   }
 
-  spawn(pos, fm, intensity) {
+  spawn(pos, _fm, _intensity) {
     let s = this.pool.find((p) => !p.active);
     if (!s && this.pool.length < 4000) {
       s = { sprite: new THREE.Sprite(this.matBase.clone()), active: false, t: 0 };
@@ -184,7 +169,9 @@ export class ExhaustFX {
       const nozzle = new THREE.Vector3();
       flames[i].getWorldPosition(nozzle);
       const key = i === 0 ? 'R' : 'L';
-      const st = this['n' + key] || (this['n' + key] = { accF: 0, accS: 0 });
+      const acc = `n${key}`;
+      if (!this[acc]) this[acc] = { accF: 0, accS: 0 };
+      const st = this[acc];
 
       if (ab) {
         // Faint smoke trail hanging in atmosphere under AB
@@ -328,7 +315,7 @@ export function explode(scene, position, scale = 1, callbacks) {
   ex.scale = scale;
   ex.sprite.position.copy(position);
   ex.sprite.visible = true;
-  if (callbacks && callbacks.onExplode) callbacks.onExplode(position, scale);
+  if (callbacks?.onExplode) callbacks.onExplode(position, scale);
   return ex;
 }
 
@@ -388,7 +375,6 @@ export class Cannon {
       r.pos.addScaledVector(r.vel, dt);
       if (r.life <= 0 || r.pos.y < terrainHeightAt(r.pos.x, r.pos.z)) {
         this.rounds.splice(i, 1);
-        continue;
       }
     }
     // sync instance meshes (simple pooled meshes)
@@ -456,7 +442,7 @@ export class Missiles {
       if (tgtPos && m.target.alive !== false) {
         const relPos = tgtPos.clone().sub(m.pos);
         const relVel = tgtVel.clone().sub(m.vel);
-        const closing = relVel.length();
+        const _closing = relVel.length();
         // PN: lateral acceleration command proportional to LOS rotation
         const omega = new THREE.Vector3()
           .crossVectors(relPos, relVel)
@@ -508,7 +494,7 @@ export class Missiles {
       }
       const ground = m.pos.y < terrainHeightAt(m.pos.x, m.pos.z);
       if (hit || ground || m.life <= 0 || speed < 100) {
-        if (hit && callbacks && callbacks.onHit) callbacks.onHit(m);
+        if (hit && callbacks?.onHit) callbacks.onHit(m);
         this.scene.remove(m.obj);
         this.list.splice(i, 1);
       }
@@ -592,7 +578,7 @@ export class Enemy {
       c.afterburner = dist > 5000;
     } else {
       // inside the merge: orbit to keep energy, repositioning turns
-      const fwd = fm.forward;
+      const _fwd = fm.forward;
       const side = fm.right.dot(toPlayer.normalize()) > 0 ? 1 : -1;
       const desired = playerFm.position
         .clone()
@@ -612,7 +598,7 @@ export class Enemy {
     const aimAngle = fm.forward.angleTo(toPlayer.normalize());
     if (this.fireCooldown <= 0 && dist < 4500 && aimAngle < 0.25 && playerFm.alive !== false) {
       this.fireCooldown = (5 + Math.random() * 5) / this.difficulty;
-      if (callbacks && callbacks.onEnemyFire) {
+      if (callbacks?.onEnemyFire) {
         callbacks.onEnemyFire(this, playerFm, missiles, cannon);
       }
     }
@@ -673,7 +659,7 @@ export class Enemy {
     if (this.hull <= 0 && this.alive) this.kill(source);
   }
 
-  kill(source) {
+  kill(_source) {
     if (!this.alive) return;
     this.alive = false;
     explode(this.scene, this.fm.position, 1.6);

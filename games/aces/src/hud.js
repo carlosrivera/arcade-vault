@@ -35,8 +35,8 @@ export class Hud {
       h = window.innerHeight;
     this.canvas.width = w * this.dpr;
     this.canvas.height = h * this.dpr;
-    this.canvas.style.width = w + 'px';
-    this.canvas.style.height = h + 'px';
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
     this.w = w;
     this.h = h;
   }
@@ -287,7 +287,7 @@ export class Hud {
   }
 
   // ---------------------------------------------------------------- markers
-  drawFpm(fm, cx, cy) {
+  drawFpm(_fm, _cx, _cy) {
     const ctx = this.ctx;
     // flight path marker: where the velocity vector points, in screen space
     if (this._fpmScreen) {
