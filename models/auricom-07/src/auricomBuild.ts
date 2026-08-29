@@ -135,18 +135,6 @@ function prism(
   return f.mesh(material, name);
 }
 
-function stationAt(z: number): Station {
-  for (let i = 0; i < STATIONS.length - 1; i++) {
-    const a = STATIONS[i], b = STATIONS[i + 1];
-    if (z <= a.z && z >= b.z) {
-      const t = (a.z - z) / (a.z - b.z);
-      const L = (p: keyof Station) => (a[p] as number) + ((b[p] as number) - (a[p] as number)) * t;
-      return { z, hw: L('hw'), topY: L('topY'), botY: L('botY'), deckHW: L('deckHW') };
-    }
-  }
-  return STATIONS[STATIONS.length - 1];
-}
-
 /** The central fuselage: white shell above, darker keel below. */
 function buildFuselage(): THREE.Group {
   const g = new THREE.Group();
