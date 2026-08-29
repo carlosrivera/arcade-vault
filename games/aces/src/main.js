@@ -7,9 +7,15 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { Pass } from 'three/addons/postprocessing/Pass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { disposeScene } from '#engine/assets.js';
+import { GodRaysShader, updateGodRays } from '#engine/godrays.js';
 import { Keyboard } from '#engine/input.js';
 import { damp } from '#engine/math.js';
-import { createComposer, disposeComposer, FULLSCREEN_VERTEX_SHADER } from '#engine/post.js';
+import {
+  bindSceneDepth,
+  createComposer,
+  disposeComposer,
+  FULLSCREEN_VERTEX_SHADER,
+} from '#engine/post.js';
 import { createRenderer, handleResize } from '#engine/render.js';
 import { Audio } from './audio.js';
 import { buildCloudSystem } from './clouds.js';
@@ -82,10 +88,20 @@ export function init(ctx = {}) {
   // after them (the swap parity stays fixed). Motion blur and heat haze then
   // apply on top, blurring the clouds too.
   const cloudSystem = buildCloudSystem(renderer);
-  const cloudPass = new ShaderPass(cloudSystem.shader);
+  // Depth is bound at render time, not from the game loop: the composer swaps
+  // buffers between passes, so which one this pass reads is only known while
+  // it is rendering.
+  const cloudPass = bindSceneDepth(new ShaderPass(cloudSystem.shader));
   // The cloud pass reads no depth texture (see clouds.js), so it only depends
   // on sitting before the tone-mapping OutputPass.
   composer.addPass(cloudPass);
+
+  // Crepuscular rays, immediately after the clouds so the shafts are cast by
+  // the deck that was just composited, and before motion blur and DOF so they
+  // are smeared and defocused with everything else rather than sitting on top
+  // as a sharp overlay.
+  const godRaysPass = new ShaderPass(GodRaysShader);
+  composer.addPass(godRaysPass);
 
   // Player plane over clouds: the jet lives on render layer 1 (excluded from the
   // main scene render and therefore from the cloud raymarch's coverage), and this
@@ -116,8 +132,11 @@ export function init(ctx = {}) {
   composer.addPass(blurPass);
 
   const bokehPass = new BokehPass(scene, camera, {
-    focus: 2500,
-    aperture: 0.00006,
+    // Focus far out. At 2500m the blur started inside the range you actually
+    // fight in, softening bandits and ground targets you were looking straight
+    // at; depth of field should sell distance, not fog the working volume.
+    focus: 11000,
+    aperture: 0.000045,
     maxblur: 0.005,
   });
   bokehPass.enabled = true;
@@ -755,7 +774,8 @@ export function init(ctx = {}) {
     // Read the depth off the buffer the pass will READ, never the one it
     // writes — that pairing is what forms a feedback loop. When the parity is
     // not what we expect this is simply null and the shader skips clipping.
-    cloudSystem.update(renderer, camera, dt, composer.readBuffer?.depthTexture ?? null);
+    cloudSystem.update(renderer, camera, dt);
+    updateGodRays(camera, SUN_DIR, godRaysPass.uniforms);
 
     // HUD
     player._agl = player.altitude - terrainHeightAt(player.position.x, player.position.z);

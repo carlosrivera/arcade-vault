@@ -51,16 +51,20 @@ export function createComposer(renderer, scene, camera, { depth = false } = {}) 
   const composer = new EffectComposer(renderer, target);
   if (depth) {
     // EffectComposer builds its second buffer by cloning the first, and a
-    // clone copies the depth texture BY REFERENCE. Both ping-pong targets then
-    // share one depth attachment, so a pass that samples scene depth is
-    // sampling the depth buffer of the target it is drawing into — GL calls
-    // that a feedback loop and drops the draw entirely, black-screening the
-    // frame.
+    // clone copies the depth texture BY REFERENCE — so both ping-pong targets
+    // end up sharing one depth attachment. A pass that samples scene depth is
+    // then reading the depth buffer of the target it is drawing into, which GL
+    // rejects as a feedback loop and drops the draw, black-screening the frame.
     //
-    // Keeping the depth texture on renderTarget1 alone breaks the aliasing.
-    // renderTarget2 still gets a depth renderbuffer, so depth testing works
-    // for passes that render geometry; it just cannot be read as a texture.
-    composer.renderTarget2.depthTexture = null;
+    // Give the second target its OWN depth texture instead of removing it.
+    // Leaving it null works only while the buffer parity happens to put the
+    // depth-carrying target on the read side, and parity depends on how many
+    // swapping passes have run — so a chain with one more pass silently loses
+    // depth on alternate frames. With a texture on each, whichever buffer is
+    // being read always has valid depth, and it is never the one being written.
+    const second = new THREE.DepthTexture(window.innerWidth, window.innerHeight);
+    second.type = THREE.UnsignedShortType;
+    composer.renderTarget2.depthTexture = second;
   }
   composer.addPass(new RenderPass(scene, camera));
   return composer;
@@ -89,4 +93,27 @@ export function disposeComposer(composer) {
   }
   composer.passes = [];
   composer.dispose();
+}
+
+/**
+ * Bind a pass's depth uniform to whichever buffer it is actually reading.
+ *
+ * Sampling scene depth from a post pass is deceptively fiddly: the composer
+ * swaps its two buffers between passes, so the buffer a pass reads is only
+ * known while that pass is rendering. Reading `composer.readBuffer` from the
+ * game loop samples yesterday's parity and works intermittently — which looks
+ * exactly like a flaky driver rather than a logic error.
+ *
+ * @param {Pass} pass a ShaderPass whose material has a `tDepth` uniform
+ * @returns {Pass} the same pass, with render() wrapped
+ */
+export function bindSceneDepth(pass) {
+  const original = pass.render.bind(pass);
+  pass.render = (renderer, writeBuffer, readBuffer, deltaTime, maskActive) => {
+    const depth = readBuffer?.depthTexture ?? null;
+    if (pass.uniforms?.tDepth) pass.uniforms.tDepth.value = depth;
+    if (pass.material?.uniforms?.tDepth) pass.material.uniforms.tDepth.value = depth;
+    original(renderer, writeBuffer, readBuffer, deltaTime, maskActive);
+  };
+  return pass;
 }
