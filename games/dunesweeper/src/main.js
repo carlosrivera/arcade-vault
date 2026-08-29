@@ -11,10 +11,13 @@ import { applyPixelIcons } from './pixel_sprites.js';
 import { VoxelRenderer } from './voxel_renderer.js';
 
 class DunesweeperApp {
-  constructor() {
-    this.canvas = document.getElementById('gl');
-    this.currentDifficulty = 'explorer';
-    this.currentSeed = `expedition_${Math.floor(Math.random() * 90000 + 10000)}`;
+  constructor({ canvas, renderer, state } = {}) {
+    this.canvas = canvas ?? document.getElementById('gl');
+    this.hostRenderer = renderer ?? null;
+    this.currentDifficulty = state?.difficulty ?? 'explorer';
+    // A carried seed rebuilds the same expedition after a hot reload; without
+    // one, roll a fresh dig site.
+    this.currentSeed = state?.seed ?? `expedition_${Math.floor(Math.random() * 90000 + 10000)}`;
 
     this.audio = new AudioManager();
     this.gameState = null;
@@ -26,8 +29,19 @@ class DunesweeperApp {
     this.touchStartTime = 0;
     this.touchStartPos = { x: 0, y: 0 };
     this.longPressTimeout = null;
+    // Every listener registered through _on() is recorded so dispose() can
+    // detach it. Hot reloads construct a new app against the same DOM, so a
+    // listener left behind fires again for every swap that ever happened.
+    this._unbind = [];
 
     this.init();
+  }
+
+  /** addEventListener that remembers how to undo itself. */
+  _on(target, type, handler, options) {
+    if (!target) return;
+    target.addEventListener(type, handler, options);
+    this._unbind.push(() => target.removeEventListener(type, handler, options));
   }
 
   init() {
@@ -40,9 +54,8 @@ class DunesweeperApp {
 
     this.bindInputs();
     this.setupMainMenu();
-
-    // Start render loop — the world idles behind the menu as a backdrop
-    requestAnimationFrame((t) => this.loop(t));
+    // The frame loop is driven by the host, which calls update() — see
+    // shared/engine/host.js. Nothing schedules frames here.
   }
 
   /**
@@ -57,7 +70,7 @@ class DunesweeperApp {
     this.resumeBtn = document.getElementById('resume-game');
 
     for (const btn of document.querySelectorAll('.menu-diff')) {
-      btn.addEventListener('click', () => {
+      this._on(btn, 'click', () => {
         this.menuDifficulty = btn.dataset.diff;
         for (const other of document.querySelectorAll('.menu-diff')) {
           other.classList.toggle('active', other === btn);
@@ -65,8 +78,8 @@ class DunesweeperApp {
       });
     }
 
-    document.getElementById('start-game')?.addEventListener('click', () => this.startFromMenu());
-    this.resumeBtn?.addEventListener('click', () => this.resumeExpedition());
+    this._on(document.getElementById('start-game'), 'click', () => this.startFromMenu());
+    this._on(this.resumeBtn, 'click', () => this.resumeExpedition());
   }
 
   startFromMenu() {
@@ -128,7 +141,7 @@ class DunesweeperApp {
     this.currentSeed = seed;
 
     this.gameState = new GameState(difficultyKey, seed);
-    this.renderer = new VoxelRenderer(this.canvas, this.gameState);
+    this.renderer = new VoxelRenderer(this.canvas, this.gameState, this.hostRenderer);
     this.fx = new ExcavationFX(this.renderer.scene, this.renderer);
 
     this.wireGameEvents();
@@ -194,10 +207,10 @@ class DunesweeperApp {
 
   bindInputs() {
     // Prevent context menu for right clicks
-    window.addEventListener('contextmenu', (e) => e.preventDefault());
+    this._on(window, 'contextmenu', (e) => e.preventDefault());
 
     // Click handler for excavation / tools
-    this.canvas.addEventListener('click', (e) => {
+    this._on(this.canvas, 'click', (e) => {
       this.audio.ensureContext();
       const coords = this.renderer.getGridCoordinatesUnderPointer(e.clientX, e.clientY);
       if (!coords) return;
@@ -225,7 +238,7 @@ class DunesweeperApp {
     });
 
     // Right-click for instant flag toggle
-    this.canvas.addEventListener('contextmenu', (e) => {
+    this._on(this.canvas, 'contextmenu', (e) => {
       e.preventDefault();
       this.audio.ensureContext();
       const coords = this.renderer.getGridCoordinatesUnderPointer(e.clientX, e.clientY);
@@ -235,7 +248,8 @@ class DunesweeperApp {
     });
 
     // Touch support (tap to dig, long press to flag)
-    this.canvas.addEventListener(
+    this._on(
+      this.canvas,
       'touchstart',
       (e) => {
         if (e.touches.length === 1) {
@@ -256,14 +270,15 @@ class DunesweeperApp {
       { passive: true },
     );
 
-    this.canvas.addEventListener('touchend', (_e) => {
+    this._on(this.canvas, 'touchend', (_e) => {
       if (this.longPressTimeout) {
         clearTimeout(this.longPressTimeout);
         this.longPressTimeout = null;
       }
     });
 
-    this.canvas.addEventListener(
+    this._on(
+      this.canvas,
       'touchmove',
       () => {
         if (this.longPressTimeout) {
@@ -275,7 +290,7 @@ class DunesweeperApp {
     );
 
     // Keyboard shortcuts
-    window.addEventListener('keydown', (e) => {
+    this._on(window, 'keydown', (e) => {
       // ESC toggles between the main menu and the live run
       if (e.key === 'Escape') {
         const menuOpen = this.menuEl && this.menuEl.style.display !== 'none';
@@ -369,11 +384,9 @@ class DunesweeperApp {
     }
   }
 
-  loop(time) {
-    requestAnimationFrame((t) => this.loop(t));
-
-    const dt = Math.min((time - this.lastTime) / 1000, 0.1);
-    this.lastTime = time;
+  /** One frame. Called by the host with a clamped dt. */
+  update(dt, elapsed) {
+    const time = elapsed * 1000;
 
     if (this.gameState && this.hud) {
       this.hud.updateTimer(this.gameState.elapsedTime);
@@ -387,9 +400,35 @@ class DunesweeperApp {
       this.renderer.render(time * 0.001);
     }
   }
+
+  /** Seed and difficulty are enough to rebuild this expedition exactly. */
+  getState() {
+    return { seed: this.currentSeed, difficulty: this.currentDifficulty };
+  }
+
+  dispose() {
+    for (const off of this._unbind ?? []) off();
+    this._unbind = [];
+    clearTimeout(this.longPressTimeout);
+    this.fx?.destroy();
+    this.renderer?.destroy();
+    this.gameState?.destroy();
+    this.hud = null;
+  }
 }
 
-// Boot game when DOM is ready
-window.addEventListener('DOMContentLoaded', () => {
-  new DunesweeperApp();
-});
+/**
+ * Entry point for shared/engine/host.js.
+ *
+ * Everything is constructed here rather than at module scope, so the module
+ * can be evaluated again for a hot swap without a second game attaching itself
+ * to the same DOM.
+ */
+export function init(ctx = {}) {
+  const app = new DunesweeperApp(ctx);
+  return {
+    update: (dt, elapsed) => app.update(dt, elapsed),
+    getState: () => app.getState(),
+    dispose: () => app.dispose(),
+  };
+}

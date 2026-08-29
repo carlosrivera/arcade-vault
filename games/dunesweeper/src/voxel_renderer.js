@@ -30,9 +30,16 @@ import {
 } from './voxel_primitives.js';
 
 export class VoxelRenderer {
-  constructor(container, gameState) {
+  /**
+   * @param {HTMLCanvasElement} container
+   * @param {GameState} gameState
+   * @param {THREE.WebGLRenderer} [renderer] supplied by the host so one WebGL
+   *   context survives hot reloads; created locally when running standalone.
+   */
+  constructor(container, gameState, renderer = null) {
     this.container = container;
     this.gameState = gameState;
+    this.injectedRenderer = renderer;
     this.prng = new PRNG(gameState.seed);
 
     this.scene = null;
@@ -86,11 +93,13 @@ export class VoxelRenderer {
     this.camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 100);
     this.updateCameraTransform();
 
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: this.container,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
+    this.renderer =
+      this.injectedRenderer ??
+      new THREE.WebGLRenderer({
+        canvas: this.container,
+        antialias: true,
+        powerPreference: 'high-performance',
+      });
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
@@ -911,32 +920,46 @@ export class VoxelRenderer {
       highlightBoxes.push(boxMesh);
     }
 
-    setTimeout(() => {
-      let opacity = 0.9;
-      const fade = () => {
-        opacity -= 0.05;
-        if (opacity <= 0) {
-          while (this.compassHighlightGroup.children.length > 0) {
-            this.compassHighlightGroup.remove(this.compassHighlightGroup.children[0]);
+    // Tracked so destroy() can cancel it: a pending fade that fires after a
+    // hot reload would touch a scene that no longer exists.
+    this._timers ??= [];
+    this._timers.push(
+      setTimeout(() => {
+        let opacity = 0.9;
+        const fade = () => {
+          opacity -= 0.05;
+          if (opacity <= 0) {
+            while (this.compassHighlightGroup.children.length > 0) {
+              this.compassHighlightGroup.remove(this.compassHighlightGroup.children[0]);
+            }
+          } else {
+            for (const b of highlightBoxes) {
+              b.material.opacity = opacity;
+            }
+            requestAnimationFrame(fade);
           }
-        } else {
-          for (const b of highlightBoxes) {
-            b.material.opacity = opacity;
-          }
-          requestAnimationFrame(fade);
-        }
-      };
-      fade();
-    }, 2000);
+        };
+        fade();
+      }, 2000),
+    );
   }
 
   bindEvents() {
-    window.addEventListener('resize', () => this.onResize());
-
-    this.container.addEventListener('mousemove', (e) => this.onMouseMove(e));
-    this.container.addEventListener('mousedown', (e) => this.onMouseDown(e));
-    window.addEventListener('mouseup', () => this.onMouseUp());
-    this.container.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
+    // Kept as named handlers rather than inline arrows: destroy() has to remove
+    // exactly these, and an anonymous listener can never be removed. A reload
+    // that leaves them attached stacks a new set on every swap.
+    this._handlers = {
+      resize: () => this.onResize(),
+      mousemove: (e) => this.onMouseMove(e),
+      mousedown: (e) => this.onMouseDown(e),
+      mouseup: () => this.onMouseUp(),
+      wheel: (e) => this.onWheel(e),
+    };
+    window.addEventListener('resize', this._handlers.resize);
+    this.container.addEventListener('mousemove', this._handlers.mousemove);
+    this.container.addEventListener('mousedown', this._handlers.mousedown);
+    window.addEventListener('mouseup', this._handlers.mouseup);
+    this.container.addEventListener('wheel', this._handlers.wheel, { passive: false });
   }
 
   onResize() {
@@ -1074,9 +1097,47 @@ export class VoxelRenderer {
     this.renderer.render(this.scene, this.camera);
   }
 
+  /**
+   * Release everything this renderer acquired.
+   *
+   * GPU memory is not garbage collected: geometries, materials and textures
+   * live until explicitly disposed, so a hot reload that skipped this would
+   * leak the whole diorama on every swap.
+   */
   destroy() {
-    if (this.renderer) {
-      this.renderer.dispose();
+    if (this._handlers) {
+      window.removeEventListener('resize', this._handlers.resize);
+      this.container.removeEventListener('mousemove', this._handlers.mousemove);
+      this.container.removeEventListener('mousedown', this._handlers.mousedown);
+      window.removeEventListener('mouseup', this._handlers.mouseup);
+      this.container.removeEventListener('wheel', this._handlers.wheel);
+      this._handlers = null;
     }
+
+    for (const timer of this._timers ?? []) clearTimeout(timer);
+    this._timers = [];
+
+    this.scene?.traverse((obj) => {
+      obj.geometry?.dispose();
+      const materials = Array.isArray(obj.material)
+        ? obj.material
+        : obj.material
+          ? [obj.material]
+          : [];
+      for (const material of materials) {
+        for (const key of Object.keys(material)) {
+          material[key]?.isTexture && material[key].dispose();
+        }
+        material.dispose();
+      }
+    });
+    this.scene?.clear();
+    this.cellViews.clear();
+    this.animatedObjects.length = 0;
+    this.flickerLights.length = 0;
+
+    // Only dispose the context if we made it; the host reuses its own.
+    if (!this.injectedRenderer) this.renderer?.dispose();
+    this.renderer = null;
   }
 }
